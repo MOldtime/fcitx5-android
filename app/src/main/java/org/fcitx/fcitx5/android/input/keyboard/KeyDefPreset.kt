@@ -159,14 +159,14 @@ class CommaKey(
     variant: Variant,
 ) : KeyDef(
     Appearance.ImageText(
-        displayText = ",",
+        displayText = ";",
         textSize = 23f,
         percentWidth = percentWidth,
         variant = variant,
         src = R.drawable.ic_baseline_tag_faces_24
     ),
     setOf(
-        Behavior.Press(KeyAction.FcitxKeyAction(","))
+        Behavior.Press(KeyAction.FcitxKeyAction(";"))
     ),
     arrayOf(
         Popup.Preview(","),

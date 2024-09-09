@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.input.keyboard
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.view.View
 import androidx.annotation.Keep
 import androidx.core.view.allViews
@@ -18,6 +19,7 @@ import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.popup.PopupAction
 import splitties.views.imageResource
+import kotlin.math.log
 
 @SuppressLint("ViewConstructor")
 class TextKeyboard(
@@ -70,7 +72,7 @@ class TextKeyboard(
                 CommaKey(0.1f, KeyDef.Appearance.Variant.Alternative),
                 LanguageKey(),
                 SpaceKey(),
-                SymbolKey(".", 0.1f, KeyDef.Appearance.Variant.Alternative),
+                SymbolKey("'", 0.1f, KeyDef.Appearance.Variant.Alternative),
                 ReturnKey()
             )
         )

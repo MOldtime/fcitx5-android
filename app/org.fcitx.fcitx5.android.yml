@@ -10,7 +10,7 @@ Translation: https://explore.transifex.com/fcitx/fcitx5-android
 AutoName: Fcitx5 for Android
 
 RepoType: git
-Repo: https://github.com/MOldtime/fcitx5-android
+Repo: https://github.com/fcitx5-android/fcitx5-android
 
 Builds:
   - versionName: placeholder

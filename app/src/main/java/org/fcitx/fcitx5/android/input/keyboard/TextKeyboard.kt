@@ -11,14 +11,20 @@ import android.view.View
 import androidx.annotation.Keep
 import androidx.core.view.allViews
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.GestureType
+import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.OnGestureListener
+import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Popup
 import org.fcitx.fcitx5.android.input.popup.PopupAction
+import splitties.views.dsl.core.textView
 import splitties.views.imageResource
+import splitties.views.onClick
 import kotlin.math.log
 
 @SuppressLint("ViewConstructor")
@@ -33,6 +39,53 @@ class TextKeyboard(
         const val Name = "Text"
 
         val Layout: List<List<KeyDef>> = listOf(
+            /** 33键
+            listOf(
+                AlphabetKeyNew("Q"),
+                AlphabetKeyNew("W"),
+                AlphabetKeyNew("R"),
+                AlphabetKeyNew("T"),
+                AlphabetKeyNew("Y"),
+                AlphabetKeyNew("L"),
+                AlphabetKeyNew("P"),
+            ),
+            listOf(
+                AlphabetKeyNew("S"),
+                AlphabetKeyNew("D"),
+                AlphabetKeyNew("F"),
+                AlphabetKeyNew("G"),
+                AlphabetKeyNew("H"),
+                AlphabetKeyNew("J"),
+                AlphabetKeyNew("K"),
+            ),
+            listOf(
+                AlphabetKeyNew("Z"),
+                AlphabetKeyNew("X", "1"),
+                AlphabetKeyNew("C", "2"),
+                AlphabetKeyNew("V", "3"),
+                AlphabetKeyNew("B", "4"),
+                AlphabetKeyNew("N", "5"),
+                AlphabetKeyNew("M"),
+            ),
+            listOf(
+                CapsKey(),
+                AlphabetKeyNew("A", "6"),
+                AlphabetKeyNew("E", "7"),
+                AlphabetKeyNew("U", "8"),
+                AlphabetKeyNew("I", "9"),
+                AlphabetKeyNew("O", "0"),
+                BackspaceKey(),
+            ),
+            listOf(
+                LayoutSwitchNumber("?123", ""),
+                LanguageKey(),
+                SymbolKeyId(",", R.id.button_left, variant = KeyDef.Appearance.Variant.Alternative),
+                SpaceKey(),
+                SymbolKeyId(".", R.id.button_right , variant = KeyDef.Appearance.Variant.Alternative),
+                ReturnKey()
+            )
+            **/
+            /** 26键
             listOf(
                 AlphabetKey("Q", "1"),
                 AlphabetKey("W", "2"),
@@ -54,7 +107,7 @@ class TextKeyboard(
                 AlphabetKey("H", "/"),
                 AlphabetKey("J", "#"),
                 AlphabetKey("K", "("),
-                AlphabetKey("L", ")")
+                AlphabetKey("L", ")"),
             ),
             listOf(
                 CapsKey(),
@@ -68,15 +121,78 @@ class TextKeyboard(
                 BackspaceKey()
             ),
             listOf(
-                LayoutSwitchKey("?123", ""),
-                CommaKey(0.1f, KeyDef.Appearance.Variant.Alternative),
+                LayoutSwitchNumber("?123", ""),
                 LanguageKey(),
                 SpaceKey(),
-                SymbolKey("'", 0.1f, KeyDef.Appearance.Variant.Alternative),
+                SymbolKeyId(",", R.id.button_left, variant = KeyDef.Appearance.Variant.Alternative),
+                SymbolKeyId(".", R.id.button_right , variant = KeyDef.Appearance.Variant.Alternative),
                 ReturnKey()
             )
+            **/
+//            /** 46键
+            listOf(
+                AlphabetKey("1", "!"),
+                AlphabetKey("2", "@"),
+                AlphabetKey("3", "#"),
+                AlphabetKey("4", "$"),
+                AlphabetKey("5", "%"),
+                AlphabetKey("6", "^"),
+                AlphabetKey("7", "&"),
+                AlphabetKey("8", "*"),
+                AlphabetKey("9", "("),
+                AlphabetKey("0", ")")
+            ),
+            listOf(
+                AlphabetKey("Q", "`"),
+                AlphabetKey("W", "~"),
+                AlphabetKey("E", "+"),
+                AlphabetKey("R", "-"),
+                AlphabetKey("T", "="),
+                AlphabetKey("Y", "_"),
+                AlphabetKey("U", "<"),
+                AlphabetKey("I", ">"),
+                AlphabetKey("O", "["),
+                AlphabetKey("P", "]")
+            ),
+            listOf(
+                AlphabetKeyNew("A", "\\", percentWidth = 0.095f),
+                AlphabetKeyNew("S", "|", percentWidth = 0.095f),
+                AlphabetKeyNew("D", "×", percentWidth = 0.095f),
+                AlphabetKeyNew("F", "÷", percentWidth = 0.095f),
+                AlphabetKeyNew("G", "←", percentWidth = 0.095f),
+                AlphabetKeyNew("H", "→", percentWidth = 0.095f),
+                AlphabetKeyNew("J", "↑", percentWidth = 0.095f),
+                AlphabetKeyNew("K", "↓", percentWidth = 0.095f),
+                AlphabetKeyNew("L", "/", percentWidth = 0.095f),
+                AlphabetKeyNew(";", ":", percentWidth = 0.095f),
+            ),
+            listOf(
+                CapsKey(),
+                AlphabetTextKey("Z"),
+                AlphabetTextKey("X"),
+                AlphabetTextKey("C"),
+                AlphabetTextKey("V"),
+                AlphabetTextKey("B"),
+                AlphabetTextKey("N"),
+                AlphabetTextKey("M"),
+                BackspaceKey()
+            ),
+            listOf(
+                LayoutSwitchNumber("?123", ""),
+                Emoji(),
+                LanguageKey(),
+                SpaceKey(),
+                SymbolKeyAlt(",","."),
+                SymbolKeyAlt("'","\""),
+                ReturnKey()
+            )
+//            **/
         )
     }
+
+
+    val symbolLeft: TextKeyView by lazy { findViewById(R.id.button_left) }
+    val symbolRight: TextKeyView by lazy { findViewById(R.id.button_right) }
 
     val caps: ImageKeyView by lazy { findViewById(R.id.button_caps) }
     val backspace: ImageKeyView by lazy { findViewById(R.id.button_backspace) }
@@ -161,6 +277,45 @@ class TextKeyboard(
         `return`.img.imageResource = returnDrawable
     }
 
+    override fun onCandidateUpdate(status: Boolean) {
+        return Unit
+        if (status) {
+            caps.setOnClickListener { _ ->
+                super.onAction(KeyAction.FcitxKeyAction("Tab", 15), KeyActionListener.Source.Keyboard)
+            }
+            caps.setOnLongClickListener { _ ->
+                super.onAction(KeyAction.FcitxKeyAction("Tab", 15, KeyStates(KeyState.Virtual, KeyState.Shift)), KeyActionListener.Source.Keyboard)
+                true
+            }
+
+            symbolLeft.setOnClickListener { _ ->
+                super.onAction(KeyAction.FcitxKeyAction(";"), KeyActionListener.Source.Keyboard)
+            }
+            symbolRight.setOnClickListener { _ ->
+                super.onAction(KeyAction.FcitxKeyAction("'"), KeyActionListener.Source.Keyboard)
+            }
+
+            space.swipeRewrite(KeyAction.FcitxKeyAction("Space", 57, KeyStates(KeyState.Virtual, KeyState.Shift)))
+
+        } else {
+            caps.setOnClickListener { _ ->
+                onAction(KeyAction.CapsAction(false), KeyActionListener.Source.Keyboard)
+            }
+            caps.setOnLongClickListener { _ ->
+                true
+            }
+
+            symbolLeft.setOnClickListener { _ ->
+                super.onAction(KeyAction.FcitxKeyAction("，"), KeyActionListener.Source.Keyboard)
+            }
+            symbolRight.setOnClickListener { _ ->
+                super.onAction(KeyAction.FcitxKeyAction("。"), KeyActionListener.Source.Keyboard)
+            }
+
+            space.swipeRewrite(KeyAction.LangSwitchAction)
+        }
+    }
+
     override fun onPunctuationUpdate(mapping: Map<String, String>) {
         punctuationMapping = mapping
         updatePunctuationKeys()
@@ -235,6 +390,7 @@ class TextKeyboard(
                 if (str.length != 1 || !str[0].isLetter()) return@forEach
                 if (keepLettersUppercase) str.uppercase() else transformAlphabet(str)
             }
+
         }
     }
 

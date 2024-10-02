@@ -15,11 +15,13 @@ import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
+import org.fcitx.fcitx5.android.core.ScancodeMapping
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.GestureType
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.OnGestureListener
+import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Popup
 import org.fcitx.fcitx5.android.input.popup.PopupAction
 import splitties.views.dsl.core.textView
@@ -278,7 +280,6 @@ class TextKeyboard(
     }
 
     override fun onCandidateUpdate(status: Boolean) {
-        return Unit
         if (status) {
             caps.setOnClickListener { _ ->
                 super.onAction(KeyAction.FcitxKeyAction("Tab", 15), KeyActionListener.Source.Keyboard)
@@ -288,14 +289,14 @@ class TextKeyboard(
                 true
             }
 
-            symbolLeft.setOnClickListener { _ ->
-                super.onAction(KeyAction.FcitxKeyAction(";"), KeyActionListener.Source.Keyboard)
-            }
-            symbolRight.setOnClickListener { _ ->
-                super.onAction(KeyAction.FcitxKeyAction("'"), KeyActionListener.Source.Keyboard)
-            }
+//            symbolLeft.setOnClickListener { _ ->
+//                super.onAction(KeyAction.FcitxKeyAction(";"), KeyActionListener.Source.Keyboard)
+//            }
+//            symbolRight.setOnClickListener { _ ->
+//                super.onAction(KeyAction.FcitxKeyAction("'"), KeyActionListener.Source.Keyboard)
+//            }
 
-            space.swipeRewrite(KeyAction.FcitxKeyAction("Space", 57, KeyStates(KeyState.Virtual, KeyState.Shift)))
+            space.swipeRewrite(KeyAction.FcitxKeyAction("Space", ScancodeMapping.KEY_SPACE, KeyStates(KeyState.Virtual, KeyState.Shift)))
 
         } else {
             caps.setOnClickListener { _ ->
@@ -305,12 +306,12 @@ class TextKeyboard(
                 true
             }
 
-            symbolLeft.setOnClickListener { _ ->
-                super.onAction(KeyAction.FcitxKeyAction("，"), KeyActionListener.Source.Keyboard)
-            }
-            symbolRight.setOnClickListener { _ ->
-                super.onAction(KeyAction.FcitxKeyAction("。"), KeyActionListener.Source.Keyboard)
-            }
+//            symbolLeft.setOnClickListener { _ ->
+//                super.onAction(KeyAction.FcitxKeyAction("，"), KeyActionListener.Source.Keyboard)
+//            }
+//            symbolRight.setOnClickListener { _ ->
+//                super.onAction(KeyAction.FcitxKeyAction("。"), KeyActionListener.Source.Keyboard)
+//            }
 
             space.swipeRewrite(KeyAction.LangSwitchAction)
         }

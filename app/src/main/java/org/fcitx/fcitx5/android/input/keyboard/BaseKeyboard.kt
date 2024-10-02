@@ -13,6 +13,7 @@ import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
+import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.core.KeyStates
@@ -23,6 +24,7 @@ import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.GestureType
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.OnGestureListener
+import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
 import org.fcitx.fcitx5.android.input.popup.PopupAction
 import org.fcitx.fcitx5.android.input.popup.PopupActionListener
 import splitties.dimensions.dp
@@ -221,23 +223,24 @@ abstract class BaseKeyboard(
                         }
                     }
                     is KeyDef.Behavior.Swipe -> {
-                        swipeEnabled = true
-                        swipeThresholdX = disabledSwipeThreshold
-                        swipeThresholdY = inputSwipeThreshold
-                        val oldOnGestureListener = onGestureListener ?: OnGestureListener.Empty
-                        onGestureListener = OnGestureListener { view, event ->
-                            when (event.type) {
-                                GestureType.Up -> {
-                                    if (!event.consumed && swipeSymbolDirection.checkY(event.totalY)) {
-                                        onAction(it.action)
-                                        true
-                                    } else {
-                                        false
-                                    }
-                                }
-                                else -> false
-                            } || oldOnGestureListener.onGesture(view, event)
-                        }
+                        swipeRewrite(it.action)
+//                        swipeEnabled = true
+//                        swipeThresholdX = disabledSwipeThreshold
+//                        swipeThresholdY = inputSwipeThreshold
+//                        val oldOnGestureListener = onGestureListener ?: OnGestureListener.Empty
+//                        onGestureListener = OnGestureListener { view, event ->
+//                            when (event.type) {
+//                                GestureType.Up -> {
+//                                    if (!event.consumed && swipeSymbolDirection.checkY(event.totalY)) {
+//                                        onAction(it.action)
+//                                        true
+//                                    } else {
+//                                        false
+//                                    }
+//                                }
+//                                else -> false
+//                            } || oldOnGestureListener.onGesture(view, event)
+//                        }
                     }
                     is KeyDef.Behavior.DoubleTap -> {
                         doubleTapEnabled = true
@@ -340,6 +343,26 @@ abstract class BaseKeyboard(
                     }
                 }
             }
+        }
+    }
+
+    fun KeyView.swipeRewrite(action: KeyAction) {
+        swipeEnabled = true
+        swipeThresholdX = disabledSwipeThreshold
+        swipeThresholdY = inputSwipeThreshold
+        val oldOnGestureListener = onGestureListener ?: OnGestureListener.Empty
+        onGestureListener = OnGestureListener { view, event ->
+            when (event.type) {
+                GestureType.Up -> {
+                    if (!event.consumed && swipeSymbolDirection.checkY(event.totalY)) {
+                        onAction(action)
+                        true
+                    } else {
+                        false
+                    }
+                }
+                else -> false
+            } || oldOnGestureListener.onGesture(view, event)
         }
     }
 
@@ -498,4 +521,7 @@ abstract class BaseKeyboard(
         // do nothing by default
     }
 
+    open fun onCandidateUpdate(status: Boolean) {
+        // do nothing by default
+    }
 }

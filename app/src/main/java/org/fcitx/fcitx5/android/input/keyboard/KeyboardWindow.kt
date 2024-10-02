@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.transition.Slide
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.CapabilityFlags
+import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
@@ -182,5 +183,15 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     // 2) currently keyboard window is attached and switchLayout was used
     private fun notifyBarLayoutChanged() {
         bar.onKeyboardLayoutSwitched(currentKeyboardName == NumberKeyboard.Name)
+    }
+
+    private var candidateStatus = false
+        set(value) {
+            if (value == field) return
+            field = value
+            currentKeyboard?.onCandidateUpdate(value)
+        }
+    override fun onCandidateUpdate(data: FcitxEvent.CandidateListEvent.Data) {
+        candidateStatus = data.total > 0
     }
 }

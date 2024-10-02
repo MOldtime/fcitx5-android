@@ -145,7 +145,7 @@ class AlphabetKeyNew(
     ),
     setOf(
         Behavior.Press(KeyAction.FcitxKeyAction(character)),
-        Behavior.Swipe(KeyAction.FcitxKeyAction(punctuation))
+        Behavior.Swipe(KeyAction.FcitxKeyAction(punctuation)),
     ),
     popup ?: arrayOf(
         Popup.AltPreview(character, punctuation),

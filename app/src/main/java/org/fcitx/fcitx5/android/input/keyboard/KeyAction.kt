@@ -8,6 +8,7 @@ import org.fcitx.fcitx5.android.core.KeyStates
 import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.core.ScancodeMapping
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
+import org.fcitx.fcitx5.android.input.wm.InputWindow
 
 sealed class KeyAction {
 
@@ -16,6 +17,10 @@ sealed class KeyAction {
         val code: Int = ScancodeMapping.charToScancode(act[0]),
         val states: KeyStates = KeyStates.Virtual
     ) : KeyAction()
+
+    data class PerformContextMenuAction(val id: Int): KeyAction()
+
+    data class attachWindow(val window: InputWindow): KeyAction()
 
     data class SymAction(val sym: KeySym, val states: KeyStates = KeyStates.Virtual) : KeyAction()
 

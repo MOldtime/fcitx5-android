@@ -12,6 +12,7 @@ import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.broadcast.PreeditEmptyStateComponent
 import org.fcitx.fcitx5.android.input.candidates.HorizontalCandidateComponent
+import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
 import org.fcitx.fcitx5.android.input.dependency.context
 import org.fcitx.fcitx5.android.input.dependency.fcitx
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
@@ -181,6 +182,12 @@ class CommonKeyActionListener :
                         }
                         SpaceLongPressBehavior.ShowPicker -> showInputMethodPicker()
                     }
+                }
+                is KeyAction.PerformContextMenuAction -> {
+                    service.currentInputConnection?.performContextMenuAction(action.id)
+                }
+                is KeyAction.attachWindow -> {
+                    windowManager.attachWindow(action.window)
                 }
                 else -> {}
             }

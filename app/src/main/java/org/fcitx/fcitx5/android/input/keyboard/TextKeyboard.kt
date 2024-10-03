@@ -19,8 +19,12 @@ import org.fcitx.fcitx5.android.core.ScancodeMapping
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.FcitxInputMethodService
+import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
+import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.GestureType
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.OnGestureListener
+import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Popup
 import org.fcitx.fcitx5.android.input.popup.PopupAction
@@ -170,13 +174,84 @@ class TextKeyboard(
             ),
             listOf(
                 CapsKey(),
-                AlphabetTextKey("Z"),
-                AlphabetTextKey("X"),
-                AlphabetTextKey("C"),
-                AlphabetTextKey("V"),
-                AlphabetTextKey("B"),
+                KeyDef(
+                    Appearance.AltText(
+                        displayText = "Z",
+                        altText = "全选",
+                        textSize = 23f,
+                        variant = Appearance.Variant.Normal
+                    ),
+                    setOf(
+                        Behavior.Swipe(KeyAction.PerformContextMenuAction(android.R.id.selectAll)),
+                        Behavior.Press(KeyAction.FcitxKeyAction("Z")),
+                    ),
+                    arrayOf(
+                        Popup.Keyboard("Z")
+                    )
+                ),
+                KeyDef(
+                    Appearance.AltText(
+                        displayText = "X",
+                        altText = "剪切",
+                        textSize = 23f,
+                        variant = Appearance.Variant.Normal
+                    ),
+                    setOf(
+                        Behavior.Swipe(KeyAction.PerformContextMenuAction(android.R.id.cut)),
+                        Behavior.Press(KeyAction.FcitxKeyAction("X")),
+                    ),
+                    arrayOf(
+                        Popup.Keyboard("X")
+                    )
+                ),
+                KeyDef(
+                    Appearance.AltText(
+                        displayText = "C",
+                        altText = "复制",
+                        textSize = 23f,
+                        variant = Appearance.Variant.Normal
+                    ),
+                    setOf(
+                        Behavior.Swipe(KeyAction.PerformContextMenuAction(android.R.id.copy)),
+                        Behavior.Press(KeyAction.FcitxKeyAction("C")),
+                    ),
+                    arrayOf(
+                        Popup.Keyboard("C")
+                    )
+                ),
+                KeyDef(
+                    Appearance.AltText(
+                        displayText = "V",
+                        altText = "粘贴",
+                        textSize = 23f,
+                        variant = Appearance.Variant.Normal
+                    ),
+                    setOf(
+                        Behavior.Swipe(KeyAction.PerformContextMenuAction(android.R.id.paste)),
+                        Behavior.Press(KeyAction.FcitxKeyAction("V")),
+                    ),
+                    arrayOf(
+                        Popup.Keyboard("V")
+                    )
+                ),
+                KeyDef(
+                    Appearance.AltText(
+                        displayText = "B",
+                        altText = " ",
+                        textSize = 23f,
+                        variant = Appearance.Variant.Normal
+                    ),
+                    setOf(
+                        Behavior.Swipe(KeyAction.attachWindow(ClipboardWindow())),
+                        Behavior.Press(KeyAction.FcitxKeyAction("B")),
+                    ),
+                    arrayOf(
+                        Popup.Keyboard("B")
+                    )
+                ),
                 AlphabetTextKey("N"),
                 AlphabetTextKey("M"),
+
                 BackspaceKey()
             ),
             listOf(

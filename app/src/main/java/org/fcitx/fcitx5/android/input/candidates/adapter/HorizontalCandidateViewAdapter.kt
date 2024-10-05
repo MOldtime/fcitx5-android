@@ -5,6 +5,7 @@
 package org.fcitx.fcitx5.android.input.candidates.adapter
 
 import android.annotation.SuppressLint
+import android.view.View.GONE
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.RecyclerView
@@ -39,8 +40,8 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CandidateViewHolder {
         val ui = CandidateItemUi(parent.context, theme)
         ui.root.apply {
-            minimumWidth = dp(40)
-            setPaddingDp(10, 0, 10, 0)
+            minimumWidth = dp(10)
+            setPaddingDp(5, 0, 5, 0)
             layoutParams = FlexboxLayoutManager.LayoutParams(wrapContent, matchParent)
         }
         return CandidateViewHolder(ui)
@@ -49,9 +50,14 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
     @CallSuper
     override fun onBindViewHolder(holder: CandidateViewHolder, position: Int) {
         val text = candidates[position]
-        holder.ui.text.text = text
+        val list = text.split(Regex("\\s+"))
+        holder.ui.text.text = list[0]
+        if (list.size > 1)
+            holder.ui.label.text = list[1]
+        else {
+            holder.ui.label.visibility = GONE
+        }
         holder.text = text
         holder.idx = position
     }
-
 }

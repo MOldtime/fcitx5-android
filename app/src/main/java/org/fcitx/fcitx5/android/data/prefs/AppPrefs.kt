@@ -227,7 +227,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val horizontalCandidateStyle = enumList(
             R.string.horizontal_candidate_style,
             "horizontal_candidate_style",
-            HorizontalCandidateMode.NeverFillWidth
+            HorizontalCandidateMode.AutoFillWidth
         )
         val expandedCandidateStyle = enumList(
             R.string.expanded_candidate_style,

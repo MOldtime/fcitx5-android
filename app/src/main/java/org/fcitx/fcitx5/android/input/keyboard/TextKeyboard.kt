@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.input.keyboard
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Typeface
 import android.util.Log
 import android.view.View
 import androidx.annotation.Keep
@@ -169,7 +170,25 @@ class TextKeyboard(
                 AlphabetKeyNew("H", "→", percentWidth = 0.095f),
                 AlphabetKeyNew("J", "↑", percentWidth = 0.095f),
                 AlphabetKeyNew("K", "↓", percentWidth = 0.095f),
-                AlphabetKeyNew("L", "/", percentWidth = 0.095f),
+//                AlphabetKeyNew("L", "/", percentWidth = 0.095f),
+                KeyDef(
+                    Appearance.AltText(
+                        percentWidth = 0.095f,
+                        textStyle = Typeface.NORMAL,
+                        displayText = "L",
+                        altText = "/",
+                        textSize = 23f,
+                        variant = Appearance.Variant.Normal
+                    ),
+                    setOf(
+                        Behavior.Press(KeyAction.FcitxKeyAction("L")),
+                        Behavior.Swipe(KeyAction.FcitxKeyAction("Ctrl+L", ScancodeMapping.KEY_L, KeyStates(KeyState.Virtual ,KeyState.Ctrl))),
+                    ),
+                    arrayOf(
+                        Popup.AltPreview("L", "/"),
+                        Popup.Keyboard("L")
+                    )
+                ),
                 AlphabetKeyNew(";", ":", percentWidth = 0.095f),
             ),
             listOf(
@@ -237,7 +256,7 @@ class TextKeyboard(
                 KeyDef(
                     Appearance.AltText(
                         displayText = "B",
-                        altText = " ",
+                        altText = "剪贴",
                         textSize = 23f,
                         variant = Appearance.Variant.Normal
                     ),

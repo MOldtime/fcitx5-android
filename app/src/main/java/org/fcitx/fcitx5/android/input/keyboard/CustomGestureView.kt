@@ -11,6 +11,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
@@ -309,4 +310,8 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         val longPressDelay by AppPrefs.getInstance().keyboard.longPressDelay
         const val RepeatInterval = 50L
     }
+}
+
+open class CustomGestureView_(ctx: Context): LinearLayout(ctx) {
+
 }

@@ -48,118 +48,118 @@ class TextKeyboard(
         val Layout: List<List<KeyDef>> = listOf(
             /** 33键
             listOf(
-                AlphabetKeyNew("Q"),
-                AlphabetKeyNew("W"),
-                AlphabetKeyNew("R"),
-                AlphabetKeyNew("T"),
-                AlphabetKeyNew("Y"),
-                AlphabetKeyNew("L"),
-                AlphabetKeyNew("P"),
+            AlphabetKeyNew("Q"),
+            AlphabetKeyNew("W"),
+            AlphabetKeyNew("R"),
+            AlphabetKeyNew("T"),
+            AlphabetKeyNew("Y"),
+            AlphabetKeyNew("L"),
+            AlphabetKeyNew("P"),
             ),
             listOf(
-                AlphabetKeyNew("S"),
-                AlphabetKeyNew("D"),
-                AlphabetKeyNew("F"),
-                AlphabetKeyNew("G"),
-                AlphabetKeyNew("H"),
-                AlphabetKeyNew("J"),
-                AlphabetKeyNew("K"),
+            AlphabetKeyNew("S"),
+            AlphabetKeyNew("D"),
+            AlphabetKeyNew("F"),
+            AlphabetKeyNew("G"),
+            AlphabetKeyNew("H"),
+            AlphabetKeyNew("J"),
+            AlphabetKeyNew("K"),
             ),
             listOf(
-                AlphabetKeyNew("Z"),
-                AlphabetKeyNew("X", "1"),
-                AlphabetKeyNew("C", "2"),
-                AlphabetKeyNew("V", "3"),
-                AlphabetKeyNew("B", "4"),
-                AlphabetKeyNew("N", "5"),
-                AlphabetKeyNew("M"),
+            AlphabetKeyNew("Z"),
+            AlphabetKeyNew("X", "1"),
+            AlphabetKeyNew("C", "2"),
+            AlphabetKeyNew("V", "3"),
+            AlphabetKeyNew("B", "4"),
+            AlphabetKeyNew("N", "5"),
+            AlphabetKeyNew("M"),
             ),
             listOf(
-                CapsKey(),
-                AlphabetKeyNew("A", "6"),
-                AlphabetKeyNew("E", "7"),
-                AlphabetKeyNew("U", "8"),
-                AlphabetKeyNew("I", "9"),
-                AlphabetKeyNew("O", "0"),
-                BackspaceKey(),
+            CapsKey(),
+            AlphabetKeyNew("A", "6"),
+            AlphabetKeyNew("E", "7"),
+            AlphabetKeyNew("U", "8"),
+            AlphabetKeyNew("I", "9"),
+            AlphabetKeyNew("O", "0"),
+            BackspaceKey(),
             ),
             listOf(
-                LayoutSwitchNumber("?123", ""),
-                LanguageKey(),
-                SymbolKeyId(",", R.id.button_left, variant = KeyDef.Appearance.Variant.Alternative),
-                SpaceKey(),
-                SymbolKeyId(".", R.id.button_right , variant = KeyDef.Appearance.Variant.Alternative),
-                ReturnKey()
+            LayoutSwitchNumber("?123", ""),
+            LanguageKey(),
+            SymbolKeyId(",", R.id.button_left, variant = KeyDef.Appearance.Variant.Alternative),
+            SpaceKey(),
+            SymbolKeyId(".", R.id.button_right , variant = KeyDef.Appearance.Variant.Alternative),
+            ReturnKey()
             )
-            **/
+             **/
             /** 26键
             listOf(
-                AlphabetKey("Q", "1"),
-                AlphabetKey("W", "2"),
-                AlphabetKey("E", "3"),
-                AlphabetKey("R", "4"),
-                AlphabetKey("T", "5"),
-                AlphabetKey("Y", "6"),
-                AlphabetKey("U", "7"),
-                AlphabetKey("I", "8"),
-                AlphabetKey("O", "9"),
-                AlphabetKey("P", "0")
+            AlphabetKey("Q", "1"),
+            AlphabetKey("W", "2"),
+            AlphabetKey("E", "3"),
+            AlphabetKey("R", "4"),
+            AlphabetKey("T", "5"),
+            AlphabetKey("Y", "6"),
+            AlphabetKey("U", "7"),
+            AlphabetKey("I", "8"),
+            AlphabetKey("O", "9"),
+            AlphabetKey("P", "0")
             ),
             listOf(
-                AlphabetKey("A", "@"),
-                AlphabetKey("S", "*"),
-                AlphabetKey("D", "+"),
-                AlphabetKey("F", "-"),
-                AlphabetKey("G", "="),
-                AlphabetKey("H", "/"),
-                AlphabetKey("J", "#"),
-                AlphabetKey("K", "("),
-                AlphabetKey("L", ")"),
+            AlphabetKey("A", "@"),
+            AlphabetKey("S", "*"),
+            AlphabetKey("D", "+"),
+            AlphabetKey("F", "-"),
+            AlphabetKey("G", "="),
+            AlphabetKey("H", "/"),
+            AlphabetKey("J", "#"),
+            AlphabetKey("K", "("),
+            AlphabetKey("L", ")"),
             ),
             listOf(
-                CapsKey(),
-                AlphabetKey("Z", "'"),
-                AlphabetKey("X", ":"),
-                AlphabetKey("C", "\""),
-                AlphabetKey("V", "?"),
-                AlphabetKey("B", "!"),
-                AlphabetKey("N", "~"),
-                AlphabetKey("M", "\\"),
-                BackspaceKey()
+            CapsKey(),
+            AlphabetKey("Z", "'"),
+            AlphabetKey("X", ":"),
+            AlphabetKey("C", "\""),
+            AlphabetKey("V", "?"),
+            AlphabetKey("B", "!"),
+            AlphabetKey("N", "~"),
+            AlphabetKey("M", "\\"),
+            BackspaceKey()
             ),
             listOf(
-                LayoutSwitchNumber("?123", ""),
-                LanguageKey(),
-                SpaceKey(),
-                SymbolKeyId(",", R.id.button_left, variant = KeyDef.Appearance.Variant.Alternative),
-                SymbolKeyId(".", R.id.button_right , variant = KeyDef.Appearance.Variant.Alternative),
-                ReturnKey()
+            LayoutSwitchNumber("?123", ""),
+            LanguageKey(),
+            SpaceKey(),
+            SymbolKeyId(",", R.id.button_left, variant = KeyDef.Appearance.Variant.Alternative),
+            SymbolKeyId(".", R.id.button_right , variant = KeyDef.Appearance.Variant.Alternative),
+            ReturnKey()
             )
-            **/
+             **/
 //            /** 46键
             listOf(
-                AlphabetKey("1", "!"),
-                AlphabetKey("2", "@"),
-                AlphabetKey("3", "#"),
-                AlphabetKey("4", "$"),
-                AlphabetKey("5", "%"),
-                AlphabetKey("6", "^"),
-                AlphabetKey("7", "&"),
-                AlphabetKey("8", "*"),
-                AlphabetKey("9", "("),
-                AlphabetKey("0", ")")
+                AlphabetKeyNew("1", "!", percentWidth = 1f),
+                AlphabetKeyNew("2", "@", percentWidth = 1f),
+                AlphabetKeyNew("3", "#", percentWidth = 1f),
+                AlphabetKeyNew("4", "$", percentWidth = 1f),
+                AlphabetKeyNew("5", "%", percentWidth = 1f),
+                AlphabetKeyNew("6", "^", percentWidth = 1f),
+                AlphabetKeyNew("7", "&", percentWidth = 1f),
+                AlphabetKeyNew("8", "*", percentWidth = 1f),
+                AlphabetKeyNew("9", "(", percentWidth = 1f),
+                AlphabetKeyNew("0", ")", percentWidth = 1f)
             ),
             listOf(
-                AlphabetKey("Q", "`"),
-                AlphabetKey("W", "~"),
-                AlphabetKey("E", "+"),
-                AlphabetKey("R", "-"),
-                AlphabetKey("T", "="),
-                AlphabetKey("Y", "_"),
-                AlphabetKey("U", "<"),
-                AlphabetKey("I", ">"),
-                AlphabetKey("O", "["),
-                AlphabetKey("P", "]")
+                AlphabetKeyNew("Q", "`", percentWidth = 1f),
+                AlphabetKeyNew("W", "~", percentWidth = 1f),
+                AlphabetKeyNew("E", "+", percentWidth = 1f),
+                AlphabetKeyNew("R", "-", percentWidth = 1f),
+                AlphabetKeyNew("T", "=", percentWidth = 1f),
+                AlphabetKeyNew("Y", "_", percentWidth = 1f),
+                AlphabetKeyNew("U", "<", percentWidth = 1f),
+                AlphabetKeyNew("I", ">", percentWidth = 1f),
+                AlphabetKeyNew("O", "[", percentWidth = 1f),
+                AlphabetKeyNew("P", "]", percentWidth = 1f)
             ),
             listOf(
                 AlphabetKeyNew("A", "\\", percentWidth = 0.095f),
@@ -170,26 +170,11 @@ class TextKeyboard(
                 AlphabetKeyNew("H", "→", percentWidth = 0.095f),
                 AlphabetKeyNew("J", "↑", percentWidth = 0.095f),
                 AlphabetKeyNew("K", "↓", percentWidth = 0.095f),
-//                AlphabetKeyNew("L", "/", percentWidth = 0.095f),
-                KeyDef(
-                    Appearance.AltText(
-                        percentWidth = 0.095f,
-                        textStyle = Typeface.NORMAL,
-                        displayText = "L",
-                        altText = "/",
-                        textSize = 23f,
-                        variant = Appearance.Variant.Normal
-                    ),
-                    setOf(
-                        Behavior.Press(KeyAction.FcitxKeyAction("L")),
-                        Behavior.Swipe(KeyAction.FcitxKeyAction("Ctrl+L", ScancodeMapping.KEY_L, KeyStates(KeyState.Virtual ,KeyState.Ctrl))),
-                    ),
-                    arrayOf(
-                        Popup.AltPreview("L", "/"),
-                        Popup.Keyboard("L")
-                    )
-                ),
-                AlphabetKeyNew(";", ":", percentWidth = 0.095f),
+                AlphabetKeyNew("L", "/", percentWidth = 0.095f),
+                AlphabetKeyNew(";", ":", percentWidth = 0.095f, behavior = setOf(
+                    Behavior.Press(KeyAction.FcitxKeyAction(";")),
+                    Behavior.Swipe(KeyAction.FcitxKeyAction(":")),
+                )),
             ),
             listOf(
                 CapsKey(),
@@ -201,12 +186,10 @@ class TextKeyboard(
                         variant = Appearance.Variant.Normal
                     ),
                     setOf(
-                        Behavior.Swipe(KeyAction.PerformContextMenuAction(android.R.id.selectAll)),
+                        Behavior.LongPress(KeyAction.PerformContextMenuAction(android.R.id.selectAll)),
                         Behavior.Press(KeyAction.FcitxKeyAction("Z")),
+                        Behavior.Swipe(KeyAction.FcitxKeyAction("Z", default = false)),
                     ),
-                    arrayOf(
-                        Popup.Keyboard("Z")
-                    )
                 ),
                 KeyDef(
                     Appearance.AltText(
@@ -216,11 +199,9 @@ class TextKeyboard(
                         variant = Appearance.Variant.Normal
                     ),
                     setOf(
-                        Behavior.Swipe(KeyAction.PerformContextMenuAction(android.R.id.cut)),
+                        Behavior.LongPress(KeyAction.PerformContextMenuAction(android.R.id.cut)),
                         Behavior.Press(KeyAction.FcitxKeyAction("X")),
-                    ),
-                    arrayOf(
-                        Popup.Keyboard("X")
+                        Behavior.Swipe(KeyAction.FcitxKeyAction("X", default = false)),
                     )
                 ),
                 KeyDef(
@@ -231,12 +212,10 @@ class TextKeyboard(
                         variant = Appearance.Variant.Normal
                     ),
                     setOf(
-                        Behavior.Swipe(KeyAction.PerformContextMenuAction(android.R.id.copy)),
+                        Behavior.LongPress(KeyAction.PerformContextMenuAction(android.R.id.copy)),
                         Behavior.Press(KeyAction.FcitxKeyAction("C")),
+                        Behavior.Swipe(KeyAction.FcitxKeyAction("C", default = false)),
                     ),
-                    arrayOf(
-                        Popup.Keyboard("C")
-                    )
                 ),
                 KeyDef(
                     Appearance.AltText(
@@ -246,12 +225,10 @@ class TextKeyboard(
                         variant = Appearance.Variant.Normal
                     ),
                     setOf(
-                        Behavior.Swipe(KeyAction.PerformContextMenuAction(android.R.id.paste)),
+                        Behavior.LongPress(KeyAction.PerformContextMenuAction(android.R.id.paste)),
                         Behavior.Press(KeyAction.FcitxKeyAction("V")),
+                        Behavior.Swipe(KeyAction.FcitxKeyAction("V", default = false)),
                     ),
-                    arrayOf(
-                        Popup.Keyboard("V")
-                    )
                 ),
                 KeyDef(
                     Appearance.AltText(
@@ -261,16 +238,13 @@ class TextKeyboard(
                         variant = Appearance.Variant.Normal
                     ),
                     setOf(
-                        Behavior.Swipe(KeyAction.attachWindow(ClipboardWindow())),
+                        Behavior.LongPress(KeyAction.attachWindow(ClipboardWindow())),
                         Behavior.Press(KeyAction.FcitxKeyAction("B")),
+                        Behavior.Swipe(KeyAction.FcitxKeyAction("B", default = false)),
                     ),
-                    arrayOf(
-                        Popup.Keyboard("B")
-                    )
                 ),
-                AlphabetTextKey("N"),
-                AlphabetTextKey("M"),
-
+                AlphabetKeyNew("N", percentWidth = 1f),
+                AlphabetKeyNew("M", percentWidth = 1f),
                 BackspaceKey()
             ),
             listOf(
@@ -278,8 +252,8 @@ class TextKeyboard(
                 Emoji(),
                 LanguageKey(),
                 SpaceKey(),
-                SymbolKeyAlt(",","."),
-                SymbolKeyAlt("'","\""),
+                AlphabetKey(",", "."),
+                AlphabetKey("'", "\""),
                 ReturnKey()
             )
 //            **/
@@ -334,7 +308,9 @@ class TextKeyboard(
                 KeyActionListener.Source.Keyboard -> {
                     when (capsState) {
                         CapsState.None -> {
-                            transformed = action.copy(act = action.act.lowercase())
+                            if (action.default) {
+                                transformed = action.copy(act = action.act.lowercase())
+                            }
                         }
                         CapsState.Once -> {
                             transformed = action.copy(
@@ -376,10 +352,19 @@ class TextKeyboard(
     override fun onCandidateUpdate(status: Boolean) {
         if (status) {
             caps.setOnClickListener { _ ->
-                super.onAction(KeyAction.FcitxKeyAction("Tab", 15), KeyActionListener.Source.Keyboard)
+                super.onAction(
+                    KeyAction.FcitxKeyAction("Tab", 15),
+                    KeyActionListener.Source.Keyboard
+                )
             }
             caps.setOnLongClickListener { _ ->
-                super.onAction(KeyAction.FcitxKeyAction("Tab", 15, KeyStates(KeyState.Virtual, KeyState.Shift)), KeyActionListener.Source.Keyboard)
+                super.onAction(
+                    KeyAction.FcitxKeyAction(
+                        "Tab",
+                        15,
+                        KeyStates(KeyState.Virtual, KeyState.Shift)
+                    ), KeyActionListener.Source.Keyboard
+                )
                 true
             }
 
@@ -390,7 +375,13 @@ class TextKeyboard(
 //                super.onAction(KeyAction.FcitxKeyAction("'"), KeyActionListener.Source.Keyboard)
 //            }
 
-            space.swipeRewrite(KeyAction.FcitxKeyAction("Space", ScancodeMapping.KEY_SPACE, KeyStates(KeyState.Virtual, KeyState.Shift)))
+            space.swipeRewrite(
+                KeyAction.FcitxKeyAction(
+                    "Space",
+                    ScancodeMapping.KEY_SPACE,
+                    KeyStates(KeyState.Virtual, KeyState.Shift)
+                )
+            )
 
         } else {
             caps.setOnClickListener { _ ->

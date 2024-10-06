@@ -15,7 +15,8 @@ sealed class KeyAction {
     data class FcitxKeyAction(
         val act: String,
         val code: Int = ScancodeMapping.charToScancode(act[0]),
-        val states: KeyStates = KeyStates.Virtual
+        val states: KeyStates = KeyStates.Virtual,
+        val default: Boolean = true
     ) : KeyAction()
 
     data class PerformContextMenuAction(val id: Int): KeyAction()

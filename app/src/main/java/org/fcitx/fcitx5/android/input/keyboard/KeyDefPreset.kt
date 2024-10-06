@@ -195,8 +195,16 @@ class CapsKey : KeyDef(
         variant = Variant.Alternative
     ),
     setOf(
+        Behavior.Swipe(
+            KeyAction.FcitxKeyAction(
+                "Tab",
+                ScancodeMapping.KEY_TAB,
+                KeyStates(KeyState.Virtual, KeyState.Shift),
+                default = false
+            )
+        ),
         Behavior.Press(KeyAction.CapsAction(false)),
-//        Behavior.LongPress(KeyAction.CapsAction(true)),
+        Behavior.LongPress(KeyAction.CapsAction(true)),
         Behavior.DoubleTap(KeyAction.CapsAction(true))
     )
 )

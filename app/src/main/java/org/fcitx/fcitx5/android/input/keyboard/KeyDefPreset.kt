@@ -8,6 +8,7 @@ import android.graphics.Typeface
 import androidx.annotation.DrawableRes
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
+import org.fcitx.fcitx5.android.core.Key
 import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
 import org.fcitx.fcitx5.android.core.KeySym
@@ -132,6 +133,7 @@ class AlphabetKeyNew(
     val character: String,
     val punctuation: String = " ",
     variant: Variant = Variant.Normal,
+    behavior: Set<Behavior>? = null,
     popup: Array<Popup>? = null,
     percentWidth: Float = 0.14f,
 ) : KeyDef(
@@ -143,9 +145,9 @@ class AlphabetKeyNew(
         textSize = 23f,
         variant = variant
     ),
-    setOf(
+    behavior ?: setOf(
         Behavior.Press(KeyAction.FcitxKeyAction(character)),
-        Behavior.Swipe(KeyAction.FcitxKeyAction(punctuation)),
+        Behavior.Swipe(KeyAction.FcitxKeyAction(act = character.uppercase(), default = false)),
     ),
     popup ?: arrayOf(
         Popup.AltPreview(character, punctuation),

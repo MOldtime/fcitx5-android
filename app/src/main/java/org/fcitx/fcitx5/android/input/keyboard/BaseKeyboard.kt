@@ -224,23 +224,25 @@ abstract class BaseKeyboard(
                     }
                     is KeyDef.Behavior.Swipe -> {
                         swipeRewrite(it.action)
-//                        swipeEnabled = true
-//                        swipeThresholdX = disabledSwipeThreshold
-//                        swipeThresholdY = inputSwipeThreshold
-//                        val oldOnGestureListener = onGestureListener ?: OnGestureListener.Empty
-//                        onGestureListener = OnGestureListener { view, event ->
-//                            when (event.type) {
-//                                GestureType.Up -> {
-//                                    if (!event.consumed && swipeSymbolDirection.checkY(event.totalY)) {
-//                                        onAction(it.action)
-//                                        true
-//                                    } else {
-//                                        false
-//                                    }
-//                                }
-//                                else -> false
-//                            } || oldOnGestureListener.onGesture(view, event)
-//                        }
+                        /** 原生
+                        swipeEnabled = true
+                        swipeThresholdX = disabledSwipeThreshold
+                        swipeThresholdY = inputSwipeThreshold
+                        val oldOnGestureListener = onGestureListener ?: OnGestureListener.Empty
+                        onGestureListener = OnGestureListener { view, event ->
+                            when (event.type) {
+                                GestureType.Up -> {
+                                    if (!event.consumed && swipeSymbolDirection.checkY(event.totalY)) {
+                                        onAction(it.action)
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                }
+                                else -> false
+                            } || oldOnGestureListener.onGesture(view, event)
+                        }
+                        **/
                     }
                     is KeyDef.Behavior.DoubleTap -> {
                         doubleTapEnabled = true

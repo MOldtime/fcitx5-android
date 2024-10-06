@@ -111,3 +111,6 @@ lint/tmp/
 
 ### Kotlin ###
 .kotlin/
+
+### release ###
+/app/release

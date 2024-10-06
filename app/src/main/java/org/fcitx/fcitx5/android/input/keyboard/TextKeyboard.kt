@@ -13,9 +13,11 @@ import androidx.annotation.Keep
 import androidx.core.view.allViews
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxEvent
+import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
+import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.core.ScancodeMapping
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
@@ -245,8 +247,30 @@ class TextKeyboard(
                         Behavior.Swipe(KeyAction.FcitxKeyAction("B", default = false)),
                     ),
                 ),
-                AlphabetKeyNew("N", percentWidth = 1f),
-                AlphabetKeyNew("M", percentWidth = 1f),
+                AlphabetKeyNew(
+                    "N", "翻转", percentWidth = 1f, behavior = setOf(
+                        Behavior.Press(KeyAction.FcitxKeyAction("N")),
+                        Behavior.LongPress(
+                            KeyAction.SymAction(
+                                KeySym(FcitxKeyMapping.FcitxKey_Return),
+                                KeyStates(KeyState.Virtual, KeyState.Shift)
+                            )
+                        ),
+                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_N)))
+                    ), popup = arrayOf()
+                ),
+                AlphabetKeyNew(
+                    "M", "大写", percentWidth = 1f, behavior = setOf(
+                        Behavior.Press(KeyAction.FcitxKeyAction("M")),
+                        Behavior.LongPress(
+                            KeyAction.SymAction(
+                                KeySym(FcitxKeyMapping.FcitxKey_Return),
+                                KeyStates(KeyState.Virtual, KeyState.Ctrl)
+                            )
+                        ),
+                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_M)))
+                    ), popup = arrayOf()
+                ),
                 BackspaceKey()
             ),
             listOf(
@@ -357,7 +381,8 @@ class TextKeyboard(
         if (status) {
             caps.setOnClickListener { _ ->
                 onAction(
-                    KeyAction.FcitxKeyAction("Tab", ScancodeMapping.KEY_TAB, default = false),
+//                    KeyAction.FcitxKeyAction("Tab", ScancodeMapping.KEY_TAB, default = false),
+                    KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Tab)),
                     KeyActionListener.Source.Keyboard
                 )
             }
@@ -405,7 +430,7 @@ class TextKeyboard(
         }
         if (capsState != CapsState.None) {
 //            if (ime.uniqueName != "rime" && ime.subMode.label != "A") {
-                switchCapsState()
+            switchCapsState()
 //            }
         }
     }

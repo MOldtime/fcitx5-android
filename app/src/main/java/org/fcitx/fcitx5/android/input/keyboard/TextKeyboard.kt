@@ -171,10 +171,12 @@ class TextKeyboard(
                 AlphabetKeyNew("J", "↑", percentWidth = 0.095f),
                 AlphabetKeyNew("K", "↓", percentWidth = 0.095f),
                 AlphabetKeyNew("L", "/", percentWidth = 0.095f),
-                AlphabetKeyNew(";", ":", percentWidth = 0.095f, behavior = setOf(
-                    Behavior.Press(KeyAction.FcitxKeyAction(";")),
-                    Behavior.Swipe(KeyAction.FcitxKeyAction(":")),
-                )),
+                AlphabetKeyNew(
+                    ";", ":", percentWidth = 0.095f, behavior = setOf(
+                        Behavior.Press(KeyAction.FcitxKeyAction(";")),
+                        Behavior.Swipe(KeyAction.FcitxKeyAction(":")),
+                    )
+                ),
             ),
             listOf(
                 CapsKey(),
@@ -283,6 +285,7 @@ class TextKeyboard(
     init {
         updateLangSwitchKey(showLangSwitchKey.getValue())
         showLangSwitchKey.registerOnChangeListener(showLangSwitchKeyListener)
+        caps.swipeEnabled = false
     }
 
     private val textKeys: List<TextKeyView> by lazy {
@@ -350,22 +353,13 @@ class TextKeyboard(
     }
 
     override fun onCandidateUpdate(status: Boolean) {
+        caps.swipeEnabled = status
         if (status) {
             caps.setOnClickListener { _ ->
-                super.onAction(
-                    KeyAction.FcitxKeyAction("Tab", 15),
+                onAction(
+                    KeyAction.FcitxKeyAction("Tab", ScancodeMapping.KEY_TAB, default = false),
                     KeyActionListener.Source.Keyboard
                 )
-            }
-            caps.setOnLongClickListener { _ ->
-                super.onAction(
-                    KeyAction.FcitxKeyAction(
-                        "Tab",
-                        15,
-                        KeyStates(KeyState.Virtual, KeyState.Shift)
-                    ), KeyActionListener.Source.Keyboard
-                )
-                true
             }
 
 //            symbolLeft.setOnClickListener { _ ->
@@ -386,9 +380,6 @@ class TextKeyboard(
         } else {
             caps.setOnClickListener { _ ->
                 onAction(KeyAction.CapsAction(false), KeyActionListener.Source.Keyboard)
-            }
-            caps.setOnLongClickListener { _ ->
-                true
             }
 
 //            symbolLeft.setOnClickListener { _ ->
@@ -413,7 +404,9 @@ class TextKeyboard(
             ime.subMode.run { label.ifEmpty { name.ifEmpty { null } } }?.let { append(" ($it)") }
         }
         if (capsState != CapsState.None) {
-            switchCapsState()
+//            if (ime.uniqueName != "rime" && ime.subMode.label != "A") {
+                switchCapsState()
+//            }
         }
     }
 

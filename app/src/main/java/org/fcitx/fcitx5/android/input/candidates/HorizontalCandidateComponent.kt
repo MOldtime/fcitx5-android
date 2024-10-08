@@ -57,10 +57,8 @@ class HorizontalCandidateComponent :
     private val fillStyle by AppPrefs.getInstance().keyboard.horizontalCandidateStyle
     private val maxSpanCountPref by lazy {
         AppPrefs.getInstance().keyboard.run {
-            if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
-                expandedCandidateGridSpanCount
-            else
-                expandedCandidateGridSpanCountLandscape
+            if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) expandedCandidateGridSpanCount
+            else expandedCandidateGridSpanCountLandscape
         }
     }
 
@@ -79,8 +77,7 @@ class HorizontalCandidateComponent :
     // Since expanded candidate window is created once the expand button was clicked,
     // we need to replay the last offset
     private val _expandedCandidateOffset = MutableSharedFlow<Int>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
+        replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
 
     val expandedCandidateOffset = _expandedCandidateOffset.asSharedFlow()
@@ -120,6 +117,7 @@ class HorizontalCandidateComponent :
             override fun canScrollHorizontally() = false
             override fun onLayoutCompleted(state: RecyclerView.State) {
                 super.onLayoutCompleted(state)
+                adapter.addIndex(childCount)
                 if (secondLayoutPassNeeded) {
                     if (childCount < adapter.candidates.size) {
                         // [^2] RecyclerView can't display all candidates

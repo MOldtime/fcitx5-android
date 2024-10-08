@@ -6,13 +6,15 @@ package org.fcitx.fcitx5.android.input.keyboard
 
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.broadcast.PreeditEmptyStateComponent
 import org.fcitx.fcitx5.android.input.candidates.HorizontalCandidateComponent
-import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
+import org.fcitx.fcitx5.android.input.candidates.expanded.CandidatesPagingSource
 import org.fcitx.fcitx5.android.input.dependency.context
 import org.fcitx.fcitx5.android.input.dependency.fcitx
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
@@ -76,6 +78,14 @@ class CommonKeyActionListener :
         } else {
             if (!select(0)) reset()
         }
+    }
+
+    private val candidatesPager by lazy {
+        CandidatesPagingSource(
+            fcitx,
+            total = 6,
+            offset = 0
+        )
     }
 
     private fun showInputMethodPicker() {
@@ -186,6 +196,28 @@ class CommonKeyActionListener :
                 }
                 is KeyAction.attachWindow -> {
                     windowManager.attachWindow(action.window)
+                }
+                is KeyAction.PageAction -> {
+                    fcitx.launchOnReady {
+                        val index =
+                            if (action.pageAction == Page.PageDown) horizontalCandidate.adapter.next() else horizontalCandidate.adapter.prev()
+                        if (index != null) {
+                            val arr = it.getCandidates(
+                                index,
+                                6
+                            )
+
+                            if (arr.isNotEmpty()) {
+                                withContext(Dispatchers.Main) {
+                                    horizontalCandidate.adapter.updateCandidates(
+                                        arr,
+                                        arr.size,
+                                        action.pageAction
+                                    )
+                                }
+                            } else horizontalCandidate.adapter.reduce()
+                        }
+                    }
                 }
                 else -> {}
             }

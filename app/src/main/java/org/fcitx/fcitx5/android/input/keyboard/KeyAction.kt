@@ -23,6 +23,8 @@ sealed class KeyAction {
 
     data class attachWindow(val window: InputWindow): KeyAction()
 
+    data class PageAction(val pageAction: Page = Page.PageDown): KeyAction()
+
     data class SymAction(val sym: KeySym, val states: KeyStates = KeyStates.Virtual) : KeyAction()
 
     data class CommitAction(val text: String) : KeyAction()
@@ -46,4 +48,8 @@ sealed class KeyAction {
     data class PickerSwitchAction(val key: PickerWindow.Key? = null) : KeyAction()
 
     data object SpaceLongPressAction : KeyAction()
+}
+
+enum class Page {
+    PageUP, PageDown, NONE
 }

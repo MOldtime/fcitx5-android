@@ -8,7 +8,6 @@ import android.graphics.Typeface
 import androidx.annotation.DrawableRes
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
-import org.fcitx.fcitx5.android.core.Key
 import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
 import org.fcitx.fcitx5.android.core.KeySym
@@ -238,7 +237,7 @@ class LayoutSwitchNumber(
         textSize = 16f,
         textStyle = Typeface.BOLD,
         percentWidth = percentWidth,
-        variant = variant
+        variant = variant,
     ),
     setOf(
         Behavior.Press(KeyAction.LayoutSwitchAction(to)),

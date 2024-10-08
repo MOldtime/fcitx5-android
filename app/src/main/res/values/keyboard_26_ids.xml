@@ -9,4 +9,5 @@
     <item name="button_return" type="id"/>
     <item name="button_left" type="id"/>
     <item name="button_right" type="id"/>
+    <item name="button_number" type="id"/>
 </resources>

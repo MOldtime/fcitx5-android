@@ -192,6 +192,6 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             currentKeyboard?.onCandidateUpdate(value)
         }
     override fun onCandidateUpdate(data: FcitxEvent.CandidateListEvent.Data) {
-        candidateStatus = data.total > 0
+        candidateStatus = data.candidates.isNotEmpty()
     }
 }

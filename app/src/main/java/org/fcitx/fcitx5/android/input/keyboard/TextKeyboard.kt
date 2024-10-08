@@ -7,12 +7,10 @@ package org.fcitx.fcitx5.android.input.keyboard
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Typeface
-import android.util.Log
 import android.view.View
 import androidx.annotation.Keep
 import androidx.core.view.allViews
 import org.fcitx.fcitx5.android.R
-import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.core.KeyState
@@ -22,24 +20,17 @@ import org.fcitx.fcitx5.android.core.ScancodeMapping
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
-import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
-import org.fcitx.fcitx5.android.input.dependency.inputMethodService
-import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.GestureType
-import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.OnGestureListener
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance
+import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Variant
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
-import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Popup
 import org.fcitx.fcitx5.android.input.popup.PopupAction
-import splitties.views.dsl.core.textView
 import splitties.views.imageResource
 import splitties.views.onClick
-import kotlin.math.log
 
 @SuppressLint("ViewConstructor")
 class TextKeyboard(
-    context: Context,
-    theme: Theme
+    context: Context, theme: Theme
 ) : BaseKeyboard(context, theme, Layout) {
 
     enum class CapsState { None, Once, Lock }
@@ -150,8 +141,7 @@ class TextKeyboard(
                 AlphabetKeyNew("8", "*", percentWidth = 1f),
                 AlphabetKeyNew("9", "(", percentWidth = 1f),
                 AlphabetKeyNew("0", ")", percentWidth = 1f)
-            ),
-            listOf(
+            ), listOf(
                 AlphabetKeyNew("Q", "`", percentWidth = 1f),
                 AlphabetKeyNew("W", "~", percentWidth = 1f),
                 AlphabetKeyNew("E", "+", percentWidth = 1f),
@@ -162,8 +152,7 @@ class TextKeyboard(
                 AlphabetKeyNew("I", ">", percentWidth = 1f),
                 AlphabetKeyNew("O", "[", percentWidth = 1f),
                 AlphabetKeyNew("P", "]", percentWidth = 1f)
-            ),
-            listOf(
+            ), listOf(
                 AlphabetKeyNew("A", "\\", percentWidth = 0.095f),
                 AlphabetKeyNew("S", "|", percentWidth = 0.095f),
                 AlphabetKeyNew("D", "×", percentWidth = 0.095f),
@@ -179,10 +168,8 @@ class TextKeyboard(
                         Behavior.Swipe(KeyAction.FcitxKeyAction(":")),
                     )
                 ),
-            ),
-            listOf(
-                CapsKey(),
-                KeyDef(
+            ), listOf(
+                CapsKey(), KeyDef(
                     Appearance.AltText(
                         displayText = "Z",
                         altText = "全选",
@@ -194,21 +181,18 @@ class TextKeyboard(
                         Behavior.Press(KeyAction.FcitxKeyAction("Z")),
                         Behavior.Swipe(KeyAction.FcitxKeyAction("Z", default = false)),
                     ),
-                ),
-                KeyDef(
+                ), KeyDef(
                     Appearance.AltText(
                         displayText = "X",
                         altText = "剪切",
                         textSize = 23f,
                         variant = Appearance.Variant.Normal
-                    ),
-                    setOf(
+                    ), setOf(
                         Behavior.LongPress(KeyAction.PerformContextMenuAction(android.R.id.cut)),
                         Behavior.Press(KeyAction.FcitxKeyAction("X")),
                         Behavior.Swipe(KeyAction.FcitxKeyAction("X", default = false)),
                     )
-                ),
-                KeyDef(
+                ), KeyDef(
                     Appearance.AltText(
                         displayText = "C",
                         altText = "复制",
@@ -220,8 +204,7 @@ class TextKeyboard(
                         Behavior.Press(KeyAction.FcitxKeyAction("C")),
                         Behavior.Swipe(KeyAction.FcitxKeyAction("C", default = false)),
                     ),
-                ),
-                KeyDef(
+                ), KeyDef(
                     Appearance.AltText(
                         displayText = "V",
                         altText = "粘贴",
@@ -233,8 +216,7 @@ class TextKeyboard(
                         Behavior.Press(KeyAction.FcitxKeyAction("V")),
                         Behavior.Swipe(KeyAction.FcitxKeyAction("V", default = false)),
                     ),
-                ),
-                KeyDef(
+                ), KeyDef(
                     Appearance.AltText(
                         displayText = "B",
                         altText = "剪贴",
@@ -246,35 +228,39 @@ class TextKeyboard(
                         Behavior.Press(KeyAction.FcitxKeyAction("B")),
                         Behavior.Swipe(KeyAction.FcitxKeyAction("B", default = false)),
                     ),
-                ),
-                AlphabetKeyNew(
+                ), AlphabetKeyNew(
                     "N", "翻转", percentWidth = 1f, behavior = setOf(
-                        Behavior.Press(KeyAction.FcitxKeyAction("N")),
-                        Behavior.LongPress(
+                        Behavior.Press(KeyAction.FcitxKeyAction("N")), Behavior.LongPress(
                             KeyAction.SymAction(
                                 KeySym(FcitxKeyMapping.FcitxKey_Return),
                                 KeyStates(KeyState.Virtual, KeyState.Shift)
                             )
-                        ),
-                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_N)))
+                        ), Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_N)))
                     ), popup = arrayOf()
-                ),
-                AlphabetKeyNew(
+                ), AlphabetKeyNew(
                     "M", "大写", percentWidth = 1f, behavior = setOf(
-                        Behavior.Press(KeyAction.FcitxKeyAction("M")),
-                        Behavior.LongPress(
+                        Behavior.Press(KeyAction.FcitxKeyAction("M")), Behavior.LongPress(
                             KeyAction.SymAction(
                                 KeySym(FcitxKeyMapping.FcitxKey_Return),
                                 KeyStates(KeyState.Virtual, KeyState.Ctrl)
                             )
-                        ),
-                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_M)))
+                        ), Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_M)))
                     ), popup = arrayOf()
+                ), BackspaceKey()
+            ), listOf(
+                KeyDef(
+                    Appearance.Text(
+                        "?123",
+                        textSize = 16f,
+                        textStyle = Typeface.BOLD,
+                        percentWidth = 0.15f,
+                        variant = Variant.Alternative,
+                        viewId = R.id.button_number,
+                    ),
+                    setOf(
+                        Behavior.Press(KeyAction.LayoutSwitchAction("")),
+                    ),
                 ),
-                BackspaceKey()
-            ),
-            listOf(
-                LayoutSwitchNumber("?123", ""),
                 Emoji(),
                 LanguageKey(),
                 SpaceKey(),
@@ -286,9 +272,7 @@ class TextKeyboard(
         )
     }
 
-
-    val symbolLeft: TextKeyView by lazy { findViewById(R.id.button_left) }
-    val symbolRight: TextKeyView by lazy { findViewById(R.id.button_right) }
+    val buttonNumber: TextKeyView by lazy { findViewById(R.id.button_number) }
 
     val caps: ImageKeyView by lazy { findViewById(R.id.button_caps) }
     val backspace: ImageKeyView by lazy { findViewById(R.id.button_backspace) }
@@ -378,41 +362,54 @@ class TextKeyboard(
 
     override fun onCandidateUpdate(status: Boolean) {
         caps.swipeEnabled = status
+        lang.swipeEnabled = status
         if (status) {
-            caps.setOnClickListener { _ ->
+            caps.setOnClickListener {
                 onAction(
-//                    KeyAction.FcitxKeyAction("Tab", ScancodeMapping.KEY_TAB, default = false),
                     KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Tab)),
-                    KeyActionListener.Source.Keyboard
                 )
             }
 
-//            symbolLeft.setOnClickListener { _ ->
-//                super.onAction(KeyAction.FcitxKeyAction(";"), KeyActionListener.Source.Keyboard)
-//            }
-//            symbolRight.setOnClickListener { _ ->
-//                super.onAction(KeyAction.FcitxKeyAction("'"), KeyActionListener.Source.Keyboard)
-//            }
+            buttonNumber.setOnClickListener {
+                onAction(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Escape)))
+            }
+
+            buttonNumber.setOnLongClickListener {
+                onAction(KeyAction.LayoutSwitchAction(""))
+                true
+            }
+
+            "Esc".also { buttonNumber.mainText.text = it }
+
+            lang.swipeRewrite(
+                KeyAction.PageAction(Page.PageUP)
+            )
+
+            lang.setOnClickListener {
+                onAction(KeyAction.PageAction())
+            }
 
             space.swipeRewrite(
                 KeyAction.FcitxKeyAction(
-                    "Space",
-                    ScancodeMapping.KEY_SPACE,
-                    KeyStates(KeyState.Virtual, KeyState.Shift)
+                    "Space", ScancodeMapping.KEY_SPACE, KeyStates(KeyState.Virtual, KeyState.Shift)
                 )
             )
 
         } else {
-            caps.setOnClickListener { _ ->
-                onAction(KeyAction.CapsAction(false), KeyActionListener.Source.Keyboard)
+            caps.setOnClickListener {
+                onAction(KeyAction.CapsAction(false))
             }
 
-//            symbolLeft.setOnClickListener { _ ->
-//                super.onAction(KeyAction.FcitxKeyAction("，"), KeyActionListener.Source.Keyboard)
-//            }
-//            symbolRight.setOnClickListener { _ ->
-//                super.onAction(KeyAction.FcitxKeyAction("。"), KeyActionListener.Source.Keyboard)
-//            }
+            buttonNumber.setOnClickListener {
+                onAction(KeyAction.LayoutSwitchAction(""))
+            }
+
+            buttonNumber.setOnLongClickListener {
+                true
+            }
+            lang.setOnClickListener {
+                onAction(KeyAction.LangSwitchAction)
+            }
 
             space.swipeRewrite(KeyAction.LangSwitchAction)
         }
@@ -447,8 +444,11 @@ class TextKeyboard(
             is PopupAction.PreviewUpdateAction -> action.copy(content = transformPopupPreview(action.content))
             is PopupAction.ShowKeyboardAction -> {
                 val label = action.keyboard.label
-                if (label.length == 1 && label[0].isLetter())
-                    action.copy(keyboard = KeyDef.Popup.Keyboard(transformAlphabet(label)))
+                if (label.length == 1 && label[0].isLetter()) action.copy(
+                    keyboard = KeyDef.Popup.Keyboard(
+                        transformAlphabet(label)
+                    )
+                )
                 else action
             }
             else -> action
@@ -457,18 +457,17 @@ class TextKeyboard(
     }
 
     private fun switchCapsState(lock: Boolean = false) {
-        capsState =
-            if (lock) {
-                when (capsState) {
-                    CapsState.Lock -> CapsState.None
-                    else -> CapsState.Lock
-                }
-            } else {
-                when (capsState) {
-                    CapsState.None -> CapsState.Once
-                    else -> CapsState.None
-                }
+        capsState = if (lock) {
+            when (capsState) {
+                CapsState.Lock -> CapsState.None
+                else -> CapsState.Lock
             }
+        } else {
+            when (capsState) {
+                CapsState.None -> CapsState.Once
+                else -> CapsState.None
+            }
+        }
         updateCapsButtonIcon()
         updateAlphabetKeys()
     }

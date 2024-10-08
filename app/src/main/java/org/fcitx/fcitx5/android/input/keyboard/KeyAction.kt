@@ -51,5 +51,5 @@ sealed class KeyAction {
 }
 
 enum class Page {
-    PageUP, PageDown, NONE
+    PageUP, PageDown
 }

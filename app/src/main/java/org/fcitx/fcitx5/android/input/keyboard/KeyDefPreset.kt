@@ -195,12 +195,7 @@ class CapsKey : KeyDef(
     ),
     setOf(
         Behavior.Swipe(
-            KeyAction.FcitxKeyAction(
-                "Tab",
-                ScancodeMapping.KEY_TAB,
-                KeyStates(KeyState.Virtual, KeyState.Shift),
-                default = false
-            )
+            KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Tab), KeyStates(KeyState.Shift))
         ),
         Behavior.Press(KeyAction.CapsAction(false)),
         Behavior.LongPress(KeyAction.CapsAction(true)),
@@ -406,7 +401,12 @@ class ReturnKey(percentWidth: Float = 0.15f) : KeyDef(
     ),
     setOf(
         Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Return))),
-        Behavior.LongPress(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Return), KeyStates(KeyState.Shift)))
+        Behavior.LongPress(
+            KeyAction.SymAction(
+                KeySym(FcitxKeyMapping.FcitxKey_Return),
+                KeyStates(KeyState.Shift)
+            )
+        )
     ),
 //    arrayOf(
 //        Popup.Menu(

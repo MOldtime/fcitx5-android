@@ -39,97 +39,6 @@ class TextKeyboard(
         const val Name = "Text"
 
         val Layout: List<List<KeyDef>> = listOf(
-            /** 33键
-            listOf(
-            AlphabetKeyNew("Q"),
-            AlphabetKeyNew("W"),
-            AlphabetKeyNew("R"),
-            AlphabetKeyNew("T"),
-            AlphabetKeyNew("Y"),
-            AlphabetKeyNew("L"),
-            AlphabetKeyNew("P"),
-            ),
-            listOf(
-            AlphabetKeyNew("S"),
-            AlphabetKeyNew("D"),
-            AlphabetKeyNew("F"),
-            AlphabetKeyNew("G"),
-            AlphabetKeyNew("H"),
-            AlphabetKeyNew("J"),
-            AlphabetKeyNew("K"),
-            ),
-            listOf(
-            AlphabetKeyNew("Z"),
-            AlphabetKeyNew("X", "1"),
-            AlphabetKeyNew("C", "2"),
-            AlphabetKeyNew("V", "3"),
-            AlphabetKeyNew("B", "4"),
-            AlphabetKeyNew("N", "5"),
-            AlphabetKeyNew("M"),
-            ),
-            listOf(
-            CapsKey(),
-            AlphabetKeyNew("A", "6"),
-            AlphabetKeyNew("E", "7"),
-            AlphabetKeyNew("U", "8"),
-            AlphabetKeyNew("I", "9"),
-            AlphabetKeyNew("O", "0"),
-            BackspaceKey(),
-            ),
-            listOf(
-            LayoutSwitchNumber("?123", ""),
-            LanguageKey(),
-            SymbolKeyId(",", R.id.button_left, variant = KeyDef.Appearance.Variant.Alternative),
-            SpaceKey(),
-            SymbolKeyId(".", R.id.button_right , variant = KeyDef.Appearance.Variant.Alternative),
-            ReturnKey()
-            )
-             **/
-            /** 26键
-            listOf(
-            AlphabetKey("Q", "1"),
-            AlphabetKey("W", "2"),
-            AlphabetKey("E", "3"),
-            AlphabetKey("R", "4"),
-            AlphabetKey("T", "5"),
-            AlphabetKey("Y", "6"),
-            AlphabetKey("U", "7"),
-            AlphabetKey("I", "8"),
-            AlphabetKey("O", "9"),
-            AlphabetKey("P", "0")
-            ),
-            listOf(
-            AlphabetKey("A", "@"),
-            AlphabetKey("S", "*"),
-            AlphabetKey("D", "+"),
-            AlphabetKey("F", "-"),
-            AlphabetKey("G", "="),
-            AlphabetKey("H", "/"),
-            AlphabetKey("J", "#"),
-            AlphabetKey("K", "("),
-            AlphabetKey("L", ")"),
-            ),
-            listOf(
-            CapsKey(),
-            AlphabetKey("Z", "'"),
-            AlphabetKey("X", ":"),
-            AlphabetKey("C", "\""),
-            AlphabetKey("V", "?"),
-            AlphabetKey("B", "!"),
-            AlphabetKey("N", "~"),
-            AlphabetKey("M", "\\"),
-            BackspaceKey()
-            ),
-            listOf(
-            LayoutSwitchNumber("?123", ""),
-            LanguageKey(),
-            SpaceKey(),
-            SymbolKeyId(",", R.id.button_left, variant = KeyDef.Appearance.Variant.Alternative),
-            SymbolKeyId(".", R.id.button_right , variant = KeyDef.Appearance.Variant.Alternative),
-            ReturnKey()
-            )
-             **/
-//            /** 46键
             listOf(
                 AlphabetKeyNew("1", "!", percentWidth = 1f),
                 AlphabetKeyNew("2", "@", percentWidth = 1f),
@@ -164,7 +73,7 @@ class TextKeyboard(
                 AlphabetKeyNew(
                     "L", "/", percentWidth = 0.095f, behavior = setOf(
                         Behavior.Press(KeyAction.FcitxKeyAction("L")),
-                        Behavior.Swipe(KeyAction.FcitxKeyAction("L", default = false)),
+                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_L))),
                         Behavior.LongPress(
                             KeyAction.SymAction(
                                 KeySym(FcitxKeyMapping.FcitxKey_l),
@@ -186,66 +95,66 @@ class TextKeyboard(
                         displayText = "Z",
                         altText = "全选",
                         textSize = 23f,
-                        variant = Appearance.Variant.Normal
+                        variant = Variant.Normal
                     ),
                     setOf(
                         Behavior.LongPress(KeyAction.PerformContextMenuAction(android.R.id.selectAll)),
                         Behavior.Press(KeyAction.FcitxKeyAction("Z")),
-                        Behavior.Swipe(KeyAction.FcitxKeyAction("Z", default = false)),
+                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Z))),
                     ),
                 ), KeyDef(
                     Appearance.AltText(
                         displayText = "X",
                         altText = "剪切",
                         textSize = 23f,
-                        variant = Appearance.Variant.Normal
+                        variant = Variant.Normal
                     ), setOf(
                         Behavior.LongPress(KeyAction.PerformContextMenuAction(android.R.id.cut)),
                         Behavior.Press(KeyAction.FcitxKeyAction("X")),
-                        Behavior.Swipe(KeyAction.FcitxKeyAction("X", default = false)),
+                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_X))),
                     )
                 ), KeyDef(
                     Appearance.AltText(
                         displayText = "C",
                         altText = "复制",
                         textSize = 23f,
-                        variant = Appearance.Variant.Normal
+                        variant = Variant.Normal
                     ),
                     setOf(
                         Behavior.LongPress(KeyAction.PerformContextMenuAction(android.R.id.copy)),
                         Behavior.Press(KeyAction.FcitxKeyAction("C")),
-                        Behavior.Swipe(KeyAction.FcitxKeyAction("C", default = false)),
+                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_C))),
                     ),
                 ), KeyDef(
                     Appearance.AltText(
                         displayText = "V",
                         altText = "粘贴",
                         textSize = 23f,
-                        variant = Appearance.Variant.Normal
+                        variant = Variant.Normal
                     ),
                     setOf(
                         Behavior.LongPress(KeyAction.PerformContextMenuAction(android.R.id.paste)),
                         Behavior.Press(KeyAction.FcitxKeyAction("V")),
-                        Behavior.Swipe(KeyAction.FcitxKeyAction("V", default = false)),
+                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_V))),
                     ),
                 ), KeyDef(
                     Appearance.AltText(
                         displayText = "B",
                         altText = "剪贴",
                         textSize = 23f,
-                        variant = Appearance.Variant.Normal
+                        variant = Variant.Normal
                     ),
                     setOf(
                         Behavior.LongPress(KeyAction.attachWindow(ClipboardWindow())),
                         Behavior.Press(KeyAction.FcitxKeyAction("B")),
-                        Behavior.Swipe(KeyAction.FcitxKeyAction("B", default = false)),
+                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_B))),
                     ),
                 ), AlphabetKeyNew(
                     "N", "翻转", percentWidth = 1f, behavior = setOf(
                         Behavior.Press(KeyAction.FcitxKeyAction("N")), Behavior.LongPress(
                             KeyAction.SymAction(
                                 KeySym(FcitxKeyMapping.FcitxKey_Return),
-                                KeyStates(KeyState.Virtual, KeyState.Shift)
+                                KeyStates(KeyState.Shift)
                             )
                         ), Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_N)))
                     ), popup = arrayOf()
@@ -254,7 +163,7 @@ class TextKeyboard(
                         Behavior.Press(KeyAction.FcitxKeyAction("M")), Behavior.LongPress(
                             KeyAction.SymAction(
                                 KeySym(FcitxKeyMapping.FcitxKey_Return),
-                                KeyStates(KeyState.Virtual, KeyState.Ctrl)
+                                KeyStates(KeyState.Ctrl)
                             )
                         ), Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_M)))
                     ), popup = arrayOf()
@@ -280,7 +189,6 @@ class TextKeyboard(
                 AlphabetKey("'", "\"", Variant.Alternative),
                 ReturnKey()
             )
-//            **/
         )
     }
 

@@ -21,6 +21,8 @@ sealed class KeyAction {
 
     data class PerformContextMenuAction(val id: Int): KeyAction()
 
+    data class sendCombinationKey(val keyEventCode: Int, val alt: Boolean = false, val ctrl: Boolean = false, val shift: Boolean = false): KeyAction()
+
     data class attachWindow(val window: InputWindow): KeyAction()
 
     data class PageAction(val pageAction: Page = Page.PageDown): KeyAction()

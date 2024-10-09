@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.input.keyboard
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Typeface
+import android.view.KeyEvent
 import android.view.View
 import androidx.annotation.Keep
 import androidx.core.view.allViews
@@ -21,9 +22,12 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
+import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.GestureType
+import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.OnGestureListener
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Variant
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
+import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Popup
 import org.fcitx.fcitx5.android.input.popup.PopupAction
 import splitties.views.imageResource
 import splitties.views.onClick
@@ -68,10 +72,33 @@ class TextKeyboard(
                 AlphabetKeyNew("F", "÷", percentWidth = 0.095f),
                 AlphabetKeyNew("G", "←", percentWidth = 0.095f),
                 AlphabetKeyNew("H", "→", percentWidth = 0.095f),
-                AlphabetKeyNew("J", "↑", percentWidth = 0.095f),
-                AlphabetKeyNew("K", "↓", percentWidth = 0.095f),
                 AlphabetKeyNew(
-                    "L", "/", percentWidth = 0.095f, behavior = setOf(
+                    "J", "↶", percentWidth = 0.095f, behavior = setOf(
+                        Behavior.Press(KeyAction.FcitxKeyAction("J")),
+                        Behavior.Swipe(KeyAction.FcitxKeyAction(act = "J", default = false)),
+                        Behavior.LongPress(
+                            KeyAction.sendCombinationKey(
+                                KeyEvent.KEYCODE_Z,
+                                ctrl = true
+                            )
+                        )
+                    ), popup = arrayOf()
+                ),
+                AlphabetKeyNew(
+                    "K", "↷", percentWidth = 0.095f, behavior = setOf(
+                        Behavior.Press(KeyAction.FcitxKeyAction("K")),
+                        Behavior.Swipe(KeyAction.FcitxKeyAction(act = "K", default = false)),
+                        Behavior.LongPress(
+                            KeyAction.sendCombinationKey(
+                                KeyEvent.KEYCODE_Z,
+                                ctrl = true,
+                                shift = true
+                            )
+                        )
+                    ), popup = arrayOf()
+                ),
+                AlphabetKeyNew(
+                    "L", "⇐", percentWidth = 0.095f, behavior = setOf(
                         Behavior.Press(KeyAction.FcitxKeyAction("L")),
                         Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_L))),
                         Behavior.LongPress(
@@ -170,8 +197,9 @@ class TextKeyboard(
                 ), BackspaceKey()
             ), listOf(
                 KeyDef(
-                    Appearance.Text(
+                    Appearance.ImageText(
                         "?123",
+                        src = R.drawable.ic_baseline_tag_faces_24,
                         textSize = 16f,
                         textStyle = Typeface.BOLD,
                         percentWidth = 0.15f,
@@ -180,13 +208,41 @@ class TextKeyboard(
                     ),
                     setOf(
                         Behavior.Press(KeyAction.LayoutSwitchAction("")),
+                        Behavior.Swipe(KeyAction.PickerSwitchAction())
                     ),
+                    arrayOf(
+                        Popup.Menu(
+                            arrayOf(
+                                Popup.Menu.Item(
+                                    "Emoji",
+                                    R.drawable.ic_baseline_tag_faces_24,
+                                    KeyAction.PickerSwitchAction()
+                                ),
+                                Popup.Menu.Item(
+                                    "QuickPhrase",
+                                    R.drawable.ic_baseline_format_quote_24,
+                                    KeyAction.QuickPhraseAction
+                                ),
+                                Popup.Menu.Item(
+                                    "Unicode",
+                                    R.drawable.ic_logo_unicode,
+                                    KeyAction.UnicodeAction
+                                )
+                            )
+                        )
+                    )
                 ),
-                Emoji(),
                 LanguageKey(),
+                AlphabetKeyNew(
+                    ",", "/", Variant.Normal,
+                    setOf(
+                        Behavior.Press(KeyAction.FcitxKeyAction(",")),
+                        Behavior.Swipe(KeyAction.FcitxKeyAction("/")),
+                    ), percentWidth = 0.1f
+                ),
                 SpaceKey(),
-                AlphabetKey(",", "."),
-                AlphabetKey("'", "\"", Variant.Alternative),
+                AlphabetKey(".", "?"),
+                AlphabetKey("'", "\""),
                 ReturnKey()
             )
         )
@@ -323,9 +379,28 @@ class TextKeyboard(
                 onAction(KeyAction.LayoutSwitchAction(""))
             }
 
-            buttonNumber.setOnLongClickListener {
-                true
-            }
+            buttonNumber.popupMenu(
+                Popup.Menu(
+                    arrayOf(
+                        Popup.Menu.Item(
+                            "Emoji",
+                            R.drawable.ic_baseline_tag_faces_24,
+                            KeyAction.PickerSwitchAction()
+                        ),
+                        Popup.Menu.Item(
+                            "QuickPhrase",
+                            R.drawable.ic_baseline_format_quote_24,
+                            KeyAction.QuickPhraseAction
+                        ),
+                        Popup.Menu.Item(
+                            "Unicode",
+                            R.drawable.ic_logo_unicode,
+                            KeyAction.UnicodeAction
+                        )
+                    )
+                )
+            )
+
             lang.setOnClickListener {
                 onAction(KeyAction.LangSwitchAction)
             }

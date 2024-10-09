@@ -70,7 +70,7 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
     "B" to arrayOf("b", "B", "¡"),
     "N" to arrayOf("n", "N", "Ñ", "Ń"),
     "M" to arrayOf("m", "M"),
-    "," to arrayOf("."),
+    "," to arrayOf("/", "?", "!", ":", ";", "_", "%", "$", "^", "&"),
     "'" to arrayOf("\""),
     //
     // Upper case Cyrillic
@@ -139,7 +139,7 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
     //
     // Punctuation
     //
-    "." to arrayOf(",", "?", "!", ":", ";", "_", "%", "$", "^", "&"),
+    "." to arrayOf("?", ",", "!", ":", ";", "_", "%", "$", "^", "&"),
     "-" to arrayOf("—", "–", "·"),
     "?" to arrayOf("¿", "‽"),
     "'" to arrayOf("\"", "‘", "’", "‚", "›", "‹"),

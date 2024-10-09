@@ -368,6 +368,29 @@ abstract class BaseKeyboard(
         }
     }
 
+    fun KeyView.popupMenu(popup: KeyDef.Popup.Menu) {
+        setOnLongClickListener { view ->
+            view as KeyView
+            onPopupAction(PopupAction.ShowMenuAction(view.id, popup, view.bounds))
+            // do not consume this LongClick gesture
+            false
+        }
+        val oldOnGestureListener = onGestureListener ?: OnGestureListener.Empty
+        swipeEnabled = true
+        onGestureListener = OnGestureListener { view, event ->
+            view as KeyView
+            when (event.type) {
+                GestureType.Move -> {
+                    onPopupChangeFocus(view.id, event.x, event.y)
+                }
+                GestureType.Up -> {
+                    onPopupTrigger(view.id)
+                }
+                else -> false
+            } || oldOnGestureListener.onGesture(view, event)
+        }
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         val (x, y) = intArrayOf(0, 0).also { getLocationInWindow(it) }
         bounds.set(x, y, x + width, y + height)

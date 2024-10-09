@@ -196,6 +196,14 @@ class CommonKeyActionListener :
                 is KeyAction.PerformContextMenuAction -> {
                     service.currentInputConnection?.performContextMenuAction(action.id)
                 }
+                is KeyAction.sendCombinationKey -> {
+                    service.sendCombinationKeyEvents(
+                        action.keyEventCode,
+                        action.alt,
+                        action.ctrl,
+                        action.shift
+                    )
+                }
                 is KeyAction.attachWindow -> {
                     windowManager.attachWindow(action.window)
                 }

@@ -73,27 +73,9 @@ public:
         int size = 0;
         const auto &list = inputPanel().candidateList();
         if (list) {
-            const auto &bulk = list->toBulk();
-            if (bulk) {
-                size = bulk->totalSize();
-                // limit candidate count to 16 (for paging)
-                const int limit = size < 0 ? 16 : std::min(size, 16);
-                for (int i = 0; i < limit; i++) {
-                    try {
-                        auto &candidate = bulk->candidateFromAll(i);
-                        // maybe unnecessary; I don't see anywhere using `CandidateWord::setPlaceHolder`
-                        // if (candidate.isPlaceHolder()) continue;
-                        candidates.emplace_back(filterString(candidate.textWithComment()));
-                    } catch (const std::invalid_argument &e) {
-                        size = static_cast<int>(candidates.size());
-                        break;
-                    }
-                }
-            } else {
-                size = list->size();
-                for (int i = 0; i < size; i++) {
-                    candidates.emplace_back(filterString(list->candidate(i).textWithComment()));
-                }
+            size = list->size();
+            for (int i = 0; i < size; i++) {
+                candidates.emplace_back(filterString(list->candidate(i).textWithComment()));
             }
         }
         frontend_->updateCandidateList(candidates, size);

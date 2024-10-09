@@ -362,6 +362,7 @@ class TextKeyboard(
 
     override fun onCandidateUpdate(status: Boolean) {
         caps.swipeEnabled = status
+        caps.doubleTapEnabled = !status
         lang.swipeEnabled = status
         if (status) {
             caps.setOnClickListener {

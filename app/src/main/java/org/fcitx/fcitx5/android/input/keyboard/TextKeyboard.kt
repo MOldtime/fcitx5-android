@@ -379,8 +379,6 @@ class TextKeyboard(
                 true
             }
 
-            "Esc".also { buttonNumber.mainText.text = it }
-
             lang.swipeRewrite(
                 KeyAction.PageAction(Page.PageUP)
             )

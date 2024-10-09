@@ -405,17 +405,18 @@ class ReturnKey(percentWidth: Float = 0.15f) : KeyDef(
         soundEffect = InputFeedbacks.SoundEffect.Return
     ),
     setOf(
-        Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Return)))
+        Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Return))),
+        Behavior.LongPress(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Return), KeyStates(KeyState.Shift)))
     ),
-    arrayOf(
-        Popup.Menu(
-            arrayOf(
-                Popup.Menu.Item(
-                    "Emoji", R.drawable.ic_baseline_tag_faces_24, KeyAction.PickerSwitchAction()
-                )
-            )
-        )
-    ),
+//    arrayOf(
+//        Popup.Menu(
+//            arrayOf(
+//                Popup.Menu.Item(
+//                    "Emoji", R.drawable.ic_baseline_tag_faces_24, KeyAction.PickerSwitchAction()
+//                )
+//            )
+//        )
+//    ),
 )
 
 class ImageLayoutSwitchKey(

@@ -161,7 +161,19 @@ class TextKeyboard(
                 AlphabetKeyNew("H", "→", percentWidth = 0.095f),
                 AlphabetKeyNew("J", "↑", percentWidth = 0.095f),
                 AlphabetKeyNew("K", "↓", percentWidth = 0.095f),
-                AlphabetKeyNew("L", "/", percentWidth = 0.095f),
+                AlphabetKeyNew(
+                    "L", "/", percentWidth = 0.095f, behavior = setOf(
+                        Behavior.Press(KeyAction.FcitxKeyAction("L")),
+                        Behavior.Swipe(KeyAction.FcitxKeyAction("L", default = false)),
+                        Behavior.LongPress(
+                            KeyAction.SymAction(
+                                KeySym(FcitxKeyMapping.FcitxKey_l),
+                                KeyStates(KeyState.Ctrl)
+                            )
+                        )
+                    ),
+                    popup = arrayOf()
+                ),
                 AlphabetKeyNew(
                     ";", ":", percentWidth = 0.095f, behavior = setOf(
                         Behavior.Press(KeyAction.FcitxKeyAction(";")),
@@ -265,7 +277,7 @@ class TextKeyboard(
                 LanguageKey(),
                 SpaceKey(),
                 AlphabetKey(",", "."),
-                AlphabetKey("'", "\""),
+                AlphabetKey("'", "\"", Variant.Alternative),
                 ReturnKey()
             )
 //            **/

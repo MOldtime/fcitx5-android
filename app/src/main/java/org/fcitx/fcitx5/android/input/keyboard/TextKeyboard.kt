@@ -29,6 +29,7 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Variant
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Popup
 import org.fcitx.fcitx5.android.input.popup.PopupAction
+import org.fcitx.fcitx5.android.input.popup.formContext
 import splitties.views.imageResource
 import splitties.views.onClick
 
@@ -44,27 +45,27 @@ class TextKeyboard(
 
         val Layout: List<List<KeyDef>> = listOf(
             listOf(
-                AlphabetKeyNew("1", "!", percentWidth = 1f),
-                AlphabetKeyNew("2", "@", percentWidth = 1f),
-                AlphabetKeyNew("3", "#", percentWidth = 1f),
-                AlphabetKeyNew("4", "$", percentWidth = 1f),
-                AlphabetKeyNew("5", "%", percentWidth = 1f),
-                AlphabetKeyNew("6", "^", percentWidth = 1f),
-                AlphabetKeyNew("7", "&", percentWidth = 1f),
-                AlphabetKeyNew("8", "*", percentWidth = 1f),
-                AlphabetKeyNew("9", "(", percentWidth = 1f),
-                AlphabetKeyNew("0", ")", percentWidth = 1f)
+                AlphabetKeyNew("1", "!"),
+                AlphabetKeyNew("2", "@"),
+                AlphabetKeyNew("3", "#"),
+                AlphabetKeyNew("4", "$"),
+                AlphabetKeyNew("5", "%"),
+                AlphabetKeyNew("6", "^"),
+                AlphabetKeyNew("7", "&"),
+                AlphabetKeyNew("8", "*"),
+                AlphabetKeyNew("9", "("),
+                AlphabetKeyNew("0", ")")
             ), listOf(
-                AlphabetKeyNew("Q", "`", percentWidth = 1f),
-                AlphabetKeyNew("W", "~", percentWidth = 1f),
-                AlphabetKeyNew("E", "+", percentWidth = 1f),
-                AlphabetKeyNew("R", "-", percentWidth = 1f),
-                AlphabetKeyNew("T", "=", percentWidth = 1f),
-                AlphabetKeyNew("Y", "_", percentWidth = 1f),
-                AlphabetKeyNew("U", "<", percentWidth = 1f),
-                AlphabetKeyNew("I", ">", percentWidth = 1f),
-                AlphabetKeyNew("O", "[", percentWidth = 1f),
-                AlphabetKeyNew("P", "]", percentWidth = 1f)
+                AlphabetKeyNew("Q", "`"),
+                AlphabetKeyNew("W", "~"),
+                AlphabetKeyNew("E", "+"),
+                AlphabetKeyNew("R", "-"),
+                AlphabetKeyNew("T", "="),
+                AlphabetKeyNew("Y", "_"),
+                AlphabetKeyNew("U", "<"),
+                AlphabetKeyNew("I", ">"),
+                AlphabetKeyNew("O", "["),
+                AlphabetKeyNew("P", "]")
             ), listOf(
                 AlphabetKeyNew("A", "\\", percentWidth = 0.095f),
                 AlphabetKeyNew("S", "|", percentWidth = 0.095f),
@@ -72,44 +73,9 @@ class TextKeyboard(
                 AlphabetKeyNew("F", "÷", percentWidth = 0.095f),
                 AlphabetKeyNew("G", "←", percentWidth = 0.095f),
                 AlphabetKeyNew("H", "→", percentWidth = 0.095f),
-                AlphabetKeyNew(
-                    "J", "↶", percentWidth = 0.095f, behavior = setOf(
-                        Behavior.Press(KeyAction.FcitxKeyAction("J")),
-                        Behavior.Swipe(KeyAction.FcitxKeyAction(act = "J", default = false)),
-                        Behavior.LongPress(
-                            KeyAction.sendCombinationKey(
-                                KeyEvent.KEYCODE_Z,
-                                ctrl = true
-                            )
-                        )
-                    ), popup = arrayOf()
-                ),
-                AlphabetKeyNew(
-                    "K", "↷", percentWidth = 0.095f, behavior = setOf(
-                        Behavior.Press(KeyAction.FcitxKeyAction("K")),
-                        Behavior.Swipe(KeyAction.FcitxKeyAction(act = "K", default = false)),
-                        Behavior.LongPress(
-                            KeyAction.sendCombinationKey(
-                                KeyEvent.KEYCODE_Z,
-                                ctrl = true,
-                                shift = true
-                            )
-                        )
-                    ), popup = arrayOf()
-                ),
-                AlphabetKeyNew(
-                    "L", "⇐", percentWidth = 0.095f, behavior = setOf(
-                        Behavior.Press(KeyAction.FcitxKeyAction("L")),
-                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_L))),
-                        Behavior.LongPress(
-                            KeyAction.SymAction(
-                                KeySym(FcitxKeyMapping.FcitxKey_l),
-                                KeyStates(KeyState.Ctrl)
-                            )
-                        )
-                    ),
-                    popup = arrayOf()
-                ),
+                AlphabetKeyNew("J", "↶", percentWidth = 0.095f),
+                AlphabetKeyNew("K", "↷", percentWidth = 0.095f),
+                AlphabetKeyNew("L", "⇐", percentWidth = 0.095f),
                 AlphabetKeyNew(
                     ";", ":", percentWidth = 0.095f, behavior = setOf(
                         Behavior.Press(KeyAction.FcitxKeyAction(";")),
@@ -117,84 +83,15 @@ class TextKeyboard(
                     )
                 ),
             ), listOf(
-                CapsKey(), KeyDef(
-                    Appearance.AltText(
-                        displayText = "Z",
-                        altText = "全选",
-                        textSize = 23f,
-                        variant = Variant.Normal
-                    ),
-                    setOf(
-                        Behavior.LongPress(KeyAction.PerformContextMenuAction(android.R.id.selectAll)),
-                        Behavior.Press(KeyAction.FcitxKeyAction("Z")),
-                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Z))),
-                    ),
-                ), KeyDef(
-                    Appearance.AltText(
-                        displayText = "X",
-                        altText = "剪切",
-                        textSize = 23f,
-                        variant = Variant.Normal
-                    ), setOf(
-                        Behavior.LongPress(KeyAction.PerformContextMenuAction(android.R.id.cut)),
-                        Behavior.Press(KeyAction.FcitxKeyAction("X")),
-                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_X))),
-                    )
-                ), KeyDef(
-                    Appearance.AltText(
-                        displayText = "C",
-                        altText = "复制",
-                        textSize = 23f,
-                        variant = Variant.Normal
-                    ),
-                    setOf(
-                        Behavior.LongPress(KeyAction.PerformContextMenuAction(android.R.id.copy)),
-                        Behavior.Press(KeyAction.FcitxKeyAction("C")),
-                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_C))),
-                    ),
-                ), KeyDef(
-                    Appearance.AltText(
-                        displayText = "V",
-                        altText = "粘贴",
-                        textSize = 23f,
-                        variant = Variant.Normal
-                    ),
-                    setOf(
-                        Behavior.LongPress(KeyAction.PerformContextMenuAction(android.R.id.paste)),
-                        Behavior.Press(KeyAction.FcitxKeyAction("V")),
-                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_V))),
-                    ),
-                ), KeyDef(
-                    Appearance.AltText(
-                        displayText = "B",
-                        altText = "剪贴",
-                        textSize = 23f,
-                        variant = Variant.Normal
-                    ),
-                    setOf(
-                        Behavior.LongPress(KeyAction.attachWindow(ClipboardWindow())),
-                        Behavior.Press(KeyAction.FcitxKeyAction("B")),
-                        Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_B))),
-                    ),
-                ), AlphabetKeyNew(
-                    "N", "翻转", percentWidth = 1f, behavior = setOf(
-                        Behavior.Press(KeyAction.FcitxKeyAction("N")), Behavior.LongPress(
-                            KeyAction.SymAction(
-                                KeySym(FcitxKeyMapping.FcitxKey_Return),
-                                KeyStates(KeyState.Shift)
-                            )
-                        ), Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_N)))
-                    ), popup = arrayOf()
-                ), AlphabetKeyNew(
-                    "M", "大写", percentWidth = 1f, behavior = setOf(
-                        Behavior.Press(KeyAction.FcitxKeyAction("M")), Behavior.LongPress(
-                            KeyAction.SymAction(
-                                KeySym(FcitxKeyMapping.FcitxKey_Return),
-                                KeyStates(KeyState.Ctrl)
-                            )
-                        ), Behavior.Swipe(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_M)))
-                    ), popup = arrayOf()
-                ), BackspaceKey()
+                CapsKey(),
+                AlphabetKeyNew("Z", formContext[0].component1()),
+                AlphabetKeyNew("X", formContext[1].component1()),
+                AlphabetKeyNew("C", formContext[2].component1()),
+                AlphabetKeyNew("V", formContext[3].component1()),
+                AlphabetKeyNew("B", formContext[4].component1()),
+                AlphabetKeyNew("N", formContext[5].component1()),
+                AlphabetKeyNew("M", formContext[6].component1()),
+                BackspaceKey()
             ), listOf(
                 KeyDef(
                     Appearance.ImageText(

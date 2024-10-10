@@ -134,7 +134,7 @@ class AlphabetKeyNew(
     variant: Variant = Variant.Normal,
     behavior: Set<Behavior>? = null,
     popup: Array<Popup>? = null,
-    percentWidth: Float = 0.14f,
+    percentWidth: Float = 0.1f,
 ) : KeyDef(
     Appearance.AltText(
         percentWidth = percentWidth,

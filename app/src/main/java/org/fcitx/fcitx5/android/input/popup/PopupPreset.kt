@@ -4,10 +4,69 @@
  */
 package org.fcitx.fcitx5.android.input.popup
 
+import android.view.KeyEvent
+import org.fcitx.fcitx5.android.core.FcitxKeyMapping
+import org.fcitx.fcitx5.android.core.KeyState
+import org.fcitx.fcitx5.android.core.KeyStates
+import org.fcitx.fcitx5.android.core.KeySym
+import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
+import org.fcitx.fcitx5.android.input.keyboard.KeyAction
+import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
+
 /**
  * based on
  * [fcitx5/src/im/keyboard/longpress.cpp](https://github.com/fcitx/fcitx5/blob/5.0.18/src/im/keyboard/longpress.cpp#L15)
  */
+
+//enum class FormContext {
+//    selectAll, cut, copy, paste, clipboard, evert, caps;
+//
+//    fun getAction(context: FormContext): KeyAction {
+//        return when (context) {
+//            FormContext.selectAll -> KeyAction.PerformContextMenuAction(android.R.id.selectAll)
+//            FormContext.cut -> KeyAction.PerformContextMenuAction(android.R.id.cut)
+//            FormContext.copy -> KeyAction.PerformContextMenuAction(android.R.id.copy)
+//            FormContext.paste -> KeyAction.PerformContextMenuAction(android.R.id.paste)
+//            FormContext.clipboard -> KeyAction.attachWindow(ClipboardWindow())
+//            FormContext.evert -> KeyAction.SymAction(
+//                KeySym(FcitxKeyMapping.FcitxKey_Return),
+//                KeyStates(KeyState.Shift)
+//            )
+//            FormContext.caps -> KeyAction.SymAction(
+//                KeySym(FcitxKeyMapping.FcitxKey_Return),
+//                KeyStates(KeyState.Ctrl)
+//            )
+//        }
+//    }
+//
+//
+//    fun getKey(index: Int): String {
+//
+//    }
+//
+//    fun getKey(context: FormContext): String {
+//
+//    }
+//}
+
+val formContext = listOf(
+    "全选" to KeyAction.PerformContextMenuAction(android.R.id.selectAll),
+    "剪切" to KeyAction.PerformContextMenuAction(android.R.id.cut),
+    "复制" to KeyAction.PerformContextMenuAction(android.R.id.copy),
+    "粘贴" to KeyAction.PerformContextMenuAction(android.R.id.paste),
+    "剪贴" to KeyAction.attachWindow(ClipboardWindow()),
+    "翻转" to KeyAction.SymAction(
+        KeySym(FcitxKeyMapping.FcitxKey_Return),
+        KeyStates(KeyState.Shift)
+    ),
+    "大写" to KeyAction.SymAction(
+        KeySym(FcitxKeyMapping.FcitxKey_Return),
+        KeyStates(KeyState.Ctrl)
+    ),
+    "↷" to KeyAction.sendCombinationKey(KeyEvent.KEYCODE_Z, ctrl = true, shift = true),
+    "↶" to KeyAction.sendCombinationKey(KeyEvent.KEYCODE_Z, ctrl = true),
+    "⇐" to KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_l), KeyStates(KeyState.Ctrl))
+)
 val PopupPreset: Map<String, Array<String>> = hashMapOf(
     //
     // Latin
@@ -28,17 +87,17 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
     "f" to arrayOf("÷", "f", "F"),
     "g" to arrayOf("←", "g", "G", "ğ"),
     "h" to arrayOf("→", "h", "H"),
-    "j" to arrayOf("↑", "j", "J"),
-    "k" to arrayOf("↓️️", "k", "K"),
-    "l" to arrayOf("/", "l", "L", "ł"),
+    "j" to arrayOf(formContext[7].component1(), "j", "J"),
+    "k" to arrayOf(formContext[8].component1(), "k", "K"),
+    "l" to arrayOf(formContext[9].component1(), "/", "l", "L", "ł"),
     ";" to arrayOf(":"),
-    "z" to arrayOf("z", "Z", "ž", "ź", "ż"),
-    "x" to arrayOf("x", "X", "×"),
-    "c" to arrayOf("c", "C", "ç", "ć", "č"),
-    "v" to arrayOf("v", "V", "¿", "ü", "ǖ", "ǘ", "ǚ", "ǜ"),
-    "b" to arrayOf("b", "B", "¡"),
-    "n" to arrayOf("n", "N", "ñ", "ń"),
-    "m" to arrayOf("m", "M"),
+    "z" to arrayOf(formContext[0].component1(), "Z", "z", "ž", "ź", "ż"),
+    "x" to arrayOf(formContext[1].component1(), "X", "x", "×"),
+    "c" to arrayOf(formContext[2].component1(), "C", "c", "ç", "ć", "č"),
+    "v" to arrayOf(formContext[3].component1(), "V", "v", "¿", "ü", "ǖ", "ǘ", "ǚ", "ǜ"),
+    "b" to arrayOf(formContext[4].component1(), "B", "b", "¡"),
+    "n" to arrayOf(formContext[5].component1(), "N", "n", "ñ", "ń"),
+    "m" to arrayOf(formContext[6].component1(), "M", "m"),
     "," to arrayOf("."),
     //
     // Upper case Latin
@@ -126,15 +185,15 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
     // Numbers
     //
     "1" to arrayOf("!", "1", "¹", "½", "⅓", "¼", "⅕", "⅙", "⅐", "⅛", "⅑", "⅒"),
-    "2" to arrayOf("@", "2","²", "⅖", "⅔"),
-    "3" to arrayOf("#", "3","³", "⅗", "¾", "⅜"),
-    "4" to arrayOf("$", "4","⁴", "⅘", "⅝", "⅚"),
-    "5" to arrayOf("%", "5","⁵", "⅝", "⅚"),
-    "6" to arrayOf("^", "6","⁶"),
-    "7" to arrayOf("&", "7","⁷", "⅞"),
-    "8" to arrayOf("*", "8","⁸"),
-    "9" to arrayOf("(", "9","⁹"),
-    "0" to arrayOf(")", "0","∅", "ⁿ", "⁰"),
+    "2" to arrayOf("@", "2", "²", "⅖", "⅔"),
+    "3" to arrayOf("#", "3", "³", "⅗", "¾", "⅜"),
+    "4" to arrayOf("$", "4", "⁴", "⅘", "⅝", "⅚"),
+    "5" to arrayOf("%", "5", "⁵", "⅝", "⅚"),
+    "6" to arrayOf("^", "6", "⁶"),
+    "7" to arrayOf("&", "7", "⁷", "⅞"),
+    "8" to arrayOf("*", "8", "⁸"),
+    "9" to arrayOf("(", "9", "⁹"),
+    "0" to arrayOf(")", "0", "∅", "ⁿ", "⁰"),
 
     //
     // Punctuation

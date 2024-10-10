@@ -58,7 +58,7 @@ class FlexboxVerticalDecoration(val drawable: Drawable) : RecyclerView.ItemDecor
             val top = view.top - lp.topMargin
             val bottom = view.bottom + lp.bottomMargin
             // make the divider shorter
-            val vInset = parent.dp(8)
+            val vInset = parent.dp(5)
             drawable.setBounds(left, top + vInset, right, bottom - vInset)
             drawable.draw(c)
         }

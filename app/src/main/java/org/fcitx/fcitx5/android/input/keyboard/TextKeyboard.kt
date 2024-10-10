@@ -198,10 +198,10 @@ class TextKeyboard(
             ), listOf(
                 KeyDef(
                     Appearance.ImageText(
-                        "?123",
+                        " ",
                         src = R.drawable.ic_baseline_tag_faces_24,
                         textSize = 16f,
-                        textStyle = Typeface.BOLD,
+                        textStyle = Typeface.NORMAL,
                         percentWidth = 0.15f,
                         variant = Variant.Alternative,
                         viewId = R.id.button_number,
@@ -270,6 +270,7 @@ class TextKeyboard(
         updateLangSwitchKey(showLangSwitchKey.getValue())
         showLangSwitchKey.registerOnChangeListener(showLangSwitchKeyListener)
         caps.swipeEnabled = false
+        buttonNumber.mainText.text = buildString { append("?123") }
     }
 
     private val textKeys: List<TextKeyView> by lazy {
@@ -340,7 +341,13 @@ class TextKeyboard(
         caps.swipeEnabled = status
         caps.doubleTapEnabled = !status
         lang.swipeEnabled = status
+        buttonNumber.mainText.text = buildString { append(if (status) "Esc" else "?123") }
+
         if (status) {
+            caps.img.apply {
+                imageResource = R.drawable.tab
+            }
+
             caps.setOnClickListener {
                 onAction(
                     KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Tab)),
@@ -371,6 +378,7 @@ class TextKeyboard(
             )
 
         } else {
+            updateCapsButtonIcon()
             caps.setOnClickListener {
                 onAction(KeyAction.CapsAction(false))
             }
@@ -420,9 +428,7 @@ class TextKeyboard(
             ime.subMode.run { label.ifEmpty { name.ifEmpty { null } } }?.let { append(" ($it)") }
         }
         if (capsState != CapsState.None) {
-//            if (ime.uniqueName != "rime" && ime.subMode.label != "A") {
             switchCapsState()
-//            }
         }
     }
 

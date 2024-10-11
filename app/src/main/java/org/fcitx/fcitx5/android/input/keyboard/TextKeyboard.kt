@@ -45,54 +45,40 @@ class TextKeyboard(
 
         val Layout: List<List<KeyDef>> = listOf(
             listOf(
-                AlphabetKeyNew("1", "!"),
-                AlphabetKeyNew("2", "@"),
-                AlphabetKeyNew("3", "#"),
-                AlphabetKeyNew("4", "$"),
-                AlphabetKeyNew("5", "%"),
-                AlphabetKeyNew("6", "^"),
-                AlphabetKeyNew("7", "&"),
-                AlphabetKeyNew("8", "*"),
-                AlphabetKeyNew("9", "("),
-                AlphabetKeyNew("0", ")")
-            ), listOf(
-                AlphabetKeyNew("Q", "`"),
-                AlphabetKeyNew("W", "~"),
-                AlphabetKeyNew("E", "+"),
-                AlphabetKeyNew("R", "-"),
-                AlphabetKeyNew("T", "="),
-                AlphabetKeyNew("Y", "_"),
-                AlphabetKeyNew("U", "<"),
-                AlphabetKeyNew("I", ">"),
-                AlphabetKeyNew("O", "["),
-                AlphabetKeyNew("P", "]")
-            ), listOf(
-                AlphabetKeyNew("A", "\\", percentWidth = 0.095f),
-                AlphabetKeyNew("S", "|", percentWidth = 0.095f),
-                AlphabetKeyNew("D", "×", percentWidth = 0.095f),
-                AlphabetKeyNew("F", "÷", percentWidth = 0.095f),
-                AlphabetKeyNew("G", "←", percentWidth = 0.095f),
-                AlphabetKeyNew("H", "→", percentWidth = 0.095f),
-                AlphabetKeyNew("J", formContext[7].component1(), percentWidth = 0.095f),
-                AlphabetKeyNew("K", formContext[8].component1(), percentWidth = 0.095f),
-                AlphabetKeyNew("L", formContext[9].component1(), percentWidth = 0.095f),
-                AlphabetKeyNew(
-                    ";", ":", percentWidth = 0.095f, behavior = setOf(
-                        Behavior.Press(KeyAction.FcitxKeyAction(";")),
-                        Behavior.Swipe(KeyAction.FcitxKeyAction(":")),
-                    )
-                ),
-            ), listOf(
+                AlphabetKey("Q", "1"),
+                AlphabetKey("W", "2"),
+                AlphabetKey("E", "3"),
+                AlphabetKey("R", "4"),
+                AlphabetKey("T", "5"),
+                AlphabetKey("Y", "6"),
+                AlphabetKey("U", "7"),
+                AlphabetKey("I", "8"),
+                AlphabetKey("O", "9"),
+                AlphabetKey("P", "0")
+            ),
+            listOf(
+                AlphabetKey("A", "@"),
+                AlphabetKey("S", "*"),
+                AlphabetKey("D", "+"),
+                AlphabetKey("F", "-"),
+                AlphabetKey("G", "="),
+                AlphabetKey("H", "/"),
+                AlphabetKey("J", "#"),
+                AlphabetKey("K", "("),
+                AlphabetKey("L", ")")
+            ),
+            listOf(
                 CapsKey(),
-                AlphabetKeyNew("Z", formContext[0].component1()),
-                AlphabetKeyNew("X", formContext[1].component1()),
-                AlphabetKeyNew("C", formContext[2].component1()),
-                AlphabetKeyNew("V", formContext[3].component1()),
-                AlphabetKeyNew("B", formContext[4].component1()),
-                AlphabetKeyNew("N", formContext[5].component1()),
-                AlphabetKeyNew("M", formContext[6].component1()),
+                AlphabetKey("Z", "'"),
+                AlphabetKey("X", ":"),
+                AlphabetKey("C", "\""),
+                AlphabetKey("V", "?"),
+                AlphabetKey("B", "!"),
+                AlphabetKey("N", "~"),
+                AlphabetKey("M", "\\"),
                 BackspaceKey()
-            ), listOf(
+            ),
+            listOf(
                 KeyDef(
                     Appearance.ImageText(
                         " ",
@@ -106,46 +92,30 @@ class TextKeyboard(
                     setOf(
                         Behavior.Press(KeyAction.LayoutSwitchAction("")),
                         Behavior.Swipe(KeyAction.PickerSwitchAction())
-                    ),
-                    arrayOf(
-                        Popup.Menu(
-                            arrayOf(
-                                Popup.Menu.Item(
-                                    "Emoji",
-                                    R.drawable.ic_baseline_tag_faces_24,
-                                    KeyAction.PickerSwitchAction()
-                                ),
-                                Popup.Menu.Item(
-                                    "QuickPhrase",
-                                    R.drawable.ic_baseline_format_quote_24,
-                                    KeyAction.QuickPhraseAction
-                                ),
-                                Popup.Menu.Item(
-                                    "Unicode",
-                                    R.drawable.ic_logo_unicode,
-                                    KeyAction.UnicodeAction
-                                )
-                            )
-                        )
                     )
                 ),
-                LanguageKey(),
-                AlphabetKeyNew(
-                    ",", "/", Variant.Normal,
-                    setOf(
-                        Behavior.Press(KeyAction.FcitxKeyAction(",")),
-                        Behavior.Swipe(KeyAction.FcitxKeyAction("/")),
-                    ), percentWidth = 0.1f
+                SymbolKeyId(
+                    " ",
+                    R.id.button_left,
+                    variant = Variant.Alternative,
+                    behaviors = setOf(Behavior.Press(KeyAction.FcitxKeyAction(",")))
                 ),
+                LanguageKey(),
                 SpaceKey(),
-                AlphabetKey(".", "?"),
-                AlphabetKey("'", "\""),
+                SymbolKeyId(
+                    " ",
+                    R.id.button_right,
+                    variant = Variant.Alternative,
+                    behaviors = setOf(Behavior.Press(KeyAction.FcitxKeyAction(".")))
+                ),
                 ReturnKey()
             )
         )
     }
 
     val buttonNumber: TextKeyView by lazy { findViewById(R.id.button_number) }
+    val buttonLeft: TextKeyView by lazy { findViewById(R.id.button_left) }
+    val buttonRight: TextKeyView by lazy { findViewById(R.id.button_right) }
 
     val caps: ImageKeyView by lazy { findViewById(R.id.button_caps) }
     val backspace: ImageKeyView by lazy { findViewById(R.id.button_backspace) }
@@ -168,6 +138,8 @@ class TextKeyboard(
         showLangSwitchKey.registerOnChangeListener(showLangSwitchKeyListener)
         caps.swipeEnabled = false
         buttonNumber.mainText.text = buildString { append("?123") }
+        buttonLeft.mainText.text = buildString { append(",") }
+        buttonRight.mainText.text = buildString { append(".") }
     }
 
     private val textKeys: List<TextKeyView> by lazy {
@@ -236,6 +208,21 @@ class TextKeyboard(
 
     override fun onInputPanelUpdate(status: Boolean) {
         buttonNumber.mainText.text = buildString { append(if (status) "Esc" else "?123") }
+        buttonLeft.mainText.text = buildString { append(if (status) ";" else ",") }
+        buttonLeft.setOnClickListener {
+            super.onAction(
+                KeyAction.FcitxKeyAction(buttonLeft.mainText.text.toString()),
+                KeyActionListener.Source.Keyboard
+            )
+        }
+        buttonRight.mainText.text = buildString { append(if (status) "'" else ".") }
+        buttonRight.setOnClickListener {
+            super.onAction(
+                KeyAction.FcitxKeyAction(buttonRight.mainText.text.toString()),
+                KeyActionListener.Source.Keyboard
+            )
+        }
+
         if (status) {
             buttonNumber.setOnClickListener {
                 onAction(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Escape)))

@@ -45,6 +45,7 @@ class SymbolKeyId(
     viewId: Int,
     percentWidth: Float = 0.14f,
     variant: Variant = Variant.Normal,
+    behaviors: Set<Behavior>? = null,
     popup: Array<Popup>? = null
 ) : KeyDef(
     Appearance.Text(
@@ -54,7 +55,7 @@ class SymbolKeyId(
         variant = variant,
         viewId = viewId
     ),
-    setOf(
+    behaviors ?: setOf(
         Behavior.Press(KeyAction.FcitxKeyAction(symbol))
     ),
     popup ?: arrayOf(

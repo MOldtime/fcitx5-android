@@ -124,7 +124,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             switch(R.string.expand_toolbar_by_default, "expand_toolbar_by_default", false)
         val inlineSuggestions = switch(R.string.inline_suggestions, "inline_suggestions", true)
         val toolbarNumRowOnPassword =
-            switch(R.string.toolbar_num_row_on_password, "toolbar_num_row_on_password", false)
+            switch(R.string.toolbar_num_row_on_password, "toolbar_num_row_on_password", true)
         val popupOnKeyPress = switch(R.string.popup_on_key_press, "popup_on_key_press", true)
         val keepLettersUppercase = switch(
             R.string.keep_keyboard_letters_uppercase,
@@ -157,7 +157,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val spaceSwipeMoveCursor =
             switch(R.string.space_swipe_move_cursor, "space_swipe_move_cursor", true)
         val showLangSwitchKey =
-            switch(R.string.show_lang_switch_key, "show_lang_switch_key", true)
+            switch(R.string.show_lang_switch_key, "show_lang_switch_key", false)
         val langSwitchKeyBehavior = enumList(
             R.string.lang_switch_key_behavior,
             "lang_switch_key_behavior",
@@ -172,10 +172,10 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
                 R.string.keyboard_height,
                 R.string.portrait,
                 "keyboard_height_percent",
-                33,
+                25,
                 R.string.landscape,
                 "keyboard_height_percent_landscape",
-                53,
+                49,
                 10,
                 90,
                 "%"

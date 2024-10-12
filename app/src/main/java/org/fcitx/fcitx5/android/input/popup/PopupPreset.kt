@@ -18,37 +18,6 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
  * [fcitx5/src/im/keyboard/longpress.cpp](https://github.com/fcitx/fcitx5/blob/5.0.18/src/im/keyboard/longpress.cpp#L15)
  */
 
-//enum class FormContext {
-//    selectAll, cut, copy, paste, clipboard, evert, caps;
-//
-//    fun getAction(context: FormContext): KeyAction {
-//        return when (context) {
-//            FormContext.selectAll -> KeyAction.PerformContextMenuAction(android.R.id.selectAll)
-//            FormContext.cut -> KeyAction.PerformContextMenuAction(android.R.id.cut)
-//            FormContext.copy -> KeyAction.PerformContextMenuAction(android.R.id.copy)
-//            FormContext.paste -> KeyAction.PerformContextMenuAction(android.R.id.paste)
-//            FormContext.clipboard -> KeyAction.attachWindow(ClipboardWindow())
-//            FormContext.evert -> KeyAction.SymAction(
-//                KeySym(FcitxKeyMapping.FcitxKey_Return),
-//                KeyStates(KeyState.Shift)
-//            )
-//            FormContext.caps -> KeyAction.SymAction(
-//                KeySym(FcitxKeyMapping.FcitxKey_Return),
-//                KeyStates(KeyState.Ctrl)
-//            )
-//        }
-//    }
-//
-//
-//    fun getKey(index: Int): String {
-//
-//    }
-//
-//    fun getKey(context: FormContext): String {
-//
-//    }
-//}
-
 val formContext = listOf(
     "全选" to KeyAction.PerformContextMenuAction(android.R.id.selectAll),
     "剪切" to KeyAction.PerformContextMenuAction(android.R.id.cut),

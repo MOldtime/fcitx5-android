@@ -7,7 +7,9 @@ package org.fcitx.fcitx5.android.input.candidates.adapter
 import android.annotation.SuppressLint
 import android.view.View.GONE
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.annotation.CallSuper
+import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayoutManager
 import org.fcitx.fcitx5.android.data.theme.Theme
@@ -18,6 +20,7 @@ import splitties.dimensions.dp
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.wrapContent
 import splitties.views.setPaddingDp
+import timber.log.Timber
 
 open class HorizontalCandidateViewAdapter(val theme: Theme) :
     RecyclerView.Adapter<CandidateViewHolder>() {
@@ -70,8 +73,9 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
         this.candidates = data
         this.total = total
         if (page == null) {
-            currentPage = 0
-            indexList.clear()
+            this.offset = 0
+            this.currentPage = 0
+            this.indexList.clear()
         }
         notifyDataSetChanged()
     }
@@ -83,8 +87,7 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
         val ui = CandidateItemUi(parent.context, theme)
         ui.root.apply {
             minimumWidth = dp(10)
-            setPaddingDp(10, 1, 10, 1)
-//            layoutParams = FlexboxLayoutManager.LayoutParams(wrapContent, matchParent)
+            setPaddingDp(0, 1, 0, 1)
             layoutParams = FlexboxLayoutManager.LayoutParams(wrapContent, matchParent)
         }
         return CandidateViewHolder(ui)

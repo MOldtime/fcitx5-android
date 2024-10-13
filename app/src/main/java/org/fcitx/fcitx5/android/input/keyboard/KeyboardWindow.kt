@@ -191,7 +191,21 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
             field = value
             currentKeyboard?.onCandidateUpdate(value)
         }
+
+    private var inputPaneStatus = false
+        get() = field
+        set(value) {
+            if (value == field) return
+            field = value
+            currentKeyboard?.onInputPanelUpdate(value)
+        }
+
     override fun onCandidateUpdate(data: FcitxEvent.CandidateListEvent.Data) {
         candidateStatus = data.candidates.isNotEmpty()
+    }
+
+    override fun onInputPanelUpdate(data: FcitxEvent.InputPanelEvent.Data) {
+        super.onInputPanelUpdate(data)
+        inputPaneStatus = data.preedit.isNotEmpty()
     }
 }

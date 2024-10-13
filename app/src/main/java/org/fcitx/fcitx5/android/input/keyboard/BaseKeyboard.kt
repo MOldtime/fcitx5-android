@@ -549,4 +549,8 @@ abstract class BaseKeyboard(
     open fun onCandidateUpdate(status: Boolean) {
         // do nothing by default
     }
+
+    open fun onInputPanelUpdate(status: Boolean) {
+        // do nothing by default
+    }
 }

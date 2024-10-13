@@ -234,23 +234,9 @@ class TextKeyboard(
         `return`.img.imageResource = returnDrawable
     }
 
-    override fun onCandidateUpdate(status: Boolean) {
-        caps.swipeEnabled = status
-        caps.doubleTapEnabled = !status
-        lang.swipeEnabled = status
+    override fun onInputPanelUpdate(status: Boolean) {
         buttonNumber.mainText.text = buildString { append(if (status) "Esc" else "?123") }
-
         if (status) {
-            caps.img.apply {
-                imageResource = R.drawable.tab
-            }
-
-            caps.setOnClickListener {
-                onAction(
-                    KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Tab)),
-                )
-            }
-
             buttonNumber.setOnClickListener {
                 onAction(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Escape)))
             }
@@ -259,27 +245,7 @@ class TextKeyboard(
                 onAction(KeyAction.LayoutSwitchAction(""))
                 true
             }
-
-            lang.swipeRewrite(
-                KeyAction.PageAction(Page.PageUP)
-            )
-
-            lang.setOnClickListener {
-                onAction(KeyAction.PageAction())
-            }
-
-            space.swipeRewrite(
-                KeyAction.FcitxKeyAction(
-                    "Space", ScancodeMapping.KEY_SPACE, KeyStates(KeyState.Virtual, KeyState.Shift)
-                )
-            )
-
         } else {
-            updateCapsButtonIcon()
-            caps.setOnClickListener {
-                onAction(KeyAction.CapsAction(false))
-            }
-
             buttonNumber.setOnClickListener {
                 onAction(KeyAction.LayoutSwitchAction(""))
             }
@@ -305,6 +271,44 @@ class TextKeyboard(
                     )
                 )
             )
+        }
+    }
+
+    override fun onCandidateUpdate(status: Boolean) {
+        caps.swipeEnabled = status
+        caps.doubleTapEnabled = !status
+        lang.swipeEnabled = status
+
+        if (status) {
+            caps.img.apply {
+                imageResource = R.drawable.tab
+            }
+
+            caps.setOnClickListener {
+                onAction(
+                    KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Tab)),
+                )
+            }
+
+            lang.swipeRewrite(
+                KeyAction.PageAction(Page.PageUP)
+            )
+
+            lang.setOnClickListener {
+                onAction(KeyAction.PageAction())
+            }
+
+            space.swipeRewrite(
+                KeyAction.FcitxKeyAction(
+                    "Space", ScancodeMapping.KEY_SPACE, KeyStates(KeyState.Virtual, KeyState.Shift)
+                )
+            )
+
+        } else {
+            updateCapsButtonIcon()
+            caps.setOnClickListener {
+                onAction(KeyAction.CapsAction(false))
+            }
 
             lang.setOnClickListener {
                 onAction(KeyAction.LangSwitchAction)

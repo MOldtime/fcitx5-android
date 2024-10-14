@@ -290,14 +290,6 @@ class TextKeyboard(
                 )
             }
 
-            lang.swipeRewrite(
-                KeyAction.PageAction(Page.PageUP)
-            )
-
-            lang.setOnClickListener {
-                onAction(KeyAction.PageAction())
-            }
-
             space.swipeRewrite(
                 KeyAction.FcitxKeyAction(
                     "Space", ScancodeMapping.KEY_SPACE, KeyStates(KeyState.Virtual, KeyState.Shift)
@@ -308,10 +300,6 @@ class TextKeyboard(
             updateCapsButtonIcon()
             caps.setOnClickListener {
                 onAction(KeyAction.CapsAction(false))
-            }
-
-            lang.setOnClickListener {
-                onAction(KeyAction.LangSwitchAction)
             }
 
             space.swipeRewrite(KeyAction.LangSwitchAction)
@@ -327,8 +315,6 @@ class TextKeyboard(
         space.mainText.text = buildString {
             append(if (ime.label == "En") ime.name else ime.label)
             ime.subMode.run { name.ifEmpty { label.ifEmpty { null } } }?.let { append(" $it") }
-//            append(ime.label)
-//            append(" ${ime.subMode.name}")
         }
         if (capsState != CapsState.None) {
             switchCapsState()

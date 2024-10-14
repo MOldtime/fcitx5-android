@@ -325,8 +325,10 @@ class TextKeyboard(
 
     override fun onInputMethodUpdate(ime: InputMethodEntry) {
         space.mainText.text = buildString {
-            append(ime.displayName)
-            ime.subMode.run { label.ifEmpty { name.ifEmpty { null } } }?.let { append(" ($it)") }
+            append(if (ime.label == "En") ime.name else ime.label)
+            ime.subMode.run { name.ifEmpty { label.ifEmpty { null } } }?.let { append(" $it") }
+//            append(ime.label)
+//            append(" ${ime.subMode.name}")
         }
         if (capsState != CapsState.None) {
             switchCapsState()

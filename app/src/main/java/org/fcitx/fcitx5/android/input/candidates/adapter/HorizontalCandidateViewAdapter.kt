@@ -12,6 +12,7 @@ import androidx.annotation.CallSuper
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayoutManager
+import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.candidates.CandidateItemUi
 import org.fcitx.fcitx5.android.input.candidates.CandidateViewHolder
@@ -69,11 +70,11 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
     fun reduce() = currentPage--
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateCandidates(data: Array<String>, total: Int, page: Page? = null) {
-        this.candidates = data
-        this.total = total
+    fun updateCandidates(data: FcitxEvent.CandidateListEvent.Data, page: Page? = null) {
+        this.candidates = data.candidates
+        this.total = data.total
         if (page == null) {
-            this.offset = 0
+            this.offset = if (data.currentPage == -1) 0 else data.currentPage * data.total
             this.currentPage = 0
             this.indexList.clear()
         }

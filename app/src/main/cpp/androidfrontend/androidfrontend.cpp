@@ -49,7 +49,8 @@ public:
         const int before = -offset;
         const int after = offset + static_cast<int>(size);
         if (before < 0 || after < 0) {
-            FCITX_WARN() << "Invalid deleteSurrounding request: offset=" << offset << ", size=" << size;
+            FCITX_WARN() << "Invalid deleteSurrounding request: offset=" << offset << ", size="
+                         << size;
             return;
         }
         frontend_->deleteSurrounding(before, after);
@@ -73,9 +74,36 @@ public:
         int size = 0;
         const auto &list = inputPanel().candidateList();
         if (list) {
-            size = list->size();
-            for (int i = 0; i < size; i++) {
-                candidates.emplace_back(filterString(list->candidate(i).textWithComment()));
+            const auto &pageable = list->toPageable();
+            if (pageable) {
+                auto currentPage = pageable->currentPage();
+                if (currentPage != -1) {
+                    size = list->size();
+                    candidates.reserve(size);
+                    for (int i = 0; i < size; i++) {
+                        candidates.emplace_back(filterString(list->candidate(i).textWithComment()));
+                    }
+                    frontend_->updateCandidateList(candidates, size, currentPage);
+                    return;
+                }
+            }
+
+            const auto &bulk = list->toBulk();
+            if (bulk) {
+                size = bulk->totalSize();
+                // limit candidate count to 16 (for paging)
+                const int limit = size < 0 ? 16 : std::min(size, 16);
+                for (int i = 0; i < limit; i++) {
+                    try {
+                        auto &candidate = bulk->candidateFromAll(i);
+                        // maybe unnecessary; I don't see anywhere using `CandidateWord::setPlaceHolder`
+                        // if (candidate.isPlaceHolder()) continue;
+                        candidates.emplace_back(filterString(candidate.textWithComment()));
+                    } catch (const std::invalid_argument &e) {
+                        size = static_cast<int>(candidates.size());
+                        break;
+                    }
+                }
             }
         }
         frontend_->updateCandidateList(candidates, size);
@@ -93,6 +121,7 @@ public:
         bool hasNext = false;
         const auto &pageable = list->toPageable();
         if (pageable) {
+            FCITX_INFO() << pageable->currentPage();
             hasPrev = pageable->hasPrev();
             hasNext = pageable->hasNext();
         }
@@ -285,8 +314,8 @@ void AndroidFrontend::commitString(const std::string &str, const int cursor) {
     commitStringCallback(str, cursor);
 }
 
-void AndroidFrontend::updateCandidateList(const std::vector<std::string> &candidates, const int size) {
-    candidateListCallback(candidates, size);
+void AndroidFrontend::updateCandidateList(const std::vector<std::string> &candidates, const int size, const int currentPage) {
+    candidateListCallback(candidates, size, currentPage);
 }
 
 void AndroidFrontend::updateClientPreedit(const Text &clientPreedit) {

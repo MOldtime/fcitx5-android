@@ -81,7 +81,7 @@ public:
         return uv_run(get_event_base(), UV_RUN_ONCE);
     }
 
-    void startup(const fcitx::AndroidLibraryDependency& dependency,
+    void startup(const fcitx::AndroidLibraryDependency &dependency,
                  const std::function<void(fcitx::AddonInstance *)> &setupCallback) {
         p_instance = std::make_unique<fcitx::Instance>(0, nullptr);
         p_instance->addonManager().registerLoader(std::make_unique<fcitx::AndroidSharedLibraryLoader>(dependency));
@@ -598,17 +598,19 @@ Java_org_fcitx_fcitx5_android_core_Fcitx_startupFcitx(
         depsMap.emplace(lib, depSet);
     }
 
-    auto candidateListCallback = [](const std::vector<std::string> &candidates, const int size) {
+    auto candidateListCallback = [](const std::vector<std::string> &candidates, const int size, const int currentPage) {
         auto env = GlobalRef->AttachEnv();
         auto candidatesArray = JRef<jobjectArray>(env, env->NewObjectArray(static_cast<int>(candidates.size()), GlobalRef->String, nullptr));
         int i = 0;
         for (const auto &s: candidates) {
             env->SetObjectArrayElement(candidatesArray, i++, JString(env, s));
         }
-        auto vararg = JRef<jobjectArray>(env, env->NewObjectArray(2, GlobalRef->Object, nullptr));
+        auto vararg = JRef<jobjectArray>(env, env->NewObjectArray(3, GlobalRef->Object, nullptr));
         auto candidatesCount = JRef(env, env->NewObject(GlobalRef->Integer, GlobalRef->IntegerInit, size));
+        auto currentPage_ = JRef(env, env->NewObject(GlobalRef->Integer, GlobalRef->IntegerInit, currentPage));
         env->SetObjectArrayElement(vararg, 0, *candidatesCount);
         env->SetObjectArrayElement(vararg, 1, *candidatesArray);
+        env->SetObjectArrayElement(vararg, 2, *currentPage_);
         env->CallStaticVoidMethod(GlobalRef->Fcitx, GlobalRef->HandleFcitxEvent, 0, *vararg);
     };
     auto commitStringCallback = [](const std::string &str, const int cursor) {

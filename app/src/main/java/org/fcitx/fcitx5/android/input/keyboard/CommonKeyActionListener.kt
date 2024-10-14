@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.core.FcitxAPI
+import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.broadcast.PreeditEmptyStateComponent
@@ -218,8 +219,7 @@ class CommonKeyActionListener :
                             if (arr.isNotEmpty()) {
                                 withContext(Dispatchers.Main) {
                                     horizontalCandidate.adapter.updateCandidates(
-                                        arr,
-                                        arr.size,
+                                        FcitxEvent.CandidateListEvent.Data(arr.size, arr),
                                         action.pageAction
                                     )
                                 }

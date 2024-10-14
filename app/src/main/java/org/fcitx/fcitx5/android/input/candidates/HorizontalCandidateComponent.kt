@@ -189,7 +189,7 @@ class HorizontalCandidateComponent :
                 secondLayoutPassNeeded = false
             }
         }
-        adapter.updateCandidates(candidates, total)
+        adapter.updateCandidates(data)
         // not sure why empty candidates won't trigger `FlexboxLayoutManager#onLayoutCompleted()`
         if (candidates.isEmpty()) {
             refreshExpanded()

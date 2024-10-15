@@ -32,8 +32,8 @@ val formContext = listOf(
         KeySym(FcitxKeyMapping.FcitxKey_Return),
         KeyStates(KeyState.Ctrl)
     ),
-    "↷" to KeyAction.sendCombinationKey(KeyEvent.KEYCODE_Z, ctrl = true, shift = true),
     "↶" to KeyAction.sendCombinationKey(KeyEvent.KEYCODE_Z, ctrl = true),
+    "↷" to KeyAction.sendCombinationKey(KeyEvent.KEYCODE_Z, ctrl = true, shift = true),
     "⇐" to KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_l), KeyStates(KeyState.Ctrl))
 )
 val PopupPreset: Map<String, Array<String>> = hashMapOf(

@@ -62,8 +62,8 @@ class TextKeyboard(
                 AlphabetKeyNew("R", "-"),
                 AlphabetKeyNew("T", "="),
                 AlphabetKeyNew("Y", "_"),
-                AlphabetKeyNew("U", "<"),
-                AlphabetKeyNew("I", ">"),
+                AlphabetKeyNew("U", "{"),
+                AlphabetKeyNew("I", "}"),
                 AlphabetKeyNew("O", "["),
                 AlphabetKeyNew("P", "]")
             ), listOf(
@@ -130,15 +130,10 @@ class TextKeyboard(
                     )
                 ),
                 LanguageKey(),
-                AlphabetKeyNew(
-                    ",", "/", Variant.Normal,
-                    setOf(
-                        Behavior.Press(KeyAction.FcitxKeyAction(",")),
-                        Behavior.Swipe(KeyAction.FcitxKeyAction("/")),
-                    ), percentWidth = 0.1f
-                ),
+                AlphabetKey("/", "?"),
+                AlphabetKey(",", "<"),
                 SpaceKey(),
-                AlphabetKey(".", "?"),
+                AlphabetKey(".", ">"),
                 AlphabetKey("'", "\""),
                 ReturnKey()
             )
@@ -277,7 +272,6 @@ class TextKeyboard(
     override fun onCandidateUpdate(status: Boolean) {
         caps.swipeEnabled = status
         caps.doubleTapEnabled = !status
-        lang.swipeEnabled = status
 
         if (status) {
             caps.img.apply {
@@ -372,7 +366,8 @@ class TextKeyboard(
     }
 
     private fun updateLangSwitchKey(visible: Boolean) {
-        lang.visibility = if (visible) View.VISIBLE else View.GONE
+//        lang.visibility = if (visible) View.VISIBLE else View.GONE
+        lang.visibility = GONE
     }
 
     private fun updateAlphabetKeys() {

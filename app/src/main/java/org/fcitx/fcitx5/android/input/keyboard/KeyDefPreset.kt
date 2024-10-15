@@ -198,7 +198,7 @@ class CapsKey : KeyDef(
             KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Tab), KeyStates(KeyState.Shift))
         ),
         Behavior.Press(KeyAction.CapsAction(false)),
-        Behavior.LongPress(KeyAction.CapsAction(true)),
+        Behavior.LongPress(KeyAction.LangSwitchAction),
         Behavior.DoubleTap(KeyAction.CapsAction(true))
     )
 )
@@ -237,27 +237,27 @@ class LayoutSwitchNumber(
     setOf(
         Behavior.Press(KeyAction.LayoutSwitchAction(to)),
     ),
-//    arrayOf(
-//        Popup.Menu(
-//            arrayOf(
-//                Popup.Menu.Item(
-//                    "Emoji",
-//                    R.drawable.ic_baseline_tag_faces_24,
-//                    KeyAction.PickerSwitchAction()
-//                ),
-//                Popup.Menu.Item(
-//                    "QuickPhrase",
-//                    R.drawable.ic_baseline_format_quote_24,
-//                    KeyAction.QuickPhraseAction
-//                ),
-//                Popup.Menu.Item(
-//                    "Unicode",
-//                    R.drawable.ic_logo_unicode,
-//                    KeyAction.UnicodeAction
-//                )
-//            )
-//        )
-//    )
+    arrayOf(
+        Popup.Menu(
+            arrayOf(
+                Popup.Menu.Item(
+                    "Emoji",
+                    R.drawable.ic_baseline_tag_faces_24,
+                    KeyAction.PickerSwitchAction()
+                ),
+                Popup.Menu.Item(
+                    "QuickPhrase",
+                    R.drawable.ic_baseline_format_quote_24,
+                    KeyAction.QuickPhraseAction
+                ),
+                Popup.Menu.Item(
+                    "Unicode",
+                    R.drawable.ic_logo_unicode,
+                    KeyAction.UnicodeAction
+                )
+            )
+        )
+    )
 )
 
 class BackspaceKey(

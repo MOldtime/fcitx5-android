@@ -46,8 +46,8 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
     "r" to arrayOf("-", "r", "R"),
     "t" to arrayOf("=", "t", "T"),
     "y" to arrayOf("_", "y", "Y", "ÿ", "ұ", "ү", "ӯ", "ў"),
-    "u" to arrayOf("<", "u", "≤", "U", "û", "ü", "ū", "ú", "ǔ", "ù"),
-    "i" to arrayOf(">", "i", "≥", "I", "î", "ï", "ī", "í", "ǐ", "ì", "į", "ı"),
+    "u" to arrayOf("{", "u", "≤", "U", "û", "ü", "ū", "ú", "ǔ", "ù"),
+    "i" to arrayOf("}", "i", "≥", "I", "î", "ï", "ī", "í", "ǐ", "ì", "į", "ı"),
     "o" to arrayOf("[", "o", "{", "O", "ô", "ö", "ō", "ó", "ǒ", "ò", "œ", "ø", "õ"),
     "p" to arrayOf("]", "p", "}", "P"),
     "a" to arrayOf("\\", "a", "A", "â", "ä", "ā", "á", "ǎ", "à", "æ", "ã", "å"),
@@ -67,7 +67,6 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
     "b" to arrayOf(formContext[4].component1(), "B", "b", "¡"),
     "n" to arrayOf(formContext[5].component1(), "N", "n", "ñ", "ń"),
     "m" to arrayOf(formContext[6].component1(), "M", "m"),
-    "," to arrayOf("."),
     //
     // Upper case Latin
     //
@@ -98,8 +97,6 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
     "B" to arrayOf("b", "B", "¡"),
     "N" to arrayOf("n", "N", "Ñ", "Ń"),
     "M" to arrayOf("m", "M"),
-    "," to arrayOf("/", "?", "!", ":", ";", "_", "%", "$", "^", "&"),
-    "'" to arrayOf("\""),
     //
     // Upper case Cyrillic
     //
@@ -167,13 +164,15 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
     //
     // Punctuation
     //
-    "." to arrayOf("?", ",", "!", ":", ";", "_", "%", "$", "^", "&"),
+    "," to arrayOf("<", "?", "!", ":", ";", "_", "%", "$", "^", "&"),
+    "'" to arrayOf("\""),
+    "." to arrayOf(">", ",", "!", ":", ";", "_", "%", "$", "^", "&"),
     "-" to arrayOf("—", "–", "·"),
     "?" to arrayOf("¿", "‽"),
     "'" to arrayOf("\"", "‘", "’", "‚", "›", "‹"),
     "!" to arrayOf("¡"),
     "\"" to arrayOf("“", "”", "„", "»", "«"),
-    "/" to arrayOf("÷"),
+    "/" to arrayOf("?", "÷"),
     "#" to arrayOf("№"),
     "%" to arrayOf("‰", "℅"),
     "^" to arrayOf("↑", "↓", "←", "→"),

@@ -73,9 +73,9 @@ class TextKeyboard(
                 AlphabetKeyNew("F", "÷", percentWidth = 0.095f),
                 AlphabetKeyNew("G", "←", percentWidth = 0.095f),
                 AlphabetKeyNew("H", "→", percentWidth = 0.095f),
-                AlphabetKeyNew("J", "↶", percentWidth = 0.095f),
-                AlphabetKeyNew("K", "↷", percentWidth = 0.095f),
-                AlphabetKeyNew("L", "⇐", percentWidth = 0.095f),
+                AlphabetKeyNew("J", formContext[7].component1(), percentWidth = 0.095f),
+                AlphabetKeyNew("K", formContext[8].component1(), percentWidth = 0.095f),
+                AlphabetKeyNew("L", formContext[9].component1(), percentWidth = 0.095f),
                 AlphabetKeyNew(
                     ";", ":", percentWidth = 0.095f, behavior = setOf(
                         Behavior.Press(KeyAction.FcitxKeyAction(";")),
@@ -382,7 +382,6 @@ class TextKeyboard(
                 if (str.length != 1 || !str[0].isLetter()) return@forEach
                 if (keepLettersUppercase) str.uppercase() else transformAlphabet(str)
             }
-
         }
     }
 

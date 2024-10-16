@@ -121,7 +121,6 @@ public:
         bool hasNext = false;
         const auto &pageable = list->toPageable();
         if (pageable) {
-            FCITX_INFO() << pageable->currentPage();
             hasPrev = pageable->hasPrev();
             hasNext = pageable->hasNext();
         }

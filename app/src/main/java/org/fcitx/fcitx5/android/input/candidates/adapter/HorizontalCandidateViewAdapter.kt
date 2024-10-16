@@ -97,7 +97,7 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
     @CallSuper
     override fun onBindViewHolder(holder: CandidateViewHolder, position: Int) {
         val text = candidates[position]
-        val list = text.split(Regex("\\s+"))
+        val list = text.split(Regex("\\s+"), 2)
         holder.ui.text.text = list[0]
         if (list.size > 1) holder.ui.label.text = list[1]
         else {

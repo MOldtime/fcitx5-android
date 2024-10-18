@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.input.candidates
 
 import android.content.Context
 import android.view.Gravity.CENTER_VERTICAL
+import android.view.View.VISIBLE
 import android.widget.LinearLayout
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
@@ -28,7 +29,7 @@ class CandidateItemUi(override val ctx: Context, theme: Theme) : Ui {
         textSize = 10f // sp
         isSingleLine = true
         gravity = gravityCenter
-        setTextColor(theme.keyTextColor)
+        setTextColor(theme.altKeyTextColor)
     }
 
     override val root = LinearLayout(ctx).apply {

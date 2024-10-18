@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.input.candidates.adapter
 
 import android.annotation.SuppressLint
 import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.annotation.CallSuper
@@ -99,8 +100,10 @@ open class HorizontalCandidateViewAdapter(val theme: Theme) :
         val text = candidates[position]
         val list = text.split(Regex("\\s+"), 2)
         holder.ui.text.text = list[0]
-        if (list.size > 1) holder.ui.label.text = list[1]
-        else {
+        if (list.size > 1) {
+            holder.ui.label.text = list[1]
+            holder.ui.label.visibility = VISIBLE
+        } else {
             holder.ui.label.visibility = GONE
         }
         holder.text = text

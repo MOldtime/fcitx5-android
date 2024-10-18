@@ -406,6 +406,12 @@ class ReturnKey(percentWidth: Float = 0.15f) : KeyDef(
                 KeySym(FcitxKeyMapping.FcitxKey_Return),
                 KeyStates(KeyState.Shift)
             )
+        ),
+        Behavior.Swipe(
+            KeyAction.SymAction(
+                KeySym(FcitxKeyMapping.FcitxKey_Return),
+                KeyStates(KeyState.Ctrl)
+            )
         )
     ),
 //    arrayOf(

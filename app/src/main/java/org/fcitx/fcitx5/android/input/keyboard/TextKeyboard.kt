@@ -231,6 +231,7 @@ class TextKeyboard(
 
     override fun onInputPanelUpdate(status: Boolean) {
         buttonNumber.mainText.text = buildString { append(if (status) "Esc" else "?123") }
+        `return`.swipeEnabled = status
         if (status) {
             buttonNumber.setOnClickListener {
                 onAction(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Escape)))

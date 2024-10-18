@@ -47,6 +47,8 @@ sealed class KeyAction {
 
     data class DeleteSelectionAction(val totalCnt: Int = 0) : KeyAction()
 
+    data class DeleteSelectionAndSwipeAction(val event: CustomGestureView.Event) : KeyAction()
+
     data class PickerSwitchAction(val key: PickerWindow.Key? = null) : KeyAction()
 
     data object SpaceLongPressAction : KeyAction()

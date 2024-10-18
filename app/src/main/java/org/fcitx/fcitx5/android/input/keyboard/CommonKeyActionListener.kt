@@ -11,6 +11,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.core.FcitxAPI
 import org.fcitx.fcitx5.android.core.FcitxEvent
+import org.fcitx.fcitx5.android.core.FcitxKeyMapping
+import org.fcitx.fcitx5.android.core.KeyState
+import org.fcitx.fcitx5.android.core.KeyStates
+import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.broadcast.PreeditEmptyStateComponent
@@ -42,6 +46,7 @@ import org.mechdancer.dependency.UniqueComponent
 import org.mechdancer.dependency.manager.ManagedHandler
 import org.mechdancer.dependency.manager.managedHandler
 import org.mechdancer.dependency.manager.must
+import timber.log.Timber
 
 class CommonKeyActionListener :
     UniqueComponent<CommonKeyActionListener>(), Dependent, ManagedHandler by managedHandler() {
@@ -161,11 +166,19 @@ class CommonKeyActionListener :
                         Reset -> {}
                     }
                 }
-                is DeleteSelectionAction -> {
+//                is DeleteSelectionAction -> {
+                is KeyAction.DeleteSelectionAndSwipeAction -> {
                     when (backspaceSwipeState) {
                         Stopped -> {}
                         Selection -> service.deleteSelection()
-                        Reset -> if (action.totalCnt < 0) { // swipe left
+                        Reset -> if (action.event.y < 0 && action.event.x > 0) { // swipe left
+                            service.postFcitxJob {
+                                sendKey(
+                                    KeySym(FcitxKeyMapping.FcitxKey_Return).sym,
+                                    KeyStates(KeyState.Shift).states
+                                )
+                            }
+                        } else if (action.event.totalX < 0) {
                             service.postFcitxJob { reset() }
                         }
                     }

@@ -21,6 +21,7 @@ import org.fcitx.fcitx5.android.data.InputFeedbacks
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.cursor.CursorRange
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.GestureType
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.OnGestureListener
 import org.fcitx.fcitx5.android.input.popup.PopupAction
@@ -58,6 +59,8 @@ abstract class BaseKeyboard(
     private val swipeSymbolDirection by prefs.keyboard.swipeSymbolDirection
 
     private val spaceSwipeMoveCursor = prefs.keyboard.spaceSwipeMoveCursor
+    private val hapticFeedback = prefs.keyboard.hapticFeedback
+    private val longPressDelay by prefs.keyboard.longPressDelay
     private val spaceKeys = mutableListOf<KeyView>()
     private val spaceSwipeChangeListener = ManagedPreference.OnChangeListener<Boolean> { _, v ->
         spaceKeys.forEach {
@@ -82,6 +85,14 @@ abstract class BaseKeyboard(
      * HashMap of [PointerId (Int)][MotionEvent.getPointerId] to [KeyView]
      */
     private val touchTarget = hashMapOf<Int, View>()
+
+    val symbolDisplay = if (themePrefs.symbolDisplay.getValue()) ::AltTextKeyView else ::TextKeyView
+
+    private var vibration = vibrationCheck()
+    private fun vibrationCheck(): ((View, Boolean) -> Unit)? =
+        if (hapticFeedback.getValue()) { view, extraConditions ->
+            if (selection.end > 0 && selection.start > 0 && extraConditions) InputFeedbacks.hapticFeedback(view)
+        } else null
 
     init {
         isMotionEventSplittingEnabled = true
@@ -140,8 +151,10 @@ abstract class BaseKeyboard(
             })
         }
         spaceSwipeMoveCursor.registerOnChangeListener(spaceSwipeChangeListener)
+        hapticFeedback.registerOnChangeListener {_, v ->
+            vibration = vibrationCheck()
+        }
     }
-
     private fun createKeyView(def: KeyDef): KeyView {
         return when (def.appearance) {
             is KeyDef.Appearance.AltText -> AltTextKeyView(context, theme, def.appearance)
@@ -162,7 +175,7 @@ abstract class BaseKeyboard(
                 swipeRepeatEnabled = true
                 swipeThresholdX = selectionSwipeThreshold
                 swipeThresholdY = disabledSwipeThreshold
-                onGestureListener = OnGestureListener { _, event ->
+                onGestureListener = OnGestureListener { view, event ->
                     when (event.type) {
                         GestureType.Move -> when (val count = event.countX) {
                             0 -> false
@@ -172,6 +185,7 @@ abstract class BaseKeyboard(
                                 val action = KeyAction.SymAction(KeySym(sym), KeyStates.Empty)
                                 repeat(count.absoluteValue) {
                                     onAction(action)
+                                    vibration?.invoke(view, selection.end >= selection.start)
                                 }
                                 true
                             }
@@ -184,12 +198,13 @@ abstract class BaseKeyboard(
                 swipeRepeatEnabled = true
                 swipeThresholdX = selectionSwipeThreshold
                 swipeThresholdY = disabledSwipeThreshold
-                onGestureListener = OnGestureListener { _, event ->
+                onGestureListener = OnGestureListener { view, event ->
                     when (event.type) {
                         GestureType.Move -> {
                             val count = event.countX
                             if (count != 0) {
                                 onAction(KeyAction.MoveSelectionAction(count))
+                                vibration?.invoke(view, selection.end > selection.start)
                                 true
                             } else false
                         }
@@ -216,8 +231,9 @@ abstract class BaseKeyboard(
                     }
                     is KeyDef.Behavior.Repeat -> {
                         repeatEnabled = true
-                        onRepeatListener = { _ ->
+                        onRepeatListener = { view ->
                             onAction(it.action)
+                            vibration?.invoke(view, selection.end >= selection.start)
                         }
                     }
                     is KeyDef.Behavior.Swipe -> {
@@ -476,6 +492,11 @@ abstract class BaseKeyboard(
         onAction(action, KeyActionListener.Source.Popup)
         onPopupAction(PopupAction.DismissAction(viewId))
         return true
+    }
+
+    private val selection = CursorRange()
+    fun onSelectionUpdate(start: Int, end: Int) {
+        selection.update(start, end)
     }
 
     open fun onAttach() {

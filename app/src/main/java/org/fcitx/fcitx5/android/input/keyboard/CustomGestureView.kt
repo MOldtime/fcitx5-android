@@ -11,6 +11,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
@@ -27,6 +28,8 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
 
     enum class GestureType { Down, Move, Up }
 
+    var pressTime: Long = -1
+
     data class Event(
         val type: GestureType,
         val consumed: Boolean,
@@ -35,7 +38,8 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         val countX: Int,
         val countY: Int,
         val totalX: Int,
-        val totalY: Int
+        val totalY: Int,
+        val pressTime: Long
     )
 
     fun interface OnGestureListener {
@@ -144,6 +148,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 if (!isEnabled) return false
+                pressTime = SystemClock.uptimeMillis();
                 drawableHotspotChanged(x, y)
                 isPressed = true
                 InputFeedbacks.hapticFeedback(this)
@@ -168,6 +173,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                         while (isActive && isEnabled) {
                             lastTriggerTime = SystemClock.uptimeMillis()
                             onRepeatListener?.invoke(this@CustomGestureView)
+                            InputFeedbacks.hapticFeedback(this@CustomGestureView, true)
                             val t = lastTriggerTime + RepeatInterval - SystemClock.uptimeMillis()
                             if (t > 0) delay(t)
                         }
@@ -180,6 +186,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
             }
             MotionEvent.ACTION_UP -> {
                 isPressed = false
+                pressTime = -1
                 InputFeedbacks.hapticFeedback(this, longPress = true, keyUp = true)
                 dispatchGestureEvent(GestureType.Up, event.x, event.y)
                 val shouldPerformClick = !(touchMovedOutside ||
@@ -231,6 +238,7 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
                 return true
             }
             MotionEvent.ACTION_CANCEL -> {
+                pressTime = -1
                 isPressed = false
                 dispatchGestureEvent(GestureType.Up, event.x, event.y)
                 resetState()
@@ -252,7 +260,17 @@ open class CustomGestureView(ctx: Context) : FrameLayout(ctx) {
         countX: Int = 0,
         countY: Int = 0
     ) {
-        val event = Event(type, gestureConsumed, x, y, countX, countY, swipeTotalX, swipeTotalY)
+        val event = Event(
+            type,
+            gestureConsumed,
+            x,
+            y,
+            countX,
+            countY,
+            swipeTotalX,
+            swipeTotalY,
+            if (pressTime == -1L) -1 else SystemClock.uptimeMillis() - pressTime
+        )
         val consumed = onGestureListener?.onGesture(this, event) ?: return
         if (consumed && !gestureConsumed) {
             gestureConsumed = true

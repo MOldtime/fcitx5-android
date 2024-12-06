@@ -9,27 +9,56 @@ import android.text.InputType
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fcitx.fcitx5.android.utils.monitorCursorAnchor
+import timber.log.Timber
 
 class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
 
     private var inputView: InputView? = null
-    private var candidatesView: CandidatesView? = null
+    private var candidatesView: CandidatesPopupWindow? = null
+    val isShowCandidate by AppPrefs.getInstance().candidates.floatingWindow
+    private val isHideCandidate by AppPrefs.getInstance().candidates.hideCandidates
+    private var pagingMode = 0
 
     private fun setupInputViewEvents(isVirtual: Boolean) {
         inputView?.handleEvents = isVirtual
+        if (isVirtual) {
+            inputView?.apply {
+                this.viewTreeObserver.addOnPreDrawListener(object :
+                    ViewTreeObserver.OnPreDrawListener {
+                    override fun onPreDraw(): Boolean {
+                        Timber.d("onPreDraw ${(this@InputDeviceManager.candidatesView == null)}")
+                        // 移除监听器，防止多次调用
+                        this@apply.viewTreeObserver.removeOnPreDrawListener(this)
+                        this@InputDeviceManager.candidatesView?.setParentSize(
+                            this@apply.keyboardView.width, this@apply.keyboardView.y
+                        )
+                        this@InputDeviceManager.candidatesView?.setCursorAnchor(this@apply.keyboardView.y)
+                        return true
+                    }
+                })
+            }
+        }
         inputView?.visibility = if (isVirtual) View.VISIBLE else View.GONE
     }
 
     private fun setupCandidatesViewEvents(isVirtual: Boolean) {
-        candidatesView?.handleEvents = !isVirtual
-        // hide CandidatesView when entering virtual keyboard mode,
-        // but preserve the visibility when entering physical keyboard mode (in case it's empty)
-        if (isVirtual) {
-            candidatesView?.visibility = View.GONE
+        if (!isVirtual) {
+            candidatesView?.candidates?.handleEvents = true
+            return
+        }
+        if (isHideCandidate) {
+            candidatesView?.clean()
+            return
+        }
+        if (isShowCandidate) {
+            candidatesView?.candidates?.handleEvents = true
+        } else {
+            candidatesView?.clean()
         }
     }
 
@@ -41,6 +70,7 @@ class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
     var isVirtualKeyboard = true
         private set(value) {
             field = value
+            candidatesView?.isVirtualKeyboard = value
             setupViewEvents(value)
         }
 
@@ -49,21 +79,32 @@ class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
         setupInputViewEvents(this.isVirtualKeyboard)
     }
 
-    fun setCandidatesView(candidatesView: CandidatesView) {
+    fun setCandidatesView(candidatesView: CandidatesPopupWindow) {
         this.candidatesView = candidatesView
+        setCandidatesView()
+    }
+
+    fun setCandidatesView() {
         setupCandidatesViewEvents(this.isVirtualKeyboard)
     }
 
-    private fun applyMode(service: FcitxInputMethodService, useVirtualKeyboard: Boolean) {
-        if (useVirtualKeyboard == isVirtualKeyboard) {
-            return
+    private fun applyMode(
+        service: FcitxInputMethodService,
+        useVirtualKeyboard: Boolean,
+    ) {
+        // TODO 待优化
+        Timber.d("applyMode useVirtualKeyboard: $useVirtualKeyboard, isVirtualKeyboard: $isVirtualKeyboard, isHideCandidate: $isHideCandidate, isShowCandidate: $isShowCandidate")
+        service.currentInputConnection?.monitorCursorAnchor(if (!useVirtualKeyboard) true else if (isHideCandidate) false else isShowCandidate)
+            ?: Timber.d("applyMode service.currentInputConnection is null")
+        val pagingMode_ =
+            if ((!useVirtualKeyboard) || isShowCandidate || (isHideCandidate)) 1 else 0
+        if (pagingMode_ != pagingMode) {
+            pagingMode = pagingMode_
+            service.postFcitxJob {
+                setCandidatePagingMode(pagingMode_)
+            }
         }
-        // monitor CursorAnchorInfo when switching to CandidatesView
-        service.currentInputConnection.monitorCursorAnchor(!useVirtualKeyboard)
-        service.postFcitxJob {
-            setCandidatePagingMode(if (useVirtualKeyboard) 0 else 1)
-        }
-        isVirtualKeyboard = useVirtualKeyboard
+        if (useVirtualKeyboard != isVirtualKeyboard) isVirtualKeyboard = useVirtualKeyboard
         onChange(isVirtualKeyboard)
     }
 
@@ -76,6 +117,7 @@ class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
      * @return should use virtual keyboard
      */
     fun evaluateOnStartInputView(info: EditorInfo, service: FcitxInputMethodService): Boolean {
+        Timber.d("evaluateOnStartInputView")
         startedInputView = true
         isNullInputType = info.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL
         val useVirtualKeyboard = when (candidatesViewMode) {
@@ -84,6 +126,8 @@ class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
             FloatingCandidatesMode.Disabled -> true
         }
         applyMode(service, useVirtualKeyboard)
+        // 针对没有汇报光标的软件做初始化
+        candidatesView?.setCursorAnchor(inputView?.keyboardView?.y ?: 0f)
         return useVirtualKeyboard
     }
 

@@ -219,7 +219,8 @@ class PopupKeyboardUi(
 
     override fun onTrigger(): KeyAction? {
         val key = keys.getOrNull(focusedIndex) ?: return null
-        return KeyAction.FcitxKeyAction(key)
+        return formContext.firstOrNull { key == it.component1() }?.component2()
+            ?: KeyAction.FcitxKeyAction(key)
     }
 
 }

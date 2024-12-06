@@ -579,17 +579,19 @@ Java_org_fcitx_fcitx5_android_core_Fcitx_startupFcitx(
         fcitx::registerDomain(CString(env, domain), locale_dir_char);
     }
 
-    auto candidateListCallback = [](const std::vector<std::string> &candidates, const int size) {
+    auto candidateListCallback = [](const std::vector<std::string> &candidates, const int size, const int currentPage) {
         auto env = GlobalRef->AttachEnv();
         auto candidatesArray = JRef<jobjectArray>(env, env->NewObjectArray(static_cast<int>(candidates.size()), GlobalRef->String, nullptr));
         int i = 0;
         for (const auto &s: candidates) {
             env->SetObjectArrayElement(candidatesArray, i++, JString(env, s));
         }
-        auto vararg = JRef<jobjectArray>(env, env->NewObjectArray(2, GlobalRef->Object, nullptr));
+        auto vararg = JRef<jobjectArray>(env, env->NewObjectArray(3, GlobalRef->Object, nullptr));
         auto candidatesCount = JRef(env, env->NewObject(GlobalRef->Integer, GlobalRef->IntegerInit, size));
+        auto currentPage_ = JRef(env, env->NewObject(GlobalRef->Integer, GlobalRef->IntegerInit, currentPage));
         env->SetObjectArrayElement(vararg, 0, *candidatesCount);
         env->SetObjectArrayElement(vararg, 1, *candidatesArray);
+        env->SetObjectArrayElement(vararg, 2, *currentPage_);
         env->CallStaticVoidMethod(GlobalRef->Fcitx, GlobalRef->HandleFcitxEvent, 0, *vararg);
     };
     auto commitStringCallback = [](const std::string &str, const int cursor) {
@@ -680,12 +682,14 @@ Java_org_fcitx_fcitx5_android_core_Fcitx_startupFcitx(
         auto layoutHint = JRef(env, env->NewObject(GlobalRef->Integer, GlobalRef->IntegerInit, static_cast<int>(paged.layoutHint)));
         auto hasPrev = JRef(env, env->NewObject(GlobalRef->Boolean, GlobalRef->BooleanInit, paged.hasPrev));
         auto hasNext = JRef(env, env->NewObject(GlobalRef->Boolean, GlobalRef->BooleanInit, paged.hasNext));
-        auto vararg = JRef<jobjectArray>(env, env->NewObjectArray(5, GlobalRef->Object, nullptr));
+        auto currentPage = JRef(env, env->NewObject(GlobalRef->Integer, GlobalRef->IntegerInit, paged.currentPage));
+        auto vararg = JRef<jobjectArray>(env, env->NewObjectArray(6, GlobalRef->Object, nullptr));
         env->SetObjectArrayElement(vararg, 0, candidatesArray);
         env->SetObjectArrayElement(vararg, 1, cursorIndex);
         env->SetObjectArrayElement(vararg, 2, layoutHint);
         env->SetObjectArrayElement(vararg, 3, hasPrev);
         env->SetObjectArrayElement(vararg, 4, hasNext);
+        env->SetObjectArrayElement(vararg, 5, currentPage);
         env->CallStaticVoidMethod(GlobalRef->Fcitx, GlobalRef->HandleFcitxEvent, 9, *vararg);
     };
     auto toastCallback = [](const std::string &s) {

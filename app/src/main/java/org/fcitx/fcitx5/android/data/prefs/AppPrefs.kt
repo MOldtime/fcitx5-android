@@ -15,6 +15,7 @@ import org.fcitx.fcitx5.android.data.InputFeedbacks.InputFeedbackMode
 import org.fcitx.fcitx5.android.input.candidates.expanded.ExpandedCandidateStyle
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesOrientation
+import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesPosition
 import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateMode
 import org.fcitx.fcitx5.android.input.keyboard.LangSwitchBehavior
 import org.fcitx.fcitx5.android.input.keyboard.SpaceLongPressBehavior
@@ -133,13 +134,18 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             switch(R.string.expand_toolbar_by_default, "expand_toolbar_by_default", false)
         val inlineSuggestions = switch(R.string.inline_suggestions, "inline_suggestions", true)
         val toolbarNumRowOnPassword =
-            switch(R.string.toolbar_num_row_on_password, "toolbar_num_row_on_password", true)
+            switch(R.string.toolbar_num_row_on_password, "toolbar_num_row_on_password", false)
         val popupOnKeyPress = switch(R.string.popup_on_key_press, "popup_on_key_press", true)
         val keepLettersUppercase = switch(
             R.string.keep_keyboard_letters_uppercase,
             "keep_keyboard_letters_uppercase",
             false
         )
+        val enExcluded = switch(
+            R.string.english_excluded,
+            "english_excluded",
+            true
+        ) { keepLettersUppercase.getValue() }
         val showVoiceInputButton =
             switch(R.string.show_voice_input_button, "show_voice_input_button", false)
         val expandKeypressArea =
@@ -147,7 +153,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val swipeSymbolDirection = enumList(
             R.string.swipe_symbol_behavior,
             "swipe_symbol_behavior",
-            SwipeSymbolDirection.Down
+            SwipeSymbolDirection.Up
         )
         val longPressDelay = int(
             R.string.keyboard_long_press_delay,
@@ -181,10 +187,10 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
                 R.string.keyboard_height,
                 R.string.portrait,
                 "keyboard_height_percent",
-                30,
+                33,
                 R.string.landscape,
                 "keyboard_height_percent_landscape",
-                49,
+                53,
                 10,
                 90,
                 "%"
@@ -241,7 +247,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val expandedCandidateStyle = enumList(
             R.string.expanded_candidate_style,
             "expanded_candidate_style",
-            ExpandedCandidateStyle.Grid
+            ExpandedCandidateStyle.Flexbox
         )
 
         val expandedCandidateGridSpanCount: ManagedPreference.PInt
@@ -262,7 +268,6 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             expandedCandidateGridSpanCount = primary
             expandedCandidateGridSpanCountLandscape = secondary
         }
-
     }
 
     inner class Candidates :
@@ -317,6 +322,15 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             itemPaddingVertical = primary
             itemPaddingHorizontal = secondary
         }
+
+        val floatingWindow =
+            switch(R.string.floating_candidate, "floating_candidate", false)
+
+        val floatingFollowPosition = enumList(R.string.floating_candidates_position, "floating_candidates_position", FloatingCandidatesPosition.Follow) {
+            floatingWindow.getValue()
+        }
+        val hideCandidates =
+            switch(R.string.hide_candidates, "hide_candidates", false)
     }
 
     inner class Clipboard : ManagedPreferenceCategory(R.string.clipboard, sharedPreferences) {

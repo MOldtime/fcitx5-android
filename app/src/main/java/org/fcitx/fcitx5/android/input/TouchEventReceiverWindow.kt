@@ -10,6 +10,8 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.widget.PopupWindow
+import androidx.constraintlayout.widget.ConstraintLayout.VISIBLE
+import androidx.core.view.isVisible
 
 class TouchEventReceiverWindow(
     private val contentView: View

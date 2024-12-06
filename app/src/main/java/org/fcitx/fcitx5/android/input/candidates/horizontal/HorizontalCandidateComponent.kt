@@ -57,10 +57,8 @@ class HorizontalCandidateComponent :
     private val fillStyle by AppPrefs.getInstance().keyboard.horizontalCandidateStyle
     private val maxSpanCountPref by lazy {
         AppPrefs.getInstance().keyboard.run {
-            if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
-                expandedCandidateGridSpanCount
-            else
-                expandedCandidateGridSpanCountLandscape
+            if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) expandedCandidateGridSpanCount
+            else expandedCandidateGridSpanCountLandscape
         }
     }
 
@@ -79,8 +77,7 @@ class HorizontalCandidateComponent :
     // Since expanded candidate window is created once the expand button was clicked,
     // we need to replay the last offset
     private val _expandedCandidateOffset = MutableSharedFlow<Int>(
-        replay = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
+        replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
 
     val expandedCandidateOffset = _expandedCandidateOffset.asSharedFlow()
@@ -198,7 +195,7 @@ class HorizontalCandidateComponent :
                 secondLayoutPassNeeded = false
             }
         }
-        adapter.updateCandidates(candidates, total)
+        adapter.updateCandidates(data)
         // not sure why empty candidates won't trigger `FlexboxLayoutManager#onLayoutCompleted()`
         if (candidates.isEmpty()) {
             refreshExpanded(0)

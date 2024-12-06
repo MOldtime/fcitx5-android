@@ -5,6 +5,8 @@
 
 package org.fcitx.fcitx5.android.input.candidates.expanded
 
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -41,8 +43,18 @@ open class PagingCandidateViewAdapter(val theme: Theme) :
 
     override fun onBindViewHolder(holder: CandidateViewHolder, position: Int) {
         val text = getItem(position)!!
-        holder.ui.text.text = text
-        holder.text = text
+        val list = text.split(Regex("\\s+"), 2)
+        holder.ui.text.text = list[0]
+        if (list.size > 1) {
+            holder.ui.comment.text = list[1]
+            holder.ui.comment.visibility = VISIBLE
+        } else {
+            holder.ui.comment.visibility = GONE
+        }
+        holder.text = list[0]
+
+//        holder.ui.text.text = text
+//        holder.text = text
         holder.idx = position + offset
     }
 }

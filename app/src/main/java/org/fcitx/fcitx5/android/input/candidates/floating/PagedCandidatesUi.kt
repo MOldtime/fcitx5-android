@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
@@ -29,12 +30,14 @@ class PagedCandidatesUi(
     val theme: Theme,
     private val setupTextView: TextView.() -> Unit,
     private val onCandidateClick: (Int) -> Unit,
+    private val onCandidateLongClick: (idx: Int, text: String, View) -> Boolean,
     private val onPrevPage: () -> Unit,
     private val onNextPage: () -> Unit
 ) : Ui {
 
     private var data = FcitxEvent.PagedCandidateEvent.Data.Empty
-
+    private var currentPage = -1
+    private var currentTotal = -1
     private var isVertical = false
 
     sealed class UiHolder(open val ui: Ui) : RecyclerView.ViewHolder(ui.root) {
@@ -75,11 +78,17 @@ class PagedCandidatesUi(
         override fun onBindViewHolder(holder: UiHolder, position: Int) {
             when (holder) {
                 is UiHolder.Candidate -> {
+//                    val idx =
+//                        (if (data.currentPage == -1) 0 else currentPage * currentTotal) + position
                     val candidate = data.candidates[position]
                     holder.ui.update(candidate, active = position == data.cursorIndex)
                     holder.ui.root.setOnClickListener {
                         onCandidateClick.invoke(position)
                     }
+                    holder.ui.root.setOnLongClickListener {
+                        onCandidateLongClick(position, candidate.text, holder.ui.root)
+                    }
+
                     holder.ui.root.updateLayoutParams<FlexboxLayoutManager.LayoutParams> {
                         width = if (isVertical) MATCH_PARENT else WRAP_CONTENT
                     }
@@ -121,6 +130,10 @@ class PagedCandidatesUi(
         orientation: FloatingCandidatesOrientation
     ) {
         this.data = data
+        if (data.currentPage == 0) {
+            this.currentTotal = data.candidates.size
+        }
+        this.currentPage = data.currentPage
         this.isVertical = when (orientation) {
             FloatingCandidatesOrientation.Automatic -> data.layoutHint == LayoutHint.Vertical
             else -> orientation == FloatingCandidatesOrientation.Vertical

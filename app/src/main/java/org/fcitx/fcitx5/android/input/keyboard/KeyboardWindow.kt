@@ -13,6 +13,8 @@ import androidx.core.content.ContextCompat
 import androidx.transition.Slide
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.CapabilityFlags
+import org.fcitx.fcitx5.android.core.FcitxEvent
+import org.fcitx.fcitx5.android.core.FormattedText
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.bar.KawaiiBarComponent
@@ -182,5 +184,47 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     // 2) currently keyboard window is attached and switchLayout was used
     private fun notifyBarLayoutChanged() {
         bar.onKeyboardLayoutSwitched(currentKeyboardName == NumberKeyboard.Name)
+    }
+
+    private var candidateStatus = false
+        set(value) {
+            if (value == field) return
+            field = value
+            currentKeyboard?.onCandidateUpdate(value)
+        }
+
+    private var clientPreeditStatus = false
+        set(value) {
+            field = value
+            panelStatus = field || inputPaneStatus
+        }
+    private var inputPaneStatus = false
+        set(value) {
+            field = value
+            panelStatus = field || clientPreeditStatus
+        }
+    private var panelStatus = false
+        set(value) {
+            if (value == field) return
+            field = value
+            currentKeyboard?.onPanelUpdate(value)
+        }
+
+    override fun onCandidateUpdate(data: FcitxEvent.CandidateListEvent.Data) {
+        candidateStatus = data.candidates.isNotEmpty()
+    }
+
+    override fun onCandidateUpdate(data: FcitxEvent.PagedCandidateEvent.Data) {
+        candidateStatus = data.candidates.isNotEmpty()
+    }
+
+    override fun onInputPanelUpdate(data: FcitxEvent.InputPanelEvent.Data) {
+//        paneStatus = data.preedit.isNotEmpty()
+        inputPaneStatus = data.preedit.isNotEmpty()
+    }
+
+    override fun onClientPreeditUpdate(data: FormattedText) {
+//        paneStatus = data.strings.isNotEmpty()
+        clientPreeditStatus = data.strings.isNotEmpty()
     }
 }

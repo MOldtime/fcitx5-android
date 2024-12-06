@@ -13,17 +13,28 @@ import android.view.ViewOutlineProvider
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.ViewTreeObserver.OnPreDrawListener
 import android.view.WindowInsets
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.annotation.Size
+import androidx.core.text.bold
+import androidx.core.text.buildSpannedString
+import androidx.core.text.color
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.daemon.launchOnReady
+import org.fcitx.fcitx5.android.data.InputFeedbacks
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesPosition
 import org.fcitx.fcitx5.android.input.candidates.floating.PagedCandidatesUi
 import org.fcitx.fcitx5.android.input.preedit.PreeditUi
+import org.fcitx.fcitx5.android.utils.item
 import splitties.dimensions.dp
+import splitties.resources.styledColor
 import splitties.views.dsl.constraintlayout.below
 import splitties.views.dsl.constraintlayout.bottomOfParent
 import splitties.views.dsl.constraintlayout.centerHorizontally
@@ -35,6 +46,7 @@ import splitties.views.dsl.core.add
 import splitties.views.dsl.core.withTheme
 import splitties.views.dsl.core.wrapContent
 import splitties.views.padding
+import timber.log.Timber
 import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")
@@ -43,6 +55,8 @@ class CandidatesView(
     fcitx: FcitxConnection,
     theme: Theme
 ) : BaseInputView(service, fcitx, theme) {
+
+    var isVirtualKeyboard = true
 
     private val ctx = context.withTheme(R.style.Theme_InputViewTheme)
 
@@ -54,6 +68,9 @@ class CandidatesView(
     private val fontSize by candidatesPrefs.fontSize
     private val itemPaddingVertical by candidatesPrefs.itemPaddingVertical
     private val itemPaddingHorizontal by candidatesPrefs.itemPaddingHorizontal
+
+    val floatingFollow by candidatesPrefs.floatingFollowPosition
+    val floatingWindow by candidatesPrefs.floatingWindow
 
     private var inputPanel = FcitxEvent.InputPanelEvent.Data()
     private var paged = FcitxEvent.PagedCandidateEvent.Data.Empty
@@ -100,6 +117,33 @@ class CandidatesView(
     private val candidatesUi = PagedCandidatesUi(
         ctx, theme, setupTextView,
         onCandidateClick = { index -> fcitx.launchOnReady { it.select(index) } },
+        onCandidateLongClick = { idx, text, ui ->
+            fcitx.lifecycleScope.launch {
+                val actions = fcitx.runOnReady { getCandidateActions(idx) }
+                if (actions.isEmpty()) return@launch
+                InputFeedbacks.hapticFeedback(ui, longPress = true)
+                withContext(Dispatchers.Main) {
+                    PopupMenu(context, ui).apply {
+                        menu.add(buildSpannedString {
+                            bold {
+                                color(context.styledColor(android.R.attr.colorAccent)) {
+                                    append(text)
+                                }
+                            }
+                        }).apply {
+                            isEnabled = false
+                        }
+                        actions.forEach { action ->
+                            menu.item(action.text) {
+                                fcitx.runIfReady { triggerCandidateAction(idx, action.id) }
+                            }
+                        }
+                        show()
+                    }
+                }
+            }
+            true
+        },
         onPrevPage = { fcitx.launchOnReady { it.offsetCandidatePage(-1) } },
         onNextPage = { fcitx.launchOnReady { it.offsetCandidatePage(1) } }
     )
@@ -155,21 +199,49 @@ class CandidatesView(
         val (horizontal, bottom, top) = anchorPosition
         val w: Int = width
         val h: Int = height
+        Timber.d("updatePosition: horizontal: $horizontal, bottom: $bottom, top: $top, parentWidth: $parentWidth, parentHeight: $parentHeight")
         val selfWidth = w.toFloat()
         val selfHeight = h.toFloat()
-        val tX: Float = if (layoutDirection == LAYOUT_DIRECTION_RTL) {
-            val rtlOffset = parentWidth - horizontal
-            if (rtlOffset + selfWidth > parentWidth) selfWidth - parentWidth else -rtlOffset
+        val tX: Float = if (floatingWindow || !isVirtualKeyboard) {
+            when (floatingFollow) {
+                FloatingCandidatesPosition.TopLeft, FloatingCandidatesPosition.BottomLeft -> {
+                    5f
+                }
+                FloatingCandidatesPosition.TopRight, FloatingCandidatesPosition.BottomRight -> {
+                    parentWidth - selfWidth - 5f
+                }
+                FloatingCandidatesPosition.Follow -> {
+                    if (layoutDirection == LAYOUT_DIRECTION_RTL) {
+                        val rtlOffset = parentWidth - horizontal
+                        if (rtlOffset + selfWidth > parentWidth) selfWidth - parentWidth else -rtlOffset
+                    } else {
+                        if (horizontal + selfWidth > parentWidth) parentWidth - selfWidth else horizontal
+                    }
+                }
+            }
         } else {
-            if (horizontal + selfWidth > parentWidth) parentWidth - selfWidth else horizontal
+            5f
         }
-        val bottomLimit = parentHeight - bottomInsets
-        val bottomSpace = bottomLimit - bottom
-        // move CandidatesView above cursor anchor, only when
-        val tY: Float = if (
-            bottom + selfHeight > bottomLimit   // bottom space is not enough
-            && top > bottomSpace                // top space is larger than bottom
-        ) top - selfHeight else bottom
+
+        val tY: Float = if (isVirtualKeyboard) {
+            when (floatingFollow) {
+                FloatingCandidatesPosition.TopLeft, FloatingCandidatesPosition.TopRight -> {
+                    if (top >= selfHeight) 0f else bottom
+                }
+                FloatingCandidatesPosition.BottomLeft, FloatingCandidatesPosition.BottomRight -> {
+                    if (bottom + selfHeight + 5f <= parentHeight) parentHeight - selfHeight - 5f else (if (top < parentHeight) top else parentHeight) - selfHeight - 5f
+                }
+                FloatingCandidatesPosition.Follow -> {
+                    if (bottom + selfHeight + 5f <= parentHeight) bottom else (if (top < parentHeight) top else parentHeight) - selfHeight - 5f
+                }
+            }
+        } else {
+            // 外接
+            val height = height.toFloat()
+            val bottomCoordinate = bottom + selfHeight
+            if (bottomCoordinate < height) /*放下面*/ bottomCoordinate else (if (top < height) top else height) - selfHeight
+        }
+
         translationX = tX
         translationY = tY
         // update touchEventReceiverWindow's position after CandidatesView's
@@ -183,9 +255,31 @@ class CandidatesView(
         anchorPosition[0] = horizontal
         anchorPosition[1] = bottom
         anchorPosition[2] = top
-        parentSize[0] = parentWidth
-        parentSize[1] = parentHeight
+        if (parentWidth > 0)
+            parentSize[0] = parentWidth
+        if (parentHeight > 0)
+            parentSize[1] = parentHeight
         updatePosition()
+    }
+
+    fun setCursorAnchor(height: Float) {
+        if (height <= 0f) return
+        anchorPosition[0] = 0f
+        anchorPosition[1] = height
+        anchorPosition[2] = height
+        Timber.d("setCursorAnchor: height: $height")
+    }
+
+    fun setParentSize(width: Int, y: Float) {
+        if (width <= 0 || y <= 0f) return
+        parentSize[0] = width.toFloat()
+        parentSize[1] = y
+        Timber.d("setParentSize: width: ${parentSize[0]}, height: ${parentSize[1]}")
+    }
+
+    fun clean() {
+        handleEvents = false
+        touchEventReceiverWindow.dismiss()
     }
 
     init {

@@ -7,12 +7,12 @@ package org.fcitx.fcitx5.android.input.candidates.floating
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.widget.TextView
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.data.theme.Theme
-import splitties.views.backgroundColor
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.textView
 
@@ -38,7 +38,15 @@ class LabeledCandidateItemUi(
                 color(altFg) { append(candidate.comment) }
             }
         }
-        val bg = if (active) theme.genericActiveBackgroundColor else Color.TRANSPARENT
-        root.backgroundColor = bg
+
+        val bg = GradientDrawable().apply {
+            if (active) {
+                setColor(theme.genericActiveBackgroundColor)
+                setCornerRadius(10f) // 圆角半径
+            } else {
+                setColor(Color.TRANSPARENT)
+            }
+        }
+        root.background = bg
     }
 }

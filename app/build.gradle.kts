@@ -40,6 +40,25 @@ android {
 
     buildTypes {
         release {
+            if (System.getenv("STORE_FILE") != null) {
+                signingConfig =
+                    try {
+                        signingConfigs.create("release") {
+                            storeFile = file(System.getenv("STORE_FILE"))
+                            storePassword = System.getenv("STORE_PASSWORD")
+                            keyAlias = System.getenv("KEY_ALIAS")
+                            keyPassword = System.getenv("KEY_PASSWORD")
+                        }
+                    } catch (_: InvalidUserDataException) {
+                        null
+                    }
+            }
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+
             resValue("mipmap", "app_icon", "@mipmap/ic_launcher")
             resValue("mipmap", "app_icon_round", "@mipmap/ic_launcher_round")
             resValue("string", "app_name", "@string/app_name_release")

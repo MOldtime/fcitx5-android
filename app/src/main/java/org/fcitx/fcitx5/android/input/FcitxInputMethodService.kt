@@ -99,14 +99,17 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     private lateinit var decorView: View
     private lateinit var contentView: FrameLayout
     private var inputView: InputView? = null
+
     private var candidatesView: CandidatesView? = null
 
     private val navbarMgr = NavigationBarManager()
-    private val inputDeviceMgr = InputDeviceManager { isVirtualKeyboard ->
+    private val inputDeviceMgr = InputDeviceManager { isVirtualKeyboard, isShowCandidate, isHideCandidate ->
         postFcitxJob {
-            setCandidatePagingMode(if (isVirtualKeyboard) 0 else 1)
+            setCandidatePagingMode(if ((!isVirtualKeyboard) || isShowCandidate || (isHideCandidate)) 1 else 0)
+//            setCandidatePagingMode(if (isVirtualKeyboard) 0 else 1)
         }
-        currentInputConnection?.monitorCursorAnchor(!isVirtualKeyboard)
+        currentInputConnection?.monitorCursorAnchor(if (!isVirtualKeyboard) true else if (isHideCandidate) false else isShowCandidate)
+//        currentInputConnection?.monitorCursorAnchor(!isVirtualKeyboard)
         window.window?.let {
             navbarMgr.evaluate(it, isVirtualKeyboard)
         }
@@ -121,6 +124,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     private val composing = CursorRange()
     private var composingText = FormattedText.Empty
+    private var clientPreedit = false
+        set(value) {
+            if (field != value) field = value
+        }
 
     private fun resetComposingState() {
         composing.clear()
@@ -226,6 +233,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     private fun handleFcitxEvent(event: FcitxEvent<*>) {
         when (event) {
             is FcitxEvent.CommitStringEvent -> {
+                clientPreedit = false
                 commitText(event.data.text, event.data.cursor)
             }
             is FcitxEvent.KeyEvent -> event.data.let event@{
@@ -298,6 +306,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 }
             }
             is FcitxEvent.ClientPreeditEvent -> {
+                clientPreedit = true
                 updateComposingText(event.data)
             }
             is FcitxEvent.DeleteSurroundingEvent -> {
@@ -350,9 +359,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         // In practice nobody (apart form ourselves) would set `privateImeOptions` to our
         // `DeleteSurroundingFlag`, leading to a behavior of simulating backspace key pressing
         // in almost every EditText.
-        if (currentInputEditorInfo.privateImeOptions != DeleteSurroundingFlag ||
-            currentInputEditorInfo.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL
-        ) {
+        if (currentInputEditorInfo.privateImeOptions != DeleteSurroundingFlag || currentInputEditorInfo.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL) {
             sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL)
             return
         }
@@ -479,10 +486,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     fun sendCombinationKeyEvents(
-        keyEventCode: Int,
-        alt: Boolean = false,
-        ctrl: Boolean = false,
-        shift: Boolean = false
+        keyEventCode: Int, alt: Boolean = false, ctrl: Boolean = false, shift: Boolean = false
     ) {
         var metaState = 0
         if (alt) metaState = KeyEvent.META_ALT_ON or KeyEvent.META_ALT_LEFT_ON
@@ -787,7 +791,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     private fun updateDecorLocation() {
         contentSize[0] = contentView.width.toFloat()
-        contentSize[1] = contentView.height.toFloat()
+        contentSize[1] = inputView?.keyboardView?.y?.toFloat() ?: 0f
         decorView.getLocationOnScreen(decorLocationInt)
         decorLocation[0] = decorLocationInt[0].toFloat()
         decorLocation[1] = decorLocationInt[1].toFloat()
@@ -831,6 +835,13 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         if (!decorLocationUpdated) {
             updateDecorLocation()
         }
+        Timber.d(
+            "onUpdateCursorAnchorInfo: [${anchorPosition.joinToString(", ")}], [${
+                contentSize.joinToString(
+                    ", "
+                )
+            }], decorLocation: $decorLocationUpdated"
+        )
         if (anchorPosition.any(Float::isNaN)) {
             // anchor candidates view to bottom-left corner in case CursorAnchorInfo is invalid
             workaroundNullCursorAnchorInfo()
@@ -857,10 +868,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         if (newSelStart != newSelEnd) return
         // do reset if composing is empty && input panel is not empty
         if (composing.isEmpty()) {
-            postFcitxJob {
-                if (!isEmpty()) {
-                    Timber.d("handleCursorUpdate: reset")
-                    reset()
+            if (clientPreedit) {
+                postFcitxJob {
+                    if (!isEmpty()) {
+                        Timber.d("handleCursorUpdate: reset")
+                        reset()
+                    }
                 }
             }
             return
@@ -971,58 +984,33 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         val chipDrawable =
             if (theme.isDark) R.drawable.bkg_inline_suggestion_dark else R.drawable.bkg_inline_suggestion_light
         val chipBg = Icon.createWithResource(this, chipDrawable).setTint(theme.keyTextColor)
-        val style = InlineSuggestionUi.newStyleBuilder()
-            .setSingleIconChipStyle(
-                ViewStyle.Builder()
-                    .setBackgroundColor(Color.TRANSPARENT)
-                    .setPadding(0, 0, 0, 0)
-                    .build()
-            )
-            .setChipStyle(
-                ViewStyle.Builder()
-                    .setBackground(chipBg)
-                    .setPadding(dp(10), 0, dp(10), 0)
-                    .build()
-            )
-            .setTitleStyle(
-                TextViewStyle.Builder()
-                    .setLayoutMargin(dp(4), 0, dp(4), 0)
-                    .setTextColor(theme.keyTextColor)
-                    .setTextSize(14f)
-                    .build()
-            )
-            .setSubtitleStyle(
-                TextViewStyle.Builder()
-                    .setTextColor(theme.altKeyTextColor)
-                    .setTextSize(12f)
-                    .build()
-            )
-            .setStartIconStyle(
-                ImageViewStyle.Builder()
-                    .setTintList(ColorStateList.valueOf(theme.altKeyTextColor))
-                    .build()
-            )
-            .setEndIconStyle(
-                ImageViewStyle.Builder()
-                    .setTintList(ColorStateList.valueOf(theme.altKeyTextColor))
-                    .build()
-            )
-            .build()
-        val styleBundle = UiVersions.newStylesBuilder()
-            .addStyle(style)
-            .build()
-        val spec = InlinePresentationSpec
-            .Builder(Size(0, 0), Size(Int.MAX_VALUE, Int.MAX_VALUE))
-            .setStyle(styleBundle)
-            .build()
+        val style = InlineSuggestionUi.newStyleBuilder().setSingleIconChipStyle(
+            ViewStyle.Builder().setBackgroundColor(Color.TRANSPARENT).setPadding(0, 0, 0, 0)
+                .build()
+        ).setChipStyle(
+            ViewStyle.Builder().setBackground(chipBg).setPadding(dp(10), 0, dp(10), 0).build()
+        ).setTitleStyle(
+            TextViewStyle.Builder().setLayoutMargin(dp(4), 0, dp(4), 0)
+                .setTextColor(theme.keyTextColor).setTextSize(14f).build()
+        ).setSubtitleStyle(
+            TextViewStyle.Builder().setTextColor(theme.altKeyTextColor).setTextSize(12f).build()
+        ).setStartIconStyle(
+            ImageViewStyle.Builder().setTintList(ColorStateList.valueOf(theme.altKeyTextColor))
+                .build()
+        ).setEndIconStyle(
+            ImageViewStyle.Builder().setTintList(ColorStateList.valueOf(theme.altKeyTextColor))
+                .build()
+        ).build()
+        val styleBundle = UiVersions.newStylesBuilder().addStyle(style).build()
+        val spec = InlinePresentationSpec.Builder(Size(0, 0), Size(Int.MAX_VALUE, Int.MAX_VALUE))
+            .setStyle(styleBundle).build()
         return InlineSuggestionsRequest.Builder(listOf(spec))
-            .setMaxSuggestionCount(InlineSuggestionsRequest.SUGGESTION_COUNT_UNLIMITED)
-            .build()
+            .setMaxSuggestionCount(InlineSuggestionsRequest.SUGGESTION_COUNT_UNLIMITED).build()
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onInlineSuggestionsResponse(response: InlineSuggestionsResponse): Boolean {
-        if (!inlineSuggestions || !inputDeviceMgr.isVirtualKeyboard) return false
+        if (!inlineSuggestions || candidatesView?.handleEvents == true) return false
         return inputView?.handleInlineSuggestions(response) == true
     }
 

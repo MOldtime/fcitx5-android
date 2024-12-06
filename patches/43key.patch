@@ -1,0 +1,184 @@
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDefPreset.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDefPreset.kt
+index 6a088e2e..1be1cfbc 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDefPreset.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDefPreset.kt
+@@ -14,7 +14,6 @@ import org.fcitx.fcitx5.android.core.KeySym
+ import org.fcitx.fcitx5.android.data.InputFeedbacks
+ import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Border
+ import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Variant
+-import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
+ import org.fcitx.fcitx5.android.input.picker.PickerWindow
+ 
+ val NumLockState = KeyStates(KeyState.NumLock, KeyState.Virtual)
+@@ -43,8 +42,8 @@ class SymbolKey(
+ class SymbolKeyId(
+     val symbol: String,
+     viewId: Int,
+-    percentWidth: Float = 0.14f,
+-    variant: Variant = Variant.Normal,
++    percentWidth: Float = 0.15f,
++    variant: Variant = Variant.Alternative,
+     popup: Array<Popup>? = null
+ ) : KeyDef(
+     Appearance.Text(
+@@ -55,7 +54,9 @@ class SymbolKeyId(
+         viewId = viewId
+     ),
+     setOf(
+-        Behavior.Press(KeyAction.FcitxKeyAction(symbol))
++        Behavior.Press(KeyAction.FcitxKeyAction(symbol)),
++        Behavior.SwipeCustomize(KeyAction.FcitxKeyAction(symbol), BaseKeyboard.Swipe.Up),
++        Behavior.SwipeCustomize(KeyAction.FcitxKeyAction(symbol), BaseKeyboard.Swipe.Down),
+     ),
+     popup ?: arrayOf(
+         Popup.Preview(symbol),
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
+index adf45e37..1ba29f10 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
+@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.input.keyboard
+ import android.annotation.SuppressLint
+ import android.content.Context
+ import android.graphics.Typeface
++import android.view.View
+ import androidx.annotation.Keep
+ import androidx.core.view.allViews
+ import org.fcitx.fcitx5.android.R
+@@ -62,24 +63,15 @@ class TextKeyboard(
+                 AlphabetKeyNew("O", "["),
+                 AlphabetKeyNew("P", "]")
+             ), listOf(
+-                AlphabetKeyNew("A", "\\", percentWidth = 0.095f),
+-                AlphabetKeyNew("S", "|", percentWidth = 0.095f),
+-                AlphabetKeyNew("D", "×", percentWidth = 0.095f),
+-                AlphabetKeyNew("F", "÷", percentWidth = 0.095f),
+-                AlphabetKeyNew("G", "←", percentWidth = 0.095f),
+-                AlphabetKeyNew("H", "→", percentWidth = 0.095f),
+-                AlphabetKeyNew("J", formContext[7].component1(), percentWidth = 0.095f),
+-                AlphabetKeyNew("K", formContext[8].component1(), percentWidth = 0.095f),
++                AlphabetKeyNew("A", "\\"),
++                AlphabetKeyNew("S", "|"),
++                AlphabetKeyNew("D", "×"),
++                AlphabetKeyNew("F", "÷"),
++                AlphabetKeyNew("G", "←"),
++                AlphabetKeyNew("H", "→"),
++                AlphabetKeyNew("J", "<"),
++                AlphabetKeyNew("K", ">"),
+                 AlphabetKeyNew("L", formContext[9].component1(), percentWidth = 0.095f),
+-                AlphabetKeyNew(
+-                    ";",
+-                    ":",
+-                    percentWidth = 0.095f,
+-                    behavior = setOf(
+-                        Behavior.Press(KeyAction.FcitxKeyAction(";")),
+-                        Behavior.Swipe(KeyAction.FcitxKeyAction(":"))
+-                    )
+-                ),
+             ), listOf(
+                 CapsKey(),
+                 AlphabetKeyNew("Z", formContext[0].component1()),
+@@ -103,11 +95,9 @@ class TextKeyboard(
+                     )),
+                 // @formatter:on
+                 LanguageKey(),
+-                AlphabetKey("/", "?", Variant.Alternative),
+-                AlphabetKey(",", "<", Variant.Alternative),
++                SymbolKeyId(",", R.id.button_left),
+                 SpaceKey(),
+-                AlphabetKey(".", ">", Variant.Alternative),
+-                AlphabetKey("'", "\"", Variant.Alternative),
++                SymbolKeyId(".", R.id.button_right),
+                 ReturnKey()
+             )
+         )
+@@ -123,6 +113,8 @@ class TextKeyboard(
+     val lang: ImageKeyView by lazy { findViewById(R.id.button_lang) }
+     val space: TextKeyView by lazy { findViewById(R.id.button_space) }
+     val `return`: ImageKeyView by lazy { findViewById(R.id.button_return) }
++    val buttonLeft: TextKeyView by lazy { findViewById(R.id.button_left) }
++    val buttonRight: TextKeyView by lazy { findViewById(R.id.button_right) }
+ 
+     private val showLangSwitchKey = AppPrefs.getInstance().keyboard.showLangSwitchKey
+ 
+@@ -139,6 +131,16 @@ class TextKeyboard(
+         showLangSwitchKey.registerOnChangeListener(showLangSwitchKeyListener)
+         caps.swipeEnabled = false
+         buttonNumber.mainText.text = buildString { append("?123") }
++        buttonLeft.mainText.text = buildString { append(",") }
++        buttonRight.mainText.text = buildString { append(".") }
++        val symbolKeyClickListener = { v: View ->
++            // @formatter:off
++            v as TextKeyView
++            super.onAction(KeyAction.FcitxKeyAction(v.mainText.text.toString()), KeyActionListener.Source.Keyboard)
++            // @formatter:on
++        }
++        buttonRight.setOnClickListener(symbolKeyClickListener)
++        buttonLeft.setOnClickListener(symbolKeyClickListener)
+     }
+ 
+     private val textKeys: List<TextKeyView> by lazy {
+@@ -207,6 +209,8 @@ class TextKeyboard(
+ 
+     override fun onPanelUpdate(status: Boolean) {
+         buttonNumber.mainText.text = buildString { append(if (status) "Esc" else "?123") }
++        buttonLeft.mainText.text = buildString { append(if (status) ";" else ",") }
++        buttonRight.mainText.text = buildString { append(if (status) "'" else ".") }
+         `return`.swipeEnabled = status
+         if (status) {
+             buttonNumber.setOnClickListener {
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt
+index ecd4bb1f..4b6c2ffe 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt
+@@ -11,7 +11,6 @@ import org.fcitx.fcitx5.android.core.KeyStates
+ import org.fcitx.fcitx5.android.core.KeySym
+ import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
+ import org.fcitx.fcitx5.android.input.keyboard.KeyAction
+-import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
+ 
+ /**
+  * based on
+@@ -56,10 +55,9 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
+     "f" to arrayOf("÷", "f", "F"),
+     "g" to arrayOf("←", "g", "G", "ğ"),
+     "h" to arrayOf("→", "h", "H"),
+-    "j" to arrayOf(formContext[7].component1(), "j", "J"),
+-    "k" to arrayOf(formContext[8].component1(), "k", "K"),
++    "j" to arrayOf("<", "j", "J"),
++    "k" to arrayOf(">", "k", "K"),
+     "l" to arrayOf(formContext[9].component1(), "/", "l", "L", "ł"),
+-    ";" to arrayOf(":"),
+     "z" to arrayOf(formContext[0].component1(), "Z", "z", "ž", "ź", "ż"),
+     "x" to arrayOf(formContext[1].component1(), "X", "x", "×"),
+     "c" to arrayOf(formContext[2].component1(), "C", "c", "ç", "ć", "č"),
+@@ -89,7 +87,6 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
+     "J" to arrayOf("↑", "j", "J"),
+     "K" to arrayOf("↓️️", "k", "K"),
+     "L" to arrayOf("/", "l", "L", "ł"),
+-    ";" to arrayOf(":"),
+     "Z" to arrayOf("z", "Z", "`", "Ž", "Ź", "Ż"),
+     "X" to arrayOf("x", "X"),
+     "C" to arrayOf("c", "C", "Ç", "Ć", "Č"),
+@@ -164,11 +161,11 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
+     //
+     // Punctuation
+     //
+-    "," to arrayOf("<", "≤", "?", "!", ":", ";", "_", "%", "$", "^", "&"),
++    "," to arrayOf(",", "“", "/", "!", "_", "%", "$", "^", "&"),
+     "'" to arrayOf("\""),
+-    "." to arrayOf(">", "≥", ",", "!", ":", ";", "_", "%", "$", "^", "&"),
++    "." to arrayOf(".", "?", "”", "¿", "‽", ",", "!", ":", ";", "_", "%", "$", "^", "&"),
+     "-" to arrayOf("—", "–", "·"),
+-    "?" to arrayOf("¿", "‽"),
++    "?" to arrayOf(),
+     "'" to arrayOf("\"", "‘", "’", "‚", "›", "‹"),
+     "!" to arrayOf("¡"),
+     "\"" to arrayOf("“", "”", "„", "»", "«"),
+@@ -181,6 +178,7 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
+     "=" to arrayOf("∞", "≠", "≈"),
+     ">" to arrayOf("≥", "»", "›", "⟩"),
+     "°" to arrayOf("′", "″", "‴"),
++    ";" to arrayOf(":"),
+     //
+     // Currency
+     //

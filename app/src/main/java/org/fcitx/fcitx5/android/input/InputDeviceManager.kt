@@ -8,29 +8,53 @@ package org.fcitx.fcitx5.android.input
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fcitx.fcitx5.android.utils.isTypeNull
 
-class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
+class InputDeviceManager(private val onChange: (Boolean, Boolean, Boolean) -> Unit) {
 
     private var inputView: InputView? = null
     private var candidatesView: CandidatesView? = null
+    val isShowCandidate by AppPrefs.getInstance().candidates.floatingWindow
+    private val isHideCandidate by AppPrefs.getInstance().candidates.hideCandidates
 
     private fun setupInputViewEvents(isVirtual: Boolean) {
-        val iv = inputView ?: return
-        iv.handleEvents = isVirtual
-        iv.visibility = if (isVirtual) View.VISIBLE else View.GONE
+        inputView?.handleEvents = isVirtual
+        inputView?.apply {
+            if (isVirtual) {
+                this.viewTreeObserver.addOnPreDrawListener(object :
+                    ViewTreeObserver.OnPreDrawListener {
+                    override fun onPreDraw(): Boolean {
+                        this@apply.viewTreeObserver.removeOnPreDrawListener(this)
+                        this@InputDeviceManager.candidatesView?.setParentSize(
+                            this@apply.keyboardView.width, this@apply.keyboardView.y
+                        )
+                        this@InputDeviceManager.candidatesView?.setCursorAnchor(this@apply.keyboardView.y)
+                        return true
+                    }
+                })
+//                refreshWithCachedEvents()
+                visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun setupCandidatesViewEvents(isVirtual: Boolean) {
-        val cv = candidatesView ?: return
-        cv.handleEvents = !isVirtual
-        // hide CandidatesView when entering virtual keyboard mode,
-        // but preserve the visibility when entering physical keyboard mode (in case it's empty)
-        if (isVirtual) {
-            cv.visibility = View.GONE
+        if (!isVirtual) {
+            candidatesView?.handleEvents = true
+            return
+        }
+        if (isHideCandidate) {
+            candidatesView?.clean()
+            return
+        }
+        if (isShowCandidate) {
+            candidatesView?.handleEvents = true
+        } else {
+            candidatesView?.clean()
         }
     }
 
@@ -41,14 +65,15 @@ class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
 
     var isVirtualKeyboard = true
         private set(value) {
+            // fire change AFTER updating InputView(s),
+            // make the view(s) ready for incoming events during `onChange`
+            onChange(value, isShowCandidate, isHideCandidate)
             if (field == value) {
                 return
             }
             field = value
+            candidatesView?.isVirtualKeyboard = value
             setupViewEvents(value)
-            // fire change AFTER updating InputView(s),
-            // make the view(s) ready for incoming events during `onChange`
-            onChange(value)
         }
 
     fun setInputView(inputView: InputView) {
@@ -60,7 +85,6 @@ class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
         this.candidatesView = candidatesView
         setupCandidatesViewEvents(this.isVirtualKeyboard)
     }
-
     private var startedInputView = false
     private var isNullInputType = true
 
@@ -81,6 +105,8 @@ class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
             FloatingCandidatesMode.InputDevice -> isVirtualKeyboard
             FloatingCandidatesMode.Disabled -> true
         }
+        // 针对没有汇报光标的软件做初始化
+        candidatesView?.setCursorAnchor(inputView?.keyboardView?.y ?: 0f)
         return isVirtualKeyboard
     }
 

@@ -8,9 +8,10 @@ package org.fcitx.fcitx5.android.input.candidates.floating
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceEnum
 
-enum class FloatingCandidatesMode(override val stringRes: Int) : ManagedPreferenceEnum {
-    SystemDefault(R.string.system_default),
-    InputDevice(R.string.follow_input_device),
-    Disabled(R.string.disabled),
-//    Enabled(R.string.enabled)
+enum class FloatingCandidatesPosition(override val stringRes: Int) : ManagedPreferenceEnum {
+    TopLeft(R.string.top_left),
+    TopRight(R.string.top_right),
+    BottomLeft(R.string.bottom_left),
+    BottomRight(R.string.bottom_right),
+    Follow(R.string.floating_follow)
 }

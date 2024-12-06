@@ -5,12 +5,18 @@
 
 package org.fcitx.fcitx5.android.input.candidates.expanded
 
+import android.view.Gravity.CENTER_VERTICAL
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import com.google.android.flexbox.FlexboxLayoutManager
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.candidates.CandidateItemUi
 import org.fcitx.fcitx5.android.input.candidates.CandidateViewHolder
+import splitties.views.dsl.core.matchParent
+import splitties.views.dsl.core.wrapContent
 
 open class PagingCandidateViewAdapter(val theme: Theme) :
     PagingDataAdapter<String, CandidateViewHolder>(diffCallback) {
@@ -36,13 +42,32 @@ open class PagingCandidateViewAdapter(val theme: Theme) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CandidateViewHolder {
-        return CandidateViewHolder(CandidateItemUi(parent.context, theme))
+        val ui = CandidateItemUi(parent.context, theme)
+        ui.root.apply {
+            ui.comment.textSize = 10f
+            ui.text.textSize = 20f
+            addView(ui.comment)
+            addView(ui.text)
+            gravity = CENTER_VERTICAL
+            layoutParams = FlexboxLayoutManager.LayoutParams(wrapContent, matchParent)
+        }
+        return CandidateViewHolder(ui)
     }
 
     override fun onBindViewHolder(holder: CandidateViewHolder, position: Int) {
         val text = getItem(position)!!
-        holder.ui.text.text = text
-        holder.text = text
+        val list = text.split(Regex("\\s+"), 2)
+        holder.ui.text.text = list[0]
+        if (list.size > 1) {
+            holder.ui.comment.text = list[1]
+            holder.ui.comment.visibility = VISIBLE
+        } else {
+            holder.ui.comment.visibility = GONE
+        }
+        holder.text = list[0]
+
+//        holder.ui.text.text = text
+//        holder.text = text
         holder.idx = position + offset
     }
 }

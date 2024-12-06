@@ -6,23 +6,29 @@ package org.fcitx.fcitx5.android.input.keyboard
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.view.View
+import android.graphics.Typeface
 import androidx.annotation.Keep
 import androidx.core.view.allViews
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import org.fcitx.fcitx5.android.core.InputMethodEntry
 import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
+import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance
+import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Variant
+import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
+import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Popup
 import org.fcitx.fcitx5.android.input.popup.PopupAction
+import org.fcitx.fcitx5.android.input.popup.formContext
 import splitties.views.imageResource
 
 @SuppressLint("ViewConstructor")
 class TextKeyboard(
-    context: Context,
-    theme: Theme
+    context: Context, theme: Theme
 ) : BaseKeyboard(context, theme, Layout) {
 
     enum class CapsState { None, Once, Lock }
@@ -32,49 +38,82 @@ class TextKeyboard(
 
         val Layout: List<List<KeyDef>> = listOf(
             listOf(
-                AlphabetKey("Q", "1"),
-                AlphabetKey("W", "2"),
-                AlphabetKey("E", "3"),
-                AlphabetKey("R", "4"),
-                AlphabetKey("T", "5"),
-                AlphabetKey("Y", "6"),
-                AlphabetKey("U", "7"),
-                AlphabetKey("I", "8"),
-                AlphabetKey("O", "9"),
-                AlphabetKey("P", "0")
-            ),
-            listOf(
-                AlphabetKey("A", "@"),
-                AlphabetKey("S", "*"),
-                AlphabetKey("D", "+"),
-                AlphabetKey("F", "-"),
-                AlphabetKey("G", "="),
-                AlphabetKey("H", "/"),
-                AlphabetKey("J", "#"),
-                AlphabetKey("K", "("),
-                AlphabetKey("L", ")")
-            ),
-            listOf(
+                // @formatter:off
+                AlphabetKeyNew("1", "!", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_1), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "!".uppercase(), default = false)))),
+                AlphabetKeyNew("2", "@", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_2), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "@".uppercase(), default = false)))),
+                AlphabetKeyNew("3", "#", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_3), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "#".uppercase(), default = false)))),
+                AlphabetKeyNew("4", "$", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_4), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "$".uppercase(), default = false)))),
+                AlphabetKeyNew("5", "%", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_5), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "%".uppercase(), default = false)))),
+                AlphabetKeyNew("6", "^", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_6), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "^".uppercase(), default = false)))),
+                AlphabetKeyNew("7", "&", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_7), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "&".uppercase(), default = false)))),
+                AlphabetKeyNew("8", "*", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_8), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "*".uppercase(), default = false)))),
+                AlphabetKeyNew("9", "(", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_9), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "(".uppercase(), default = false)))),
+                AlphabetKeyNew("0", ")", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_0), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = ")".uppercase(), default = false))))
+                // @formatter:on
+            ), listOf(
+                AlphabetKeyNew("Q", "`"),
+                AlphabetKeyNew("W", "~"),
+                AlphabetKeyNew("E", "+"),
+                AlphabetKeyNew("R", "-"),
+                AlphabetKeyNew("T", "="),
+                AlphabetKeyNew("Y", "_"),
+                AlphabetKeyNew("U", "{"),
+                AlphabetKeyNew("I", "}"),
+                AlphabetKeyNew("O", "["),
+                AlphabetKeyNew("P", "]")
+            ), listOf(
+                AlphabetKeyNew("A", "\\", percentWidth = 0.095f),
+                AlphabetKeyNew("S", "|", percentWidth = 0.095f),
+                AlphabetKeyNew("D", "×", percentWidth = 0.095f),
+                AlphabetKeyNew("F", "÷", percentWidth = 0.095f),
+                AlphabetKeyNew("G", "←", percentWidth = 0.095f),
+                AlphabetKeyNew("H", "→", percentWidth = 0.095f),
+                AlphabetKeyNew("J", formContext[7].component1(), percentWidth = 0.095f),
+                AlphabetKeyNew("K", formContext[8].component1(), percentWidth = 0.095f),
+                AlphabetKeyNew("L", formContext[9].component1(), percentWidth = 0.095f),
+                AlphabetKeyNew(
+                    ";",
+                    ":",
+                    percentWidth = 0.095f,
+                    behavior = setOf(
+                        Behavior.Press(KeyAction.FcitxKeyAction(";")),
+                        Behavior.Swipe(KeyAction.FcitxKeyAction(":"))
+                    )
+                ),
+            ), listOf(
                 CapsKey(),
-                AlphabetKey("Z", "'"),
-                AlphabetKey("X", ":"),
-                AlphabetKey("C", "\""),
-                AlphabetKey("V", "?"),
-                AlphabetKey("B", "!"),
-                AlphabetKey("N", "~"),
-                AlphabetKey("M", "\\"),
+                AlphabetKeyNew("Z", formContext[0].component1()),
+                AlphabetKeyNew("X", formContext[1].component1()),
+                AlphabetKeyNew("C", formContext[2].component1()),
+                AlphabetKeyNew("V", formContext[3].component1()),
+                AlphabetKeyNew("B", formContext[4].component1()),
+                AlphabetKeyNew("N", formContext[5].component1()),
+                AlphabetKeyNew("M", formContext[6].component1()),
                 BackspaceKey()
-            ),
-            listOf(
-                LayoutSwitchKey("?123", ""),
-                CommaKey(0.1f, KeyDef.Appearance.Variant.Alternative),
+            ), listOf(
+                // @formatter:off
+                KeyDef(
+                    Appearance.ImageText(" ", src = R.drawable.ic_baseline_tag_faces_24, textSize = 16f, textStyle = Typeface.NORMAL, percentWidth = 0.15f, variant = Variant.Alternative, viewId = R.id.button_number,), setOf( Behavior.Press(KeyAction.LayoutSwitchAction("")), Behavior.Swipe(KeyAction.PickerSwitchAction())),
+                    arrayOf(
+                        Popup.Menu(arrayOf(
+                                Popup.Menu.Item("Emoji", R.drawable.ic_baseline_tag_faces_24, KeyAction.PickerSwitchAction()),
+                                Popup.Menu.Item("QuickPhrase", R.drawable.ic_baseline_format_quote_24, KeyAction.QuickPhraseAction),
+                                Popup.Menu.Item("Unicode", R.drawable.ic_logo_unicode, KeyAction.UnicodeAction)
+                            ))
+                    )),
+                // @formatter:on
                 LanguageKey(),
+                AlphabetKey("/", "?"),
+                AlphabetKey(",", "<"),
                 SpaceKey(),
-                SymbolKey(".", 0.1f, KeyDef.Appearance.Variant.Alternative),
+                AlphabetKey(".", ">"),
+                AlphabetKey("'", "\""),
                 ReturnKey()
             )
         )
     }
+
+    val buttonNumber: TextKeyView by lazy { findViewById(R.id.button_number) }
 
     val caps: ImageKeyView by lazy { findViewById(R.id.button_caps) }
     val backspace: ImageKeyView by lazy { findViewById(R.id.button_backspace) }
@@ -95,6 +134,8 @@ class TextKeyboard(
     init {
         updateLangSwitchKey(showLangSwitchKey.getValue())
         showLangSwitchKey.registerOnChangeListener(showLangSwitchKeyListener)
+        caps.swipeEnabled = false
+        buttonNumber.mainText.text = buildString { append("?123") }
     }
 
     private val textKeys: List<TextKeyView> by lazy {
@@ -120,7 +161,9 @@ class TextKeyboard(
                 KeyActionListener.Source.Keyboard -> {
                     when (capsState) {
                         CapsState.None -> {
-                            transformed = action.copy(act = action.act.lowercase())
+                            if (action.default) {
+                                transformed = action.copy(act = action.act.lowercase())
+                            }
                         }
                         CapsState.Once -> {
                             transformed = action.copy(
@@ -159,6 +202,71 @@ class TextKeyboard(
         `return`.img.imageResource = returnDrawable
     }
 
+    override fun onPanelUpdate(status: Boolean) {
+        buttonNumber.mainText.text = buildString { append(if (status) "Esc" else "?123") }
+        `return`.swipeEnabled = status
+        if (status) {
+            buttonNumber.setOnClickListener {
+                onAction(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Escape)))
+            }
+
+            buttonNumber.setOnLongClickListener {
+                onAction(KeyAction.LayoutSwitchAction(""))
+                true
+            }
+        } else {
+            buttonNumber.setOnClickListener {
+                onAction(KeyAction.LayoutSwitchAction(""))
+            }
+
+            buttonNumber.popupMenu(
+                Popup.Menu(
+                    arrayOf(
+                        Popup.Menu.Item(
+                            "Emoji",
+                            R.drawable.ic_baseline_tag_faces_24,
+                            KeyAction.PickerSwitchAction()
+                        ),
+                        Popup.Menu.Item(
+                            "QuickPhrase",
+                            R.drawable.ic_baseline_format_quote_24,
+                            KeyAction.QuickPhraseAction
+                        ),
+                        Popup.Menu.Item(
+                            "Unicode",
+                            R.drawable.ic_logo_unicode,
+                            KeyAction.UnicodeAction
+                        )
+                    )
+                )
+            )
+        }
+    }
+
+    override fun onCandidateUpdate(status: Boolean) {
+        super.onCandidateUpdate(status)
+        caps.swipeEnabled = status
+        caps.doubleTapEnabled = !status
+
+        if (status) {
+            caps.img.apply {
+                imageResource = R.drawable.tab
+            }
+
+            caps.setOnClickListener {
+                onAction(
+                    KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Tab)),
+                )
+            }
+
+        } else {
+            updateCapsButtonIcon()
+            caps.setOnClickListener {
+                onAction(KeyAction.CapsAction(false))
+            }
+        }
+    }
+
     override fun onPunctuationUpdate(mapping: Map<String, String>) {
         punctuationMapping = mapping
         updatePunctuationKeys()
@@ -166,8 +274,8 @@ class TextKeyboard(
 
     override fun onInputMethodUpdate(ime: InputMethodEntry) {
         space.mainText.text = buildString {
-            append(ime.displayName)
-            ime.subMode.run { label.ifEmpty { name.ifEmpty { null } } }?.let { append(" ($it)") }
+            append(if (ime.label == "En") ime.name else ime.label)
+            ime.subMode.run { name.ifEmpty { label.ifEmpty { null } } }?.let { append(" $it") }
         }
         if (capsState != CapsState.None) {
             switchCapsState()
@@ -186,8 +294,11 @@ class TextKeyboard(
             is PopupAction.PreviewUpdateAction -> action.copy(content = transformPopupPreview(action.content))
             is PopupAction.ShowKeyboardAction -> {
                 val label = action.keyboard.label
-                if (label.length == 1 && label[0].isLetter())
-                    action.copy(keyboard = KeyDef.Popup.Keyboard(transformAlphabet(label)))
+                if (label.length == 1 && label[0].isLetter()) action.copy(
+                    keyboard = KeyDef.Popup.Keyboard(
+                        transformAlphabet(label)
+                    )
+                )
                 else action
             }
             else -> action
@@ -196,18 +307,17 @@ class TextKeyboard(
     }
 
     private fun switchCapsState(lock: Boolean = false) {
-        capsState =
-            if (lock) {
-                when (capsState) {
-                    CapsState.Lock -> CapsState.None
-                    else -> CapsState.Lock
-                }
-            } else {
-                when (capsState) {
-                    CapsState.None -> CapsState.Once
-                    else -> CapsState.None
-                }
+        capsState = if (lock) {
+            when (capsState) {
+                CapsState.Lock -> CapsState.None
+                else -> CapsState.Lock
             }
+        } else {
+            when (capsState) {
+                CapsState.None -> CapsState.Once
+                else -> CapsState.None
+            }
+        }
         updateCapsButtonIcon()
         updateAlphabetKeys()
     }
@@ -223,7 +333,8 @@ class TextKeyboard(
     }
 
     private fun updateLangSwitchKey(visible: Boolean) {
-        lang.visibility = if (visible) View.VISIBLE else View.GONE
+//        lang.visibility = if (visible) View.VISIBLE else View.GONE
+        lang.visibility = GONE
     }
 
     private fun updateAlphabetKeys() {

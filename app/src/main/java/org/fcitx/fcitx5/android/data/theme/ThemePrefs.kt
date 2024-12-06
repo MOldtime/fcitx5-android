@@ -34,9 +34,9 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         return pref
     }
 
-    val keyBorder = switch(R.string.key_border, "key_border", false)
+    val keyBorder = switch(R.string.key_border, "key_border", true)
 
-    val keyRippleEffect = switch(R.string.key_ripple_effect, "key_ripple_effect", false)
+    val keyRippleEffect = switch(R.string.key_ripple_effect, "key_ripple_effect", true)
 
     val keyHorizontalMargin: ManagedPreference.PInt
     val keyHorizontalMarginLandscape: ManagedPreference.PInt
@@ -66,10 +66,10 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
             R.string.key_vertical_margin,
             R.string.portrait,
             "key_vertical_margin",
-            7,
+            3,
             R.string.landscape,
             "key_vertical_margin_landscape",
-            4,
+            2,
             0,
             24,
             "dp"
@@ -94,7 +94,7 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
     val punctuationPosition = enumList(
         R.string.punctuation_position,
         "punctuation_position",
-        PunctuationPosition.Bottom
+        PunctuationPosition.TopRight
     )
 
     enum class NavbarBackground(override val stringRes: Int) : ManagedPreferenceEnum {

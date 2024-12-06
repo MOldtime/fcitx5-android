@@ -123,6 +123,7 @@ class PagedCandidateEntity {
 public:
     std::vector<CandidateEntity> candidates;
     int cursorIndex;
+    int currentPage;
     fcitx::CandidateLayoutHint layoutHint;
     bool hasPrev;
     bool hasNext;
@@ -131,18 +132,20 @@ public:
                                   int cursorIndex,
                                   fcitx::CandidateLayoutHint layoutHint,
                                   bool hasPrev,
-                                  bool hasNext) :
+                                  bool hasNext,
+                                  int currentPage) :
             candidates(std::move(candidates)),
             cursorIndex(cursorIndex),
+            currentPage(currentPage),
             layoutHint(layoutHint),
             hasPrev(hasPrev),
-            hasNext(hasNext) {}
+            hasNext(hasNext){}
 
     static PagedCandidateEntity Empty;
 
 private:
     PagedCandidateEntity() :
-            candidates({}), cursorIndex(-1), layoutHint(fcitx::CandidateLayoutHint::NotSet), hasPrev(false), hasNext(false) {}
+            candidates({}), cursorIndex(-1), currentPage(-1), layoutHint(fcitx::CandidateLayoutHint::NotSet), hasPrev(false), hasNext(false) {}
 };
 
 PagedCandidateEntity PagedCandidateEntity::Empty = PagedCandidateEntity();

@@ -23,7 +23,7 @@ public:
 
     Instance *instance() { return instance_; }
 
-    void updateCandidateList(const std::vector<std::string> &candidates, const int size);
+    void updateCandidateList(const std::vector<std::string> &candidates, const int size, const int currentPage = -1);
     void commitString(const std::string &str, const int cursor);
     void updateClientPreedit(const Text &clientPreedit);
     void updateInputPanel(const Text &preedit, const Text &auxUp, const Text &auxDown);
@@ -92,7 +92,7 @@ private:
     std::vector<std::unique_ptr<HandlerTableEntry<EventHandler>>> eventHandlers_;
     int pagingMode_;
 
-    CandidateListCallback candidateListCallback = [](const std::vector<std::string> &, const int) {};
+    CandidateListCallback candidateListCallback = [](const std::vector<std::string> &, const int, const int) {};
     CommitStringCallback commitStringCallback = [](const std::string &, const int) {};
     ClientPreeditCallback preeditCallback = [](const Text &) {};
     InputPanelCallback inputPanelCallback = [](const fcitx::Text &, const fcitx::Text &, const Text &) {};

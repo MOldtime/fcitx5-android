@@ -8,6 +8,7 @@ package org.fcitx.fcitx5.android.input
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
+import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.WindowInsets
@@ -64,6 +65,7 @@ import splitties.views.dsl.core.view
 import splitties.views.dsl.core.withTheme
 import splitties.views.dsl.core.wrapContent
 import splitties.views.imageDrawable
+import timber.log.Timber
 
 @SuppressLint("ViewConstructor")
 class InputView(
@@ -319,6 +321,9 @@ class InputView(
 
     override fun handleFcitxEvent(it: FcitxEvent<*>) {
         when (it) {
+            is FcitxEvent.PagedCandidateEvent -> {
+                broadcaster.onCandidateUpdate(it.data)
+            }
             is FcitxEvent.CandidateListEvent -> {
                 broadcaster.onCandidateUpdate(it.data)
             }

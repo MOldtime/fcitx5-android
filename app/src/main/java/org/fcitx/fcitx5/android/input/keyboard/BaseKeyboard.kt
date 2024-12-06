@@ -15,8 +15,10 @@ import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import org.fcitx.fcitx5.android.core.FcitxKeyMapping
 import org.fcitx.fcitx5.android.core.InputMethodEntry
+import org.fcitx.fcitx5.android.core.KeyState
 import org.fcitx.fcitx5.android.core.KeyStates
 import org.fcitx.fcitx5.android.core.KeySym
+import org.fcitx.fcitx5.android.core.ScancodeMapping
 import org.fcitx.fcitx5.android.data.InputFeedbacks
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
@@ -50,7 +52,9 @@ abstract class BaseKeyboard(
     private val keyLayout: List<List<KeyDef>>
 ) : ConstraintLayout(context) {
 
+    private var candidateStatus = false
     var keyActionListener: KeyActionListener? = null
+    protected var panelStatus = false
 
     private val prefs = AppPrefs.getInstance()
 
@@ -190,6 +194,21 @@ abstract class BaseKeyboard(
                                 true
                             }
                         }
+                        GestureType.Up -> {
+                            if (!event.consumed && swipeSymbolDirection.checkY(event.totalY)) {
+                                onAction(
+                                    if (candidateStatus) KeyAction.FcitxKeyAction(
+                                        "Space",
+                                        ScancodeMapping.KEY_SPACE,
+                                        KeyStates(KeyState.Virtual, KeyState.Shift)
+                                    ) else KeyAction.LangSwitchAction
+                                )
+                                true
+                            } else {
+                                false
+                            }
+                            false
+                        }
                         else -> false
                     }
                 }
@@ -209,7 +228,7 @@ abstract class BaseKeyboard(
                             } else false
                         }
                         GestureType.Up -> {
-                            onAction(KeyAction.DeleteSelectionAction(event.totalX))
+                            onAction(KeyAction.DeleteSelectionAndSwipeAction(event))
                             false
                         }
                         else -> false
@@ -237,29 +256,16 @@ abstract class BaseKeyboard(
                         }
                     }
                     is KeyDef.Behavior.Swipe -> {
-                        swipeEnabled = true
-                        swipeThresholdX = disabledSwipeThreshold
-                        swipeThresholdY = inputSwipeThreshold
-                        val oldOnGestureListener = onGestureListener ?: OnGestureListener.Empty
-                        onGestureListener = OnGestureListener { view, event ->
-                            when (event.type) {
-                                GestureType.Up -> {
-                                    if (!event.consumed && swipeSymbolDirection.checkY(event.totalY)) {
-                                        onAction(it.action)
-                                        true
-                                    } else {
-                                        false
-                                    }
-                                }
-                                else -> false
-                            } || oldOnGestureListener.onGesture(view, event)
-                        }
+                        swipeRewrite(it.action)
                     }
                     is KeyDef.Behavior.DoubleTap -> {
                         doubleTapEnabled = true
                         onDoubleTapListener = { _ ->
                             onAction(it.action)
                         }
+                    }
+                    is KeyDef.Behavior.SwipeCustomize -> {
+                        swipeRewrite(it.action, it.direction)
                     }
                 }
             }
@@ -356,6 +362,90 @@ abstract class BaseKeyboard(
                     }
                 }
             }
+        }
+    }
+
+    protected fun KeyView.swipeRewrite(action: KeyAction) {
+        swipeEnabled = true
+        swipeThresholdX = disabledSwipeThreshold
+        swipeThresholdY = inputSwipeThreshold
+        val oldOnGestureListener = onGestureListener ?: OnGestureListener.Empty
+        onGestureListener = OnGestureListener { view, event ->
+            when (event.type) {
+                GestureType.Up -> {
+                    if (!event.consumed && swipeSymbolDirection.checkY(event.totalY)) {
+                        onAction(action)
+                        true
+                    } else {
+                        false
+                    }
+                }
+                else -> false
+            } || oldOnGestureListener.onGesture(view, event)
+        }
+    }
+
+    enum class Swipe {
+        Up, Down, Left, Right
+    }
+
+    protected fun KeyView.swipeRewrite(action: KeyAction, slide: Swipe) {
+        swipeEnabled = true
+        swipeThresholdX = inputSwipeThreshold
+        swipeThresholdY = inputSwipeThreshold
+        val oldOnGestureListener = onGestureListener ?: OnGestureListener.Empty
+        onGestureListener = OnGestureListener { view, event ->
+            when (event.type) {
+                GestureType.Up -> {
+                    val result = if (event.totalX.absoluteValue > event.totalY.absoluteValue) {
+                        if (event.totalX != 0) {
+                            // 左右
+                            if (slide == Swipe.Left) {
+                                event.totalX < 0
+                            } else if (slide == Swipe.Right) {
+                                event.totalX > 0
+                            } else false
+                        } else false
+                    } else {
+                        if (event.totalY != 0) {
+                            // 上下
+                            if (slide == Swipe.Up) {
+                                event.totalY < 0
+                            } else if (slide == Swipe.Down) {
+                                event.totalY > 0
+                            } else false
+                        } else false
+                    }
+                    if (result) {
+                        onAction(action)
+                        true
+                    } else false
+                }
+                else -> false
+            } || oldOnGestureListener.onGesture(view, event)
+        }
+    }
+
+    fun KeyView.popupMenu(popup: KeyDef.Popup.Menu) {
+        setOnLongClickListener { view ->
+            view as KeyView
+            onPopupAction(PopupAction.ShowMenuAction(view.id, popup, view.bounds))
+            // do not consume this LongClick gesture
+            false
+        }
+        val oldOnGestureListener = onGestureListener ?: OnGestureListener.Empty
+        swipeEnabled = true
+        onGestureListener = OnGestureListener { view, event ->
+            view as KeyView
+            when (event.type) {
+                GestureType.Move -> {
+                    onPopupChangeFocus(view.id, event.x, event.y)
+                }
+                GestureType.Up -> {
+                    onPopupTrigger(view.id)
+                }
+                else -> false
+            } || oldOnGestureListener.onGesture(view, event)
         }
     }
 
@@ -519,4 +609,11 @@ abstract class BaseKeyboard(
         // do nothing by default
     }
 
+    open fun onCandidateUpdate(status: Boolean) {
+        candidateStatus = status
+    }
+
+    open fun onPanelUpdate(status: Boolean) {
+        panelStatus = status
+    }
 }

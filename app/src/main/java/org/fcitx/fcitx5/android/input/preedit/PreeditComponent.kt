@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.input.preedit
 
 import android.view.View
 import org.fcitx.fcitx5.android.core.FcitxEvent
+import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcastReceiver
@@ -42,6 +43,9 @@ class PreeditComponent : UniqueComponent<PreeditComponent>(), Dependent, InputBr
     }
 
     override fun onInputPanelUpdate(data: FcitxEvent.InputPanelEvent.Data) {
+        if (AppPrefs.getInstance().candidates.floatingWindow.getValue()) {
+            if (!AppPrefs.getInstance().candidates.hideCandidates.getValue()) return
+        }
         ui.update(data)
         ui.root.visibility = if (ui.visible) View.VISIBLE else View.INVISIBLE
     }

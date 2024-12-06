@@ -34,7 +34,7 @@ object ThemeManager {
         ThemePreset.AMOLEDBlack,
     )
 
-    val DefaultTheme = ThemePreset.PixelDark
+    val DefaultTheme = ThemePreset.MaterialLight
 
     private val customThemes: MutableList<Theme.Custom> = ThemeFilesManager.listThemes()
 

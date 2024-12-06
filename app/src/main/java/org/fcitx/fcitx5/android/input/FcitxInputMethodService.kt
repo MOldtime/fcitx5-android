@@ -91,7 +91,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     private lateinit var decorView: View
     private lateinit var contentView: FrameLayout
     private var inputView: InputView? = null
-    private var candidatesView: CandidatesView? = null
+
+    //    private var candidatesView: CandidatesView? = null
+    private var candidatesPopupWindow: CandidatesPopupWindow? = null
 
     private val navbarMgr = NavigationBarManager()
     private val inputDeviceMgr = InputDeviceManager onChange@{
@@ -137,16 +139,21 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         return newInputView
     }
 
-    private fun replaceCandidateView(theme: Theme): CandidatesView {
-        val newCandidatesView = CandidatesView(this, fcitx, theme)
-        // replace CandidatesView manually
-        contentView.removeView(candidatesView)
-        // put CandidatesView directly under content view
-        contentView.addView(newCandidatesView)
-        inputDeviceMgr.setCandidatesView(newCandidatesView)
-        navbarMgr.setupInputView(newCandidatesView)
-        candidatesView = newCandidatesView
-        return newCandidatesView
+    private fun replaceCandidateView(theme: Theme): CandidatesPopupWindow {
+        return if (candidatesPopupWindow != null) {
+            candidatesPopupWindow!!.reset(this, fcitx, theme)
+            inputDeviceMgr.setCandidatesView()
+            candidatesPopupWindow!!
+        } else {
+            val newCandidatesView =
+                CandidatesPopupWindow(contentView, this, fcitx, theme)
+            inputDeviceMgr.setCandidatesView(newCandidatesView)
+            candidatesPopupWindow = newCandidatesView
+            newCandidatesView
+        }.also {
+            it.candidates.requestApplyInsets()
+            navbarMgr.setupInputView(it.candidates)
+        }
     }
 
     private fun replaceInputViews(theme: Theme) {
@@ -293,9 +300,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         // In practice nobody (apart form ourselves) would set `privateImeOptions` to our
         // `DeleteSurroundingFlag`, leading to a behavior of simulating backspace key pressing
         // in almost every EditText.
-        if (currentInputEditorInfo.privateImeOptions != DeleteSurroundingFlag ||
-            currentInputEditorInfo.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL
-        ) {
+        if (currentInputEditorInfo.privateImeOptions != DeleteSurroundingFlag || currentInputEditorInfo.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_NULL) {
             sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL)
             return
         }
@@ -329,8 +334,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 return
             }
             when (val action = imeOptions and EditorInfo.IME_MASK_ACTION) {
-                EditorInfo.IME_ACTION_UNSPECIFIED,
-                EditorInfo.IME_ACTION_NONE -> commitText("\n")
+                EditorInfo.IME_ACTION_UNSPECIFIED, EditorInfo.IME_ACTION_NONE -> commitText("\n")
                 else -> currentInputConnection.performEditorAction(action)
             }
         }
@@ -409,10 +413,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     }
 
     fun sendCombinationKeyEvents(
-        keyEventCode: Int,
-        alt: Boolean = false,
-        ctrl: Boolean = false,
-        shift: Boolean = false
+        keyEventCode: Int, alt: Boolean = false, ctrl: Boolean = false, shift: Boolean = false
     ) {
         var metaState = 0
         if (alt) metaState = KeyEvent.META_ALT_ON or KeyEvent.META_ALT_LEFT_ON
@@ -697,11 +698,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     private fun updateDecorLocation() {
         contentSize[0] = contentView.width.toFloat()
-        contentSize[1] = contentView.height.toFloat()
+        contentSize[1] = inputView?.keyboardView?.y?.toFloat() ?: 0f
         decorView.getLocationOnScreen(decorLocationInt)
         decorLocation[0] = decorLocationInt[0].toFloat()
         decorLocation[1] = decorLocationInt[1].toFloat()
-        decorLocationUpdated = true
     }
 
     private val anchorPosition = floatArrayOf(0f, 0f, 0f, 0f)
@@ -711,7 +711,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         if (bounds != null) {
             // anchor to start of composing span instead of insertion mark if available
             val horizontal =
-                if (candidatesView?.layoutDirection == View.LAYOUT_DIRECTION_RTL) bounds.right else bounds.left
+                if (candidatesPopupWindow?.candidates?.layoutDirection == View.LAYOUT_DIRECTION_RTL) bounds.right else bounds.left
             anchorPosition[0] = horizontal
             anchorPosition[1] = bounds.bottom
             anchorPosition[2] = horizontal
@@ -726,12 +726,19 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         if (!decorLocationUpdated) {
             updateDecorLocation()
         }
+        Timber.d(
+            "onUpdateCursorAnchorInfo: [${anchorPosition.joinToString(", ")}], [${
+                contentSize.joinToString(
+                    ", "
+                )
+            }], decorLocation: $decorLocationUpdated"
+        )
         if (anchorPosition.any(Float::isNaN)) {
             anchorPosition[0] = 0f
             anchorPosition[1] = contentSize[1]
             anchorPosition[2] = 0f
             anchorPosition[3] = contentSize[1]
-            candidatesView?.updateCursorAnchor(anchorPosition, contentSize)
+            candidatesPopupWindow?.updateCursorAnchor(anchorPosition, contentSize)
             return
         }
         // params of `Matrix.mapPoints` must be [x0, y0, x1, y1]
@@ -741,7 +748,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         anchorPosition[1] -= yOffset
         anchorPosition[2] -= xOffset
         anchorPosition[3] -= yOffset
-        candidatesView?.updateCursorAnchor(anchorPosition, contentSize)
+        candidatesPopupWindow?.updateCursorAnchor(anchorPosition, contentSize)
     }
 
     private fun handleCursorUpdate(newSelStart: Int, newSelEnd: Int, updateIndex: Int) {
@@ -870,58 +877,33 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         val chipDrawable =
             if (theme.isDark) R.drawable.bkg_inline_suggestion_dark else R.drawable.bkg_inline_suggestion_light
         val chipBg = Icon.createWithResource(this, chipDrawable).setTint(theme.keyTextColor)
-        val style = InlineSuggestionUi.newStyleBuilder()
-            .setSingleIconChipStyle(
-                ViewStyle.Builder()
-                    .setBackgroundColor(Color.TRANSPARENT)
-                    .setPadding(0, 0, 0, 0)
-                    .build()
-            )
-            .setChipStyle(
-                ViewStyle.Builder()
-                    .setBackground(chipBg)
-                    .setPadding(dp(10), 0, dp(10), 0)
-                    .build()
-            )
-            .setTitleStyle(
-                TextViewStyle.Builder()
-                    .setLayoutMargin(dp(4), 0, dp(4), 0)
-                    .setTextColor(theme.keyTextColor)
-                    .setTextSize(14f)
-                    .build()
-            )
-            .setSubtitleStyle(
-                TextViewStyle.Builder()
-                    .setTextColor(theme.altKeyTextColor)
-                    .setTextSize(12f)
-                    .build()
-            )
-            .setStartIconStyle(
-                ImageViewStyle.Builder()
-                    .setTintList(ColorStateList.valueOf(theme.altKeyTextColor))
-                    .build()
-            )
-            .setEndIconStyle(
-                ImageViewStyle.Builder()
-                    .setTintList(ColorStateList.valueOf(theme.altKeyTextColor))
-                    .build()
-            )
-            .build()
-        val styleBundle = UiVersions.newStylesBuilder()
-            .addStyle(style)
-            .build()
-        val spec = InlinePresentationSpec
-            .Builder(Size(0, 0), Size(Int.MAX_VALUE, Int.MAX_VALUE))
-            .setStyle(styleBundle)
-            .build()
+        val style = InlineSuggestionUi.newStyleBuilder().setSingleIconChipStyle(
+            ViewStyle.Builder().setBackgroundColor(Color.TRANSPARENT).setPadding(0, 0, 0, 0)
+                .build()
+        ).setChipStyle(
+            ViewStyle.Builder().setBackground(chipBg).setPadding(dp(10), 0, dp(10), 0).build()
+        ).setTitleStyle(
+            TextViewStyle.Builder().setLayoutMargin(dp(4), 0, dp(4), 0)
+                .setTextColor(theme.keyTextColor).setTextSize(14f).build()
+        ).setSubtitleStyle(
+            TextViewStyle.Builder().setTextColor(theme.altKeyTextColor).setTextSize(12f).build()
+        ).setStartIconStyle(
+            ImageViewStyle.Builder().setTintList(ColorStateList.valueOf(theme.altKeyTextColor))
+                .build()
+        ).setEndIconStyle(
+            ImageViewStyle.Builder().setTintList(ColorStateList.valueOf(theme.altKeyTextColor))
+                .build()
+        ).build()
+        val styleBundle = UiVersions.newStylesBuilder().addStyle(style).build()
+        val spec = InlinePresentationSpec.Builder(Size(0, 0), Size(Int.MAX_VALUE, Int.MAX_VALUE))
+            .setStyle(styleBundle).build()
         return InlineSuggestionsRequest.Builder(listOf(spec))
-            .setMaxSuggestionCount(InlineSuggestionsRequest.SUGGESTION_COUNT_UNLIMITED)
-            .build()
+            .setMaxSuggestionCount(InlineSuggestionsRequest.SUGGESTION_COUNT_UNLIMITED).build()
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onInlineSuggestionsResponse(response: InlineSuggestionsResponse): Boolean {
-        if (!inlineSuggestions || !inputDeviceMgr.isVirtualKeyboard) return false
+        if (!inlineSuggestions || candidatesPopupWindow?.candidates?.handleEvents == true) return false
         return inputView?.handleInlineSuggestions(response) == true
     }
 

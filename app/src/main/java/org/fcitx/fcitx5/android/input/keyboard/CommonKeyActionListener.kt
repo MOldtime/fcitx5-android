@@ -9,9 +9,14 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.core.FcitxAPI
+import org.fcitx.fcitx5.android.core.FcitxKeyMapping
+import org.fcitx.fcitx5.android.core.KeyState
+import org.fcitx.fcitx5.android.core.KeyStates
+import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.daemon.launchOnReady
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.input.broadcast.PreeditEmptyStateComponent
+import org.fcitx.fcitx5.android.input.candidates.expanded.CandidatesPagingSource
 import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateComponent
 import org.fcitx.fcitx5.android.input.dependency.context
 import org.fcitx.fcitx5.android.input.dependency.fcitx
@@ -22,7 +27,6 @@ import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener.Backspace
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener.BackspaceSwipeState.Selection
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener.BackspaceSwipeState.Stopped
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.CommitAction
-import org.fcitx.fcitx5.android.input.keyboard.KeyAction.DeleteSelectionAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.FcitxKeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.LangSwitchAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction.MoveSelectionAction
@@ -77,6 +81,14 @@ class CommonKeyActionListener :
         } else {
             if (!select(0)) reset()
         }
+    }
+
+    private val candidatesPager by lazy {
+        CandidatesPagingSource(
+            fcitx,
+            total = 6,
+            offset = 0
+        )
     }
 
     private fun showInputMethodPicker() {
@@ -151,12 +163,22 @@ class CommonKeyActionListener :
                         Reset -> {}
                     }
                 }
-                is DeleteSelectionAction -> {
+//                is DeleteSelectionAction -> {
+                is KeyAction.DeleteSelectionAndSwipeAction -> {
                     when (backspaceSwipeState) {
                         Stopped -> {}
                         Selection -> service.deleteSelection()
-                        Reset -> if (action.totalCnt < 0) { // swipe left
-                            service.postFcitxJob { reset() }
+                        Reset -> {
+                            if (action.event.y < 0 && action.event.x > action.event.y) { // swipe left
+                                service.postFcitxJob {
+                                    sendKey(
+                                        KeySym(FcitxKeyMapping.FcitxKey_Return).sym,
+                                        KeyStates(KeyState.Shift).states
+                                    )
+                                }
+                            } else if (action.event.totalX < 0) {
+                                service.postFcitxJob { reset() }
+                            }
                         }
                     }
                     backspaceSwipeState = Stopped
@@ -181,6 +203,20 @@ class CommonKeyActionListener :
                         }
                         SpaceLongPressBehavior.ShowPicker -> showInputMethodPicker()
                     }
+                }
+                is KeyAction.PerformContextMenuAction -> {
+                    service.currentInputConnection?.performContextMenuAction(action.id)
+                }
+                is KeyAction.sendCombinationKey -> {
+                    service.sendCombinationKeyEvents(
+                        action.keyEventCode,
+                        action.alt,
+                        action.ctrl,
+                        action.shift
+                    )
+                }
+                is KeyAction.attachWindow -> {
+                    windowManager.attachWindow(action.window)
                 }
                 else -> {}
             }

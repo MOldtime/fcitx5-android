@@ -49,7 +49,8 @@ public:
         const int before = -offset;
         const int after = offset + static_cast<int>(size);
         if (before < 0 || after < 0) {
-            FCITX_WARN() << "Invalid deleteSurrounding request: offset=" << offset << ", size=" << size;
+            FCITX_WARN() << "Invalid deleteSurrounding request: offset=" << offset << ", size="
+                         << size;
             return;
         }
         frontend_->deleteSurrounding(before, after);
@@ -73,6 +74,20 @@ public:
         int size = 0;
         const auto &list = inputPanel().candidateList();
         if (list) {
+            const auto &pageable = list->toPageable();
+            if (pageable) {
+                auto currentPage = pageable->currentPage();
+                if (currentPage != -1) {
+                    size = list->size();
+                    candidates.reserve(size);
+                    for (int i = 0; i < size; i++) {
+                        candidates.emplace_back(filterString(list->candidate(i).textWithComment()));
+                    }
+                    frontend_->updateCandidateList(candidates, size, currentPage);
+                    return;
+                }
+            }
+
             const auto &bulk = list->toBulk();
             if (bulk) {
                 size = bulk->totalSize();
@@ -89,11 +104,6 @@ public:
                         break;
                     }
                 }
-            } else {
-                size = list->size();
-                for (int i = 0; i < size; i++) {
-                    candidates.emplace_back(filterString(list->candidate(i).textWithComment()));
-                }
             }
         }
         frontend_->updateCandidateList(candidates, size);
@@ -109,10 +119,12 @@ public:
         CandidateLayoutHint layoutHint = list->layoutHint();
         bool hasPrev = false;
         bool hasNext = false;
+        int currentPage = -1;
         const auto &pageable = list->toPageable();
         if (pageable) {
             hasPrev = pageable->hasPrev();
             hasNext = pageable->hasNext();
+            currentPage = pageable->currentPage();
         }
         int size = list->size();
         std::vector<CandidateEntity> candidates;
@@ -120,7 +132,7 @@ public:
         for (int i = 0; i < size; i++) {
             candidates.emplace_back(list->candidate(i), list->label(i));
         }
-        PagedCandidateEntity paged(candidates, cursorIndex, layoutHint, hasPrev, hasNext);
+        PagedCandidateEntity paged(candidates, cursorIndex, layoutHint, hasPrev, hasNext, currentPage);
         frontend_->updatePagedCandidate(paged);
     }
 
@@ -303,8 +315,8 @@ void AndroidFrontend::commitString(const std::string &str, const int cursor) {
     commitStringCallback(str, cursor);
 }
 
-void AndroidFrontend::updateCandidateList(const std::vector<std::string> &candidates, const int size) {
-    candidateListCallback(candidates, size);
+void AndroidFrontend::updateCandidateList(const std::vector<std::string> &candidates, const int size, const int currentPage) {
+    candidateListCallback(candidates, size, currentPage);
 }
 
 void AndroidFrontend::updateClientPreedit(const Text &clientPreedit) {

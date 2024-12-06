@@ -7,7 +7,9 @@ package org.fcitx.fcitx5.android.input.keyboard
 import android.annotation.SuppressLint
 import android.content.Context
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.core.ScancodeMapping
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.popup.PopupAction
 import splitties.views.imageResource
@@ -48,7 +50,14 @@ class NumberKeyboard(
                 NumPadKey(",", 0xffac, 23f, 0.1f, KeyDef.Appearance.Variant.Alternative),
                 LayoutSwitchKey("!?#", PickerWindow.Key.Symbol.name, 0.13333f, KeyDef.Appearance.Variant.AltForeground),
                 NumPadKey("0", 0xffb0, 30f, 0.23334f),
-                NumPadKey("=", 0xffbd, 23f, 0.13333f, KeyDef.Appearance.Variant.AltForeground),
+                NumPadKey(
+                    "=",
+                    0xffbd,
+                    23f,
+                    0.13333f,
+                    KeyDef.Appearance.Variant.AltForeground,
+                    setOf(Behavior.Press(KeyAction.FcitxKeyAction("=")))
+                ),
                 NumPadKey(".", 0xffae, 23f, 0.1f, KeyDef.Appearance.Variant.Alternative),
                 ReturnKey()
             )
@@ -68,4 +77,36 @@ class NumberKeyboard(
         // leave empty on purpose to disable popup in NumberKeyboard
     }
 
+    override fun onAction(action: KeyAction, source: KeyActionListener.Source) {
+        if (super.panelStatus && action is KeyAction.SymAction) {
+            val scancodeToChar =
+                scancodeToChar(ScancodeMapping.keyCodeToScancode(action.sym.keyCode))
+            if (scancodeToChar != null) {
+                super.onAction(KeyAction.FcitxKeyAction(scancodeToChar), source)
+                return
+            }
+        }
+        super.onAction(action, source)
+    }
+
+    private fun scancodeToChar(scancode: Int): String? {
+        return when (scancode) {
+            ScancodeMapping.KEY_KP1 -> "1"
+            ScancodeMapping.KEY_KP2 -> "2"
+            ScancodeMapping.KEY_KP3 -> "3"
+            ScancodeMapping.KEY_KP4 -> "4"
+            ScancodeMapping.KEY_KP5 -> "5"
+            ScancodeMapping.KEY_KP6 -> "6"
+            ScancodeMapping.KEY_KP7 -> "7"
+            ScancodeMapping.KEY_KP8 -> "8"
+            ScancodeMapping.KEY_KP9 -> "9"
+            ScancodeMapping.KEY_KP0 -> "0"
+            ScancodeMapping.KEY_KPPLUS -> "+"
+            ScancodeMapping.KEY_KPMINUS -> "-"
+            ScancodeMapping.KEY_KPASTERISK -> "*"
+            ScancodeMapping.KEY_KPSLASH -> "/"
+            ScancodeMapping.KEY_KPDOT -> "."
+            else -> null
+        }
+    }
 }

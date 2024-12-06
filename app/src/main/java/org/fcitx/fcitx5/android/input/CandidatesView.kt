@@ -82,7 +82,7 @@ class CandidatesView(
 
     private val preeditUi = PreeditUi(ctx, theme, setupTextView)
 
-    private val candidatesUi = PagedCandidatesUi(ctx, theme, setupTextView).apply {
+    private val candidatesUi = PagedCandidatesUi(ctx, theme, fcitx, service, setupTextView).apply {
         root.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
     }
 

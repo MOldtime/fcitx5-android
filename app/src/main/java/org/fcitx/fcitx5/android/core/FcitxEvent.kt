@@ -15,10 +15,14 @@ sealed class FcitxEvent<T>(open val data: T) {
 
         override val eventType = EventType.Candidate
 
-        data class Data(val total: Int = -1, val candidates: Array<String> = emptyArray()) {
+        data class Data(
+            val total: Int = -1,
+            val candidates: Array<String> = emptyArray(),
+            val currentPage: Int = -1
+        ) {
 
             override fun toString(): String =
-                "total=$total, candidates=[${candidates.joinToString(limit = 5)}]"
+                "total=$total, candidates=[${candidates.joinToString(limit = 5)}], currentPage: $currentPage"
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
@@ -147,11 +151,12 @@ sealed class FcitxEvent<T>(open val data: T) {
             val cursorIndex: Int,
             val layoutHint: LayoutHint,
             val hasPrev: Boolean,
-            val hasNext: Boolean
+            val hasNext: Boolean,
+            val currentPage: Int = -1
         ) {
             companion object {
                 @Suppress("BooleanLiteralArgument")
-                val Empty = Data(emptyArray(), -1, LayoutHint.NotSet, false, false)
+                val Empty = Data(emptyArray(), -1, LayoutHint.NotSet, false, false, -1)
             }
 
             override fun equals(other: Any?): Boolean {
@@ -224,7 +229,8 @@ sealed class FcitxEvent<T>(open val data: T) {
                 EventType.Candidate -> CandidateListEvent(
                     CandidateListEvent.Data(
                         params[0] as Int,
-                        params[1] as Array<String>
+                        params[1] as Array<String>,
+                        params[2] as Int
                     )
                 )
                 EventType.Commit -> CommitStringEvent(
@@ -270,7 +276,8 @@ sealed class FcitxEvent<T>(open val data: T) {
                             params[1] as Int,
                             PagedCandidateEvent.LayoutHint.of(params[2] as Int),
                             params[3] as Boolean,
-                            params[4] as Boolean
+                            params[4] as Boolean,
+                            params[5] as Int
                         )
                     )
                 }

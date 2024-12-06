@@ -11,7 +11,11 @@ import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.FcitxEvent
+import org.fcitx.fcitx5.android.core.FcitxKeyMapping
+import org.fcitx.fcitx5.android.core.KeyStates
+import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.FcitxInputMethodService
 import org.fcitx.fcitx5.android.utils.styledFloat
 import splitties.dimensions.dp
 import splitties.resources.drawable
@@ -39,7 +43,7 @@ class PaginationUi(override val ctx: Context, val theme: Theme) : Ui {
     private val disabledAlpha = styledFloat(android.R.attr.disabledAlpha)
 
     override val root = constraintLayout {
-        val w = dp(10)
+        val w = dp(20)
         val h = dp(20)
         add(nextIcon, lParams(w, h) {
             centerVertically()
@@ -51,8 +55,29 @@ class PaginationUi(override val ctx: Context, val theme: Theme) : Ui {
         })
     }
 
-    fun update(data: FcitxEvent.PagedCandidateEvent.Data) {
-        prevIcon.alpha = if (data.hasPrev) 1f else disabledAlpha
-        nextIcon.alpha = if (data.hasNext) 1f else disabledAlpha
+    fun update(data: FcitxEvent.PagedCandidateEvent.Data, service: FcitxInputMethodService) {
+        prevIcon.alpha = if (data.hasPrev) {
+            prevIcon.setOnClickListener {
+                service.postFcitxJob {
+                    sendKey(
+                        KeySym(FcitxKeyMapping.FcitxKey_Page_Up).sym,
+                        KeyStates.Empty.states
+                    )
+                }
+            }
+            1f
+        } else disabledAlpha
+        nextIcon.alpha = if (data.hasNext) {
+            nextIcon.setOnClickListener {
+                service.postFcitxJob {
+                    sendKey(
+                        KeySym(FcitxKeyMapping.FcitxKey_Page_Down).sym,
+                        KeyStates.Empty.states
+                    )
+                }
+            }
+            1f
+        } else disabledAlpha
+
     }
 }

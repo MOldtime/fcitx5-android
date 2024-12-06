@@ -107,6 +107,11 @@ open class KeyDef(
             val action: KeyAction
         ) : Behavior()
 
+        class SwipeCustomize(
+            val action: KeyAction,
+            val direction: BaseKeyboard.Swipe
+        ) : Behavior()
+
         class DoubleTap(
             val action: KeyAction
         ) : Behavior()

@@ -1,0 +1,17 @@
+<!--
+  ~ SPDX-License-Identifier: LGPL-2.1-or-later
+  ~ SPDX-FileCopyrightText: Copyright 2024 Fcitx5 for Android Contributors
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:autoMirrored="true"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="m924,104l56,0l0,408l-56,0l0,-408zM44,512l56,0c0,136 0,272 0,408l-56,0l0,-408zM331.3,684l638.8,0l0,64l-638.8,0l8.8,139l-219.6,-171l219.6,-186l-8.8,154zM692.8,332l-638.8,0l0,-64l638.8,0l-12.8,-145l223.6,185l-223.6,173l12.8,-149z" />
+
+</vector>

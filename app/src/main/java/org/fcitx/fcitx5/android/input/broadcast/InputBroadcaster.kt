@@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.input.broadcast
 import android.view.inputmethod.EditorInfo
 import org.fcitx.fcitx5.android.core.Action
 import org.fcitx.fcitx5.android.core.CapabilityFlags
+import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.core.FcitxEvent.CandidateListEvent
 import org.fcitx.fcitx5.android.core.FcitxEvent.InputPanelEvent
 import org.fcitx.fcitx5.android.core.FormattedText
@@ -52,6 +53,10 @@ class InputBroadcaster : UniqueComponent<InputBroadcaster>(), Dependent, InputBr
 
     override fun onImeUpdate(ime: InputMethodEntry) {
         receivers.forEach { it.onImeUpdate(ime) }
+    }
+
+    override fun onCandidateUpdate(data: FcitxEvent.PagedCandidateEvent.Data) {
+        receivers.forEach { it.onCandidateUpdate(data) }
     }
 
     override fun onCandidateUpdate(data: CandidateListEvent.Data) {

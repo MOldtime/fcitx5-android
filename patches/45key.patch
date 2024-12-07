@@ -1,0 +1,99 @@
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
+index 51ac2bd4..5fba1cc3 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
+@@ -62,24 +62,15 @@ class TextKeyboard(
+                 AlphabetKeyNew("O", "["),
+                 AlphabetKeyNew("P", "]")
+             ), listOf(
+-                AlphabetKeyNew("A", "\\", percentWidth = 0.095f),
+-                AlphabetKeyNew("S", "|", percentWidth = 0.095f),
+-                AlphabetKeyNew("D", "×", percentWidth = 0.095f),
+-                AlphabetKeyNew("F", "÷", percentWidth = 0.095f),
+-                AlphabetKeyNew("G", "←", percentWidth = 0.095f),
+-                AlphabetKeyNew("H", "→", percentWidth = 0.095f),
+-                AlphabetKeyNew("J", formContext[7].component1(), percentWidth = 0.095f),
+-                AlphabetKeyNew("K", formContext[8].component1(), percentWidth = 0.095f),
++                AlphabetKeyNew("A", "\\"),
++                AlphabetKeyNew("S", "|"),
++                AlphabetKeyNew("D", "×"),
++                AlphabetKeyNew("F", "÷"),
++                AlphabetKeyNew("G", "←"),
++                AlphabetKeyNew("H", "→"),
++                AlphabetKeyNew("J", "<"),
++                AlphabetKeyNew("K", ">"),
+                 AlphabetKeyNew("L", formContext[9].component1(), percentWidth = 0.095f),
+-                AlphabetKeyNew(
+-                    ";",
+-                    ":",
+-                    percentWidth = 0.095f,
+-                    behavior = setOf(
+-                        Behavior.Press(KeyAction.FcitxKeyAction(";")),
+-                        Behavior.Swipe(KeyAction.FcitxKeyAction(":"))
+-                    )
+-                ),
+             ), listOf(
+                 CapsKey(),
+                 AlphabetKeyNew("Z", formContext[0].component1()),
+@@ -103,10 +94,10 @@ class TextKeyboard(
+                     )),
+                 // @formatter:on
+                 LanguageKey(),
+-                AlphabetKey("/", "?"),
+-                AlphabetKey(",", "<"),
++                AlphabetKey(".", "?"),
++                AlphabetKey(",", "/"),
+                 SpaceKey(),
+-                AlphabetKey(".", ">"),
++                AlphabetKey(";", ":"),
+                 AlphabetKey("'", "\""),
+                 ReturnKey()
+             )
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt
+index ecd4bb1f..ac531d3e 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt
+@@ -56,10 +56,9 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
+     "f" to arrayOf("÷", "f", "F"),
+     "g" to arrayOf("←", "g", "G", "ğ"),
+     "h" to arrayOf("→", "h", "H"),
+-    "j" to arrayOf(formContext[7].component1(), "j", "J"),
+-    "k" to arrayOf(formContext[8].component1(), "k", "K"),
++    "j" to arrayOf("<", "j", "J"),
++    "k" to arrayOf(">", "k", "K"),
+     "l" to arrayOf(formContext[9].component1(), "/", "l", "L", "ł"),
+-    ";" to arrayOf(":"),
+     "z" to arrayOf(formContext[0].component1(), "Z", "z", "ž", "ź", "ż"),
+     "x" to arrayOf(formContext[1].component1(), "X", "x", "×"),
+     "c" to arrayOf(formContext[2].component1(), "C", "c", "ç", "ć", "č"),
+@@ -89,7 +88,6 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
+     "J" to arrayOf("↑", "j", "J"),
+     "K" to arrayOf("↓️️", "k", "K"),
+     "L" to arrayOf("/", "l", "L", "ł"),
+-    ";" to arrayOf(":"),
+     "Z" to arrayOf("z", "Z", "`", "Ž", "Ź", "Ż"),
+     "X" to arrayOf("x", "X"),
+     "C" to arrayOf("c", "C", "Ç", "Ć", "Č"),
+@@ -164,11 +162,11 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
+     //
+     // Punctuation
+     //
+-    "," to arrayOf("<", "≤", "?", "!", ":", ";", "_", "%", "$", "^", "&"),
++    "," to arrayOf("/", "?", "!", ":", ";", "_", "%", "$", "^", "&"),
+     "'" to arrayOf("\""),
+-    "." to arrayOf(">", "≥", ",", "!", ":", ";", "_", "%", "$", "^", "&"),
++    "." to arrayOf("?" ,"¿", "‽", ",", "!", ":", ";", "_", "%", "$", "^", "&"),
+     "-" to arrayOf("—", "–", "·"),
+-    "?" to arrayOf("¿", "‽"),
++    "?" to arrayOf(),
+     "'" to arrayOf("\"", "‘", "’", "‚", "›", "‹"),
+     "!" to arrayOf("¡"),
+     "\"" to arrayOf("“", "”", "„", "»", "«"),
+@@ -181,6 +179,7 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
+     "=" to arrayOf("∞", "≠", "≈"),
+     ">" to arrayOf("≥", "»", "›", "⟩"),
+     "°" to arrayOf("′", "″", "‴"),
++    ";" to arrayOf(":"),
+     //
+     // Currency
+     //

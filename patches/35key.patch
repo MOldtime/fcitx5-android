@@ -1,0 +1,268 @@
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDefPreset.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDefPreset.kt
+index 8c3767e0..54a8eebc 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDefPreset.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/KeyDefPreset.kt
+@@ -16,6 +16,7 @@ import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Border
+ import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Variant
+ import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
+ import org.fcitx.fcitx5.android.input.picker.PickerWindow
++import kotlin.Float
+ 
+ val NumLockState = KeyStates(KeyState.NumLock, KeyState.Virtual)
+ 
+@@ -91,13 +92,15 @@ class AlphabetKey(
+     val character: String,
+     val punctuation: String,
+     variant: Variant = Variant.Normal,
+-    popup: Array<Popup>? = null
++    popup: Array<Popup>? = null,
++    percentWidth: Float = 0.1f
+ ) : KeyDef(
+     Appearance.AltText(
+         displayText = character,
+         altText = punctuation,
+         textSize = 23f,
+-        variant = variant
++        variant = variant,
++        percentWidth = percentWidth
+     ),
+     setOf(
+         Behavior.Press(KeyAction.FcitxKeyAction(character)),
+@@ -134,7 +137,7 @@ class AlphabetKeyNew(
+     variant: Variant = Variant.Normal,
+     behavior: Set<Behavior>? = null,
+     popup: Array<Popup>? = null,
+-    percentWidth: Float = 0.1f,
++    percentWidth: Float = 0.14f,
+ ) : KeyDef(
+     Appearance.AltText(
+         percentWidth = percentWidth,
+@@ -146,7 +149,18 @@ class AlphabetKeyNew(
+     ),
+     behavior ?: setOf(
+         Behavior.Press(KeyAction.FcitxKeyAction(character)),
+-        Behavior.Swipe(KeyAction.FcitxKeyAction(act = character.uppercase(), default = false)),
++        Behavior.SwipeCustomize(
++            KeyAction.FcitxKeyAction(
++                act = character.uppercase(),
++                default = false
++            ), BaseKeyboard.Swipe.Up
++        ),
++        Behavior.SwipeCustomize(
++            KeyAction.FcitxKeyAction(
++                act = punctuation.toString().uppercase(),
++                default = false
++            ), BaseKeyboard.Swipe.Down
++        ),
+     ),
+     popup ?: arrayOf(
+         Popup.AltPreview(character, punctuation),
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
+index 51ac2bd4..be938b4f 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
+@@ -38,58 +38,39 @@ class TextKeyboard(
+ 
+         val Layout: List<List<KeyDef>> = listOf(
+             listOf(
+-                // @formatter:off
+-                AlphabetKeyNew("1", "!", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_1), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "!".uppercase(), default = false)))),
+-                AlphabetKeyNew("2", "@", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_2), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "@".uppercase(), default = false)))),
+-                AlphabetKeyNew("3", "#", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_3), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "#".uppercase(), default = false)))),
+-                AlphabetKeyNew("4", "$", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_4), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "$".uppercase(), default = false)))),
+-                AlphabetKeyNew("5", "%", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_5), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "%".uppercase(), default = false)))),
+-                AlphabetKeyNew("6", "^", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_6), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "^".uppercase(), default = false)))),
+-                AlphabetKeyNew("7", "&", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_7), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "&".uppercase(), default = false)))),
+-                AlphabetKeyNew("8", "*", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_8), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "*".uppercase(), default = false)))),
+-                AlphabetKeyNew("9", "(", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_9), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = "(".uppercase(), default = false)))),
+-                AlphabetKeyNew("0", ")", behavior = setOf(Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_0), KeyStates.Empty)), Behavior.Swipe(KeyAction.FcitxKeyAction(act = ")".uppercase(), default = false))))
+-                // @formatter:on
+-            ), listOf(
+                 AlphabetKeyNew("Q", "`"),
+-                AlphabetKeyNew("W", "~"),
+-                AlphabetKeyNew("E", "+"),
+-                AlphabetKeyNew("R", "-"),
+-                AlphabetKeyNew("T", "="),
+-                AlphabetKeyNew("Y", "_"),
+-                AlphabetKeyNew("U", "{"),
+-                AlphabetKeyNew("I", "}"),
+-                AlphabetKeyNew("O", "["),
+-                AlphabetKeyNew("P", "]")
++                AlphabetKeyNew("W", "!"),
++                AlphabetKeyNew("R", "@"),
++                AlphabetKeyNew("T", "#"),
++                AlphabetKeyNew("Y", "$"),
++                AlphabetKeyNew("L", "%"),
++                AlphabetKeyNew("P", "_")
+             ), listOf(
+-                AlphabetKeyNew("A", "\\", percentWidth = 0.095f),
+-                AlphabetKeyNew("S", "|", percentWidth = 0.095f),
+-                AlphabetKeyNew("D", "×", percentWidth = 0.095f),
+-                AlphabetKeyNew("F", "÷", percentWidth = 0.095f),
+-                AlphabetKeyNew("G", "←", percentWidth = 0.095f),
+-                AlphabetKeyNew("H", "→", percentWidth = 0.095f),
+-                AlphabetKeyNew("J", formContext[7].component1(), percentWidth = 0.095f),
+-                AlphabetKeyNew("K", formContext[8].component1(), percentWidth = 0.095f),
+-                AlphabetKeyNew("L", formContext[9].component1(), percentWidth = 0.095f),
+-                AlphabetKeyNew(
+-                    ";",
+-                    ":",
+-                    percentWidth = 0.095f,
+-                    behavior = setOf(
+-                        Behavior.Press(KeyAction.FcitxKeyAction(";")),
+-                        Behavior.Swipe(KeyAction.FcitxKeyAction(":"))
+-                    )
+-                ),
++                AlphabetKeyNew("S", "|"),
++                AlphabetKeyNew("D", "^"),
++                AlphabetKeyNew("F", "&"),
++                AlphabetKeyNew("G", "*"),
++                AlphabetKeyNew("H", "("),
++                AlphabetKeyNew("J", ")"),
++                AlphabetKeyNew("K", "=")
++            ), listOf(
++                AlphabetKeyNew("Z", "<"),
++                AlphabetKeyNew("X", ">"),
++                AlphabetKeyNew("C", "{"),
++                AlphabetKeyNew("V", "}"),
++                AlphabetKeyNew("B", "["),
++                AlphabetKeyNew("N", "]"),
++                AlphabetKeyNew("M", "·"),
+             ), listOf(
++                // @formatter:off
+                 CapsKey(),
+-                AlphabetKeyNew("Z", formContext[0].component1()),
+-                AlphabetKeyNew("X", formContext[1].component1()),
+-                AlphabetKeyNew("C", formContext[2].component1()),
+-                AlphabetKeyNew("V", formContext[3].component1()),
+-                AlphabetKeyNew("B", formContext[4].component1()),
+-                AlphabetKeyNew("N", formContext[5].component1()),
+-                AlphabetKeyNew("M", formContext[6].component1()),
++                AlphabetKeyNew("A", behavior = setOf(Behavior.Press(KeyAction.FcitxKeyAction("A")), Behavior.SwipeCustomize( KeyAction.FcitxKeyAction( act = "A".uppercase(), default = false), Swipe.Up))),
++                AlphabetKeyNew("E", formContext[9].component1(), behavior = setOf(Behavior.Press(KeyAction.FcitxKeyAction("E")), Behavior.SwipeCustomize( KeyAction.FcitxKeyAction( act = "E".uppercase(), default = false), Swipe.Up), Behavior.SwipeCustomize(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_l), KeyStates(KeyState.Ctrl)), Swipe.Down))),
++                AlphabetKeyNew("U", "÷"),
++                AlphabetKeyNew("I", formContext[9].component1(), behavior = setOf(Behavior.Press(KeyAction.FcitxKeyAction("I")), Behavior.SwipeCustomize( KeyAction.FcitxKeyAction( act = "I".uppercase(), default = false), Swipe.Up), Behavior.SwipeCustomize(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_l), KeyStates(KeyState.Ctrl)), Swipe.Down))),
++                AlphabetKeyNew("O", behavior = setOf(Behavior.Press(KeyAction.FcitxKeyAction("O")), Behavior.SwipeCustomize( KeyAction.FcitxKeyAction( act = "O".uppercase(), default = false), Swipe.Up))),
+                 BackspaceKey()
++                // @formatter:on
+             ), listOf(
+                 // @formatter:off
+                 KeyDef(
+@@ -103,11 +84,11 @@ class TextKeyboard(
+                     )),
+                 // @formatter:on
+                 LanguageKey(),
+-                AlphabetKey("/", "?"),
+-                AlphabetKey(",", "<"),
++                AlphabetKey(".", "?", percentWidth = 0.13f),
++                AlphabetKey(",", "/", percentWidth = 0.13f),
+                 SpaceKey(),
+-                AlphabetKey(".", ">"),
+-                AlphabetKey("'", "\""),
++                AlphabetKey(";", ":", percentWidth = 0.13f),
++                AlphabetKey("'", "\"", percentWidth = 0.13f),
+                 ReturnKey()
+             )
+         )
+@@ -274,7 +255,13 @@ class TextKeyboard(
+ 
+     override fun onInputMethodUpdate(ime: InputMethodEntry) {
+         space.mainText.text = buildString {
+-            append(if (ime.label == "En") ime.name else ime.label)
++            append(
++                when (ime.label) {
++                    "En" -> ime.name
++                    "ㄓ" -> ""
++                    else -> ime.label
++                }
++            )
+             ime.subMode.run { name.ifEmpty { label.ifEmpty { null } } }?.let { append(" $it") }
+         }
+         if (capsState != CapsState.None) {
+diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt
+index ecd4bb1f..c7581cfe 100644
+--- a/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt
++++ b/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt
+@@ -11,7 +11,6 @@ import org.fcitx.fcitx5.android.core.KeyStates
+ import org.fcitx.fcitx5.android.core.KeySym
+ import org.fcitx.fcitx5.android.input.clipboard.ClipboardWindow
+ import org.fcitx.fcitx5.android.input.keyboard.KeyAction
+-import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
+ 
+ /**
+  * based on
+@@ -41,25 +40,24 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
+     // Latin
+     //
+     "q" to arrayOf("`", "q", "Q"),
+-    "w" to arrayOf("~", "w", "W"),
+-    "e" to arrayOf("+", "e", "E", "ê", "ë", "ē", "é", "ě", "è", "ė", "ę", "ȩ", "ḝ", "ə"),
+-    "r" to arrayOf("-", "r", "R"),
+-    "t" to arrayOf("=", "t", "T"),
+-    "y" to arrayOf("_", "y", "Y", "ÿ", "ұ", "ү", "ӯ", "ў"),
+-    "u" to arrayOf("{", "u", "U", "û", "ü", "ū", "ú", "ǔ", "ù"),
+-    "i" to arrayOf("}", "i", "I", "î", "ï", "ī", "í", "ǐ", "ì", "į", "ı"),
+-    "o" to arrayOf("[", "o", "O", "ô", "ö", "ō", "ó", "ǒ", "ò", "œ", "ø", "õ"),
+-    "p" to arrayOf("]", "p", "P"),
+-    "a" to arrayOf("\\", "a", "A", "â", "ä", "ā", "á", "ǎ", "à", "æ", "ã", "å"),
+-    "s" to arrayOf("|", "s", "S", "ß", "ś", "š", "ş"),
+-    "d" to arrayOf("×", "d", "D", "ð"),
+-    "f" to arrayOf("÷", "f", "F"),
+-    "g" to arrayOf("←", "g", "G", "ğ"),
+-    "h" to arrayOf("→", "h", "H"),
+-    "j" to arrayOf(formContext[7].component1(), "j", "J"),
+-    "k" to arrayOf(formContext[8].component1(), "k", "K"),
+-    "l" to arrayOf(formContext[9].component1(), "/", "l", "L", "ł"),
+-    ";" to arrayOf(":"),
++    "w" to arrayOf("1", "w", "W"),
++    "e" to arrayOf("↓", "e", "E", "ê", "ë", "ē", "é", "ě", "è", "ė", "ę", "ȩ", "ḝ", "ə"),
++    "r" to arrayOf("2", "r", "R"),
++    "t" to arrayOf("3", "t", "T"),
++    "y" to arrayOf("4", "y", "Y", "ÿ", "ұ", "ү", "ӯ", "ў"),
++    "u" to arrayOf("×", "u", "U", "û", "ü", "ū", "ú", "ǔ", "ù"),
++    "i" to arrayOf("←", "i", "I", "î", "ï", "ī", "í", "ǐ", "ì", "į", "ı"),
++    "o" to arrayOf("→", "o", "O", "ô", "ö", "ō", "ó", "ǒ", "ò", "œ", "ø", "õ"),
++    "p" to arrayOf("-", "p", "P"),
++    "a" to arrayOf("↑", "a", "A", "â", "ä", "ā", "á", "ǎ", "à", "æ", "ã", "å"),
++    "s" to arrayOf("\\", "s", "S", "ß", "ś", "š", "ş"),
++    "d" to arrayOf("6", "d", "D", "ð"),
++    "f" to arrayOf("7", "f", "F"),
++    "g" to arrayOf("8", "g", "G", "ğ"),
++    "h" to arrayOf("9", "h", "H"),
++    "j" to arrayOf("0", "j", "J"),
++    "k" to arrayOf("+", "k", "K"),
++    "l" to arrayOf("5", "l", "L", "ł"),
+     "z" to arrayOf(formContext[0].component1(), "Z", "z", "ž", "ź", "ż"),
+     "x" to arrayOf(formContext[1].component1(), "X", "x", "×"),
+     "c" to arrayOf(formContext[2].component1(), "C", "c", "ç", "ć", "č"),
+@@ -89,7 +87,6 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
+     "J" to arrayOf("↑", "j", "J"),
+     "K" to arrayOf("↓️️", "k", "K"),
+     "L" to arrayOf("/", "l", "L", "ł"),
+-    ";" to arrayOf(":"),
+     "Z" to arrayOf("z", "Z", "`", "Ž", "Ź", "Ż"),
+     "X" to arrayOf("x", "X"),
+     "C" to arrayOf("c", "C", "Ç", "Ć", "Č"),
+@@ -164,11 +161,11 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
+     //
+     // Punctuation
+     //
+-    "," to arrayOf("<", "≤", "?", "!", ":", ";", "_", "%", "$", "^", "&"),
++    "," to arrayOf("/", "?", "!", ":", ";", "_", "%", "$", "^", "&"),
+     "'" to arrayOf("\""),
+-    "." to arrayOf(">", "≥", ",", "!", ":", ";", "_", "%", "$", "^", "&"),
++    "." to arrayOf("?", "¿", "‽", ",", "!", ":", ";", "_", "%", "$", "^", "&"),
+     "-" to arrayOf("—", "–", "·"),
+-    "?" to arrayOf("¿", "‽"),
++    "?" to arrayOf(),
+     "'" to arrayOf("\"", "‘", "’", "‚", "›", "‹"),
+     "!" to arrayOf("¡"),
+     "\"" to arrayOf("“", "”", "„", "»", "«"),
+@@ -181,6 +178,7 @@ val PopupPreset: Map<String, Array<String>> = hashMapOf(
+     "=" to arrayOf("∞", "≠", "≈"),
+     ">" to arrayOf("≥", "»", "›", "⟩"),
+     "°" to arrayOf("′", "″", "‴"),
++    ";" to arrayOf(":"),
+     //
+     // Currency
+     //

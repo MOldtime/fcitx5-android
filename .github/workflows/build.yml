@@ -1,0 +1,68 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches: [46key-layout]
+
+jobs:
+  develop:
+    strategy:
+      matrix:
+        patch:
+          - 26key
+          - 35key
+          - 45key
+          - 45key-numbers
+          - 46key
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Fetch source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: cachix/install-nix-action@v30
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: cachix/cachix-action@v15
+        with:
+          name: fcitx5-android
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - name: decode-base64-github-action
+        uses: akiojin/decode-base64-github-action@v1.0.2
+        with:
+          base64: ${{ secrets.STORE_FILE_BASE64 }}
+          output-path: ${{ github.workspace }}/release-key.jks
+      - name: Apply patch
+        if: ${{ matrix.patch != '46key' }}
+        run: |
+          git apply patches/${{ matrix.patch }}.patch
+      - name: Delete tag
+        continue-on-error: true
+        run: |
+          git tag -d 26key 35key 45key 45key-numbers 46key || true
+      - name: Build Release APK
+        env:
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_FILE: ${{ github.workspace }}/release-key.jks
+        run: |
+          nix develop .#noAS --command ./gradlew app:assembleRelease
+      - name: Delete release
+        run: |
+          gh release delete "${{ matrix.patch }}" -y || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+          tag_name: ${{ matrix.patch }}
+          name: "${{ matrix.patch }} Layout Release"
+          body: "\n## Image\n![image](https://raw.githubusercontent.com/MOldtime/Pictrue/refs/heads/fcitx5-android/${{ matrix.patch }}.png)"
+          files: |
+            app/build/outputs/apk/release/*.apk

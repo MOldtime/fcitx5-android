@@ -68,7 +68,7 @@ index 8c3767e0..bfeac359 100644
  
  class SymbolKeyAlt(
 diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
-index 51ac2bd4..a9817f69 100644
+index 51ac2bd4..ab5f5ba5 100644
 --- a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
 +++ b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
 @@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.input.keyboard
@@ -87,7 +87,7 @@ index 51ac2bd4..a9817f69 100644
  import splitties.views.imageResource
  
  @SuppressLint("ViewConstructor")
-@@ -38,82 +38,52 @@ class TextKeyboard(
+@@ -38,82 +38,60 @@ class TextKeyboard(
  
          val Layout: List<List<KeyDef>> = listOf(
              listOf(
@@ -182,17 +182,26 @@ index 51ac2bd4..a9817f69 100644
 -                    )),
 -                // @formatter:on
 +                KeyDef(Appearance.ImageText( " ", src = R.drawable.ic_baseline_tag_faces_24, textSize = 16f, textStyle = Typeface.NORMAL, percentWidth = 0.15f, variant = Variant.Alternative, viewId = R.id.button_number,), setOf( Behavior.Press(KeyAction.LayoutSwitchAction("")), Behavior.Swipe(KeyAction.PickerSwitchAction()))),
-+                SymbolKeyId( ",", R.id.button_left, variant = Variant.Alternative),
++                SymbolKeyId( ",", R.id.button_left, variant = Variant.Alternative, behaviors = setOf(
++                    Behavior.Press(KeyAction.FcitxKeyAction(",")),
++                    Behavior.SwipeCustomize(KeyAction.FcitxKeyAction(","), Swipe.Up),
++                    Behavior.SwipeCustomize(KeyAction.FcitxKeyAction(","), Swipe.Down)
++                )),
                  LanguageKey(),
 -                AlphabetKey("/", "?"),
 -                AlphabetKey(",", "<"),
                  SpaceKey(),
 -                AlphabetKey(".", ">"),
 -                AlphabetKey("'", "\""),
-+                SymbolKeyId( ".", R.id.button_right, variant = Variant.Alternative),
++                SymbolKeyId( ".", R.id.button_right, variant = Variant.Alternative, behaviors = setOf(
++                    Behavior.Press(KeyAction.FcitxKeyAction(".")),
++                    Behavior.SwipeCustomize(KeyAction.FcitxKeyAction("."), Swipe.Up),
++                    Behavior.SwipeCustomize(KeyAction.FcitxKeyAction("."), Swipe.Down)
++                )),
                  ReturnKey()
+-            )
 +                // @formatter:on
-             )
++        )
          )
      }
  
@@ -202,7 +211,7 @@ index 51ac2bd4..a9817f69 100644
  
      val caps: ImageKeyView by lazy { findViewById(R.id.button_caps) }
      val backspace: ImageKeyView by lazy { findViewById(R.id.button_backspace) }
-@@ -136,6 +106,16 @@ class TextKeyboard(
+@@ -136,6 +114,16 @@ class TextKeyboard(
          showLangSwitchKey.registerOnChangeListener(showLangSwitchKeyListener)
          caps.swipeEnabled = false
          buttonNumber.mainText.text = buildString { append("?123") }
@@ -219,7 +228,7 @@ index 51ac2bd4..a9817f69 100644
      }
  
      private val textKeys: List<TextKeyView> by lazy {
-@@ -204,12 +184,13 @@ class TextKeyboard(
+@@ -204,12 +192,13 @@ class TextKeyboard(
  
      override fun onPanelUpdate(status: Boolean) {
          buttonNumber.mainText.text = buildString { append(if (status) "Esc" else "?123") }
@@ -235,7 +244,7 @@ index 51ac2bd4..a9817f69 100644
              buttonNumber.setOnLongClickListener {
                  onAction(KeyAction.LayoutSwitchAction(""))
                  true
-@@ -218,28 +199,13 @@ class TextKeyboard(
+@@ -218,28 +207,13 @@ class TextKeyboard(
              buttonNumber.setOnClickListener {
                  onAction(KeyAction.LayoutSwitchAction(""))
              }
@@ -271,7 +280,7 @@ index 51ac2bd4..a9817f69 100644
          }
      }
  
-@@ -333,8 +299,7 @@ class TextKeyboard(
+@@ -333,8 +307,7 @@ class TextKeyboard(
      }
  
      private fun updateLangSwitchKey(visible: Boolean) {

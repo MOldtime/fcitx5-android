@@ -58,7 +58,7 @@ index 8c3767e0..54a8eebc 100644
      popup ?: arrayOf(
          Popup.AltPreview(character, punctuation),
 diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
-index 51ac2bd4..be938b4f 100644
+index d717d759..a454e197 100644
 --- a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
 +++ b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
 @@ -38,58 +38,39 @@ class TextKeyboard(
@@ -164,21 +164,28 @@ index 51ac2bd4..be938b4f 100644
                  ReturnKey()
              )
          )
-@@ -274,7 +255,13 @@ class TextKeyboard(
- 
+@@ -278,14 +259,14 @@ class TextKeyboard(
      override fun onInputMethodUpdate(ime: InputMethodEntry) {
+         languageCode = ime.languageCode
          space.mainText.text = buildString {
 -            append(if (ime.label == "En") ime.name else ime.label)
+-            ime.subMode.run {
+-                name.ifEmpty {
+-                    label.ifEmpty { null }
 +            append(
 +                when (ime.label) {
 +                    "En" -> ime.name
 +                    "ㄓ" -> ""
 +                    else -> ime.label
-+                }
+                 }
+-            }?.let {
+-                append(" $it")
+-            }
 +            )
-             ime.subMode.run { name.ifEmpty { label.ifEmpty { null } } }?.let { append(" $it") }
++            ime.subMode.run { name.ifEmpty { label.ifEmpty { null } } }?.let { append(" $it") }
          }
          if (capsState != CapsState.None) {
+             switchCapsState()
 diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt
 index ecd4bb1f..c7581cfe 100644
 --- a/app/src/main/java/org/fcitx/fcitx5/android/input/popup/PopupPreset.kt

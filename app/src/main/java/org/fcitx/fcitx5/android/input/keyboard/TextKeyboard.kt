@@ -113,6 +113,8 @@ class TextKeyboard(
         )
     }
 
+    private var languageCode: String? = null
+
     val buttonNumber: TextKeyView by lazy { findViewById(R.id.button_number) }
 
     val caps: ImageKeyView by lazy { findViewById(R.id.button_caps) }
@@ -130,6 +132,7 @@ class TextKeyboard(
     }
 
     private val keepLettersUppercase by AppPrefs.getInstance().keyboard.keepLettersUppercase
+    private val enExcluded by AppPrefs.getInstance().keyboard.enExcluded
 
     init {
         updateLangSwitchKey(showLangSwitchKey.getValue())
@@ -273,12 +276,21 @@ class TextKeyboard(
     }
 
     override fun onInputMethodUpdate(ime: InputMethodEntry) {
+        languageCode = ime.languageCode
         space.mainText.text = buildString {
             append(if (ime.label == "En") ime.name else ime.label)
-            ime.subMode.run { name.ifEmpty { label.ifEmpty { null } } }?.let { append(" $it") }
+            ime.subMode.run {
+                name.ifEmpty {
+                    label.ifEmpty { null }
+                }
+            }?.let {
+                append(" $it")
+            }
         }
         if (capsState != CapsState.None) {
             switchCapsState()
+        } else {
+            updateAlphabetKeys()
         }
     }
 
@@ -338,11 +350,15 @@ class TextKeyboard(
     }
 
     private fun updateAlphabetKeys() {
+        val uppercase =
+            keepLettersUppercase && if (enExcluded) this.languageCode != null && this.languageCode != "en" else true
         textKeys.forEach {
             if (it.def !is KeyDef.Appearance.AltText) return
             it.mainText.text = it.def.displayText.let { str ->
                 if (str.length != 1 || !str[0].isLetter()) return@forEach
-                if (keepLettersUppercase) str.uppercase() else transformAlphabet(str)
+                if (uppercase) {
+                    str.uppercase()
+                } else transformAlphabet(str)
             }
         }
     }

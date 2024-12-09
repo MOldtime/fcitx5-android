@@ -1,8 +1,8 @@
 diff --git a/app/src/main/java/org/fcitx/fcitx5/android/data/prefs/AppPrefs.kt b/app/src/main/java/org/fcitx/fcitx5/android/data/prefs/AppPrefs.kt
-index f015295f..bd616784 100644
+index 5bc099dc..56a66d76 100644
 --- a/app/src/main/java/org/fcitx/fcitx5/android/data/prefs/AppPrefs.kt
 +++ b/app/src/main/java/org/fcitx/fcitx5/android/data/prefs/AppPrefs.kt
-@@ -163,7 +163,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
+@@ -170,7 +170,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
          val spaceSwipeMoveCursor =
              switch(R.string.space_swipe_move_cursor, "space_swipe_move_cursor", true)
          val showLangSwitchKey =
@@ -11,7 +11,7 @@ index f015295f..bd616784 100644
          val langSwitchKeyBehavior = enumList(
              R.string.lang_switch_key_behavior,
              "lang_switch_key_behavior",
-@@ -178,10 +178,10 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
+@@ -185,10 +185,10 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
                  R.string.keyboard_height,
                  R.string.portrait,
                  "keyboard_height_percent",
@@ -68,7 +68,7 @@ index 8c3767e0..bfeac359 100644
  
  class SymbolKeyAlt(
 diff --git a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
-index 51ac2bd4..ab5f5ba5 100644
+index d717d759..90bbd084 100644
 --- a/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
 +++ b/app/src/main/java/org/fcitx/fcitx5/android/input/keyboard/TextKeyboard.kt
 @@ -7,6 +7,7 @@ package org.fcitx.fcitx5.android.input.keyboard
@@ -87,7 +87,7 @@ index 51ac2bd4..ab5f5ba5 100644
  import splitties.views.imageResource
  
  @SuppressLint("ViewConstructor")
-@@ -38,82 +38,60 @@ class TextKeyboard(
+@@ -38,84 +38,62 @@ class TextKeyboard(
  
          val Layout: List<List<KeyDef>> = listOf(
              listOf(
@@ -205,13 +205,15 @@ index 51ac2bd4..ab5f5ba5 100644
          )
      }
  
+     private var languageCode: String? = null
+ 
      val buttonNumber: TextKeyView by lazy { findViewById(R.id.button_number) }
 +    val buttonLeft: TextKeyView by lazy { findViewById(R.id.button_left) }
 +    val buttonRight: TextKeyView by lazy { findViewById(R.id.button_right) }
  
      val caps: ImageKeyView by lazy { findViewById(R.id.button_caps) }
      val backspace: ImageKeyView by lazy { findViewById(R.id.button_backspace) }
-@@ -136,6 +114,16 @@ class TextKeyboard(
+@@ -139,6 +117,16 @@ class TextKeyboard(
          showLangSwitchKey.registerOnChangeListener(showLangSwitchKeyListener)
          caps.swipeEnabled = false
          buttonNumber.mainText.text = buildString { append("?123") }
@@ -228,7 +230,7 @@ index 51ac2bd4..ab5f5ba5 100644
      }
  
      private val textKeys: List<TextKeyView> by lazy {
-@@ -204,12 +192,13 @@ class TextKeyboard(
+@@ -207,12 +195,13 @@ class TextKeyboard(
  
      override fun onPanelUpdate(status: Boolean) {
          buttonNumber.mainText.text = buildString { append(if (status) "Esc" else "?123") }
@@ -244,7 +246,7 @@ index 51ac2bd4..ab5f5ba5 100644
              buttonNumber.setOnLongClickListener {
                  onAction(KeyAction.LayoutSwitchAction(""))
                  true
-@@ -218,28 +207,13 @@ class TextKeyboard(
+@@ -221,28 +210,13 @@ class TextKeyboard(
              buttonNumber.setOnClickListener {
                  onAction(KeyAction.LayoutSwitchAction(""))
              }
@@ -280,7 +282,7 @@ index 51ac2bd4..ab5f5ba5 100644
          }
      }
  
-@@ -333,8 +307,7 @@ class TextKeyboard(
+@@ -345,8 +319,7 @@ class TextKeyboard(
      }
  
      private fun updateLangSwitchKey(visible: Boolean) {

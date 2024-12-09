@@ -24,6 +24,7 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.cursor.CursorRange
+import org.fcitx.fcitx5.android.data.theme.ThemeManager
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.GestureType
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.OnGestureListener
 import org.fcitx.fcitx5.android.input.popup.PopupAction
@@ -57,6 +58,7 @@ abstract class BaseKeyboard(
     protected var panelStatus = false
 
     private val prefs = AppPrefs.getInstance()
+    private val themePrefs = ThemeManager.prefs
 
     private val popupOnKeyPress by prefs.keyboard.popupOnKeyPress
     private val expandKeypressArea by prefs.keyboard.expandKeypressArea
@@ -161,7 +163,7 @@ abstract class BaseKeyboard(
     }
     private fun createKeyView(def: KeyDef): KeyView {
         return when (def.appearance) {
-            is KeyDef.Appearance.AltText -> AltTextKeyView(context, theme, def.appearance)
+            is KeyDef.Appearance.AltText -> symbolDisplay(context, theme, def.appearance)
             is KeyDef.Appearance.ImageText -> ImageTextKeyView(context, theme, def.appearance)
             is KeyDef.Appearance.Text -> TextKeyView(context, theme, def.appearance)
             is KeyDef.Appearance.Image -> ImageKeyView(context, theme, def.appearance)
@@ -204,10 +206,7 @@ abstract class BaseKeyboard(
                                     ) else KeyAction.LangSwitchAction
                                 )
                                 true
-                            } else {
-                                false
-                            }
-                            false
+                            } else false
                         }
                         else -> false
                     }

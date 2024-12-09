@@ -139,6 +139,11 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
             "keep_keyboard_letters_uppercase",
             false
         )
+        val enExcluded = switch(
+            R.string.english_excluded,
+            "english_excluded",
+            true
+        ) { keepLettersUppercase.getValue() }
         val showVoiceInputButton =
             switch(R.string.show_voice_input_button, "show_voice_input_button", false)
         val expandKeypressArea =

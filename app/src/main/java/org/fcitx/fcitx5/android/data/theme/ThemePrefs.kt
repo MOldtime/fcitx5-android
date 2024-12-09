@@ -38,6 +38,8 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
 
     val keyRippleEffect = switch(R.string.key_ripple_effect, "key_ripple_effect", true)
 
+    val symbolDisplay = switch(R.string.symbol_display, "symbol_display", true)
+
     val keyHorizontalMargin: ManagedPreference.PInt
     val keyHorizontalMarginLandscape: ManagedPreference.PInt
 

@@ -171,9 +171,9 @@ abstract class BaseKeyboard(
             } else null
             if (def is SpaceKey) {
                 spaceKeys.add(this)
-                swipeEnabled = spaceSwipeMoveCursor.getValue()
+                swipeEnabled = true
                 swipeRepeatEnabled = true
-                swipeThresholdX = selectionSwipeThreshold
+                swipeThresholdX = if (spaceSwipeMoveCursor.getValue()) selectionSwipeThreshold else disabledSwipeThreshold
                 swipeThresholdY = inputSwipeThreshold
                 onGestureListener = OnGestureListener { view, event ->
                     when (event.type) {

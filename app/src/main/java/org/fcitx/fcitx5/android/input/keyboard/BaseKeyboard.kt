@@ -23,8 +23,8 @@ import org.fcitx.fcitx5.android.data.InputFeedbacks
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
-import org.fcitx.fcitx5.android.input.cursor.CursorRange
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
+import org.fcitx.fcitx5.android.input.cursor.CursorRange
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.GestureType
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.OnGestureListener
 import org.fcitx.fcitx5.android.input.popup.PopupAction
@@ -70,7 +70,7 @@ abstract class BaseKeyboard(
     private val spaceKeys = mutableListOf<KeyView>()
     private val spaceSwipeChangeListener = ManagedPreference.OnChangeListener<Boolean> { _, v ->
         spaceKeys.forEach {
-            it.swipeEnabled = v
+            it.swipeThresholdX = if (v) selectionSwipeThreshold else disabledSwipeThreshold
         }
     }
 
@@ -177,23 +177,26 @@ abstract class BaseKeyboard(
             }
             if (def is SpaceKey) {
                 spaceKeys.add(this)
-                swipeEnabled = spaceSwipeMoveCursor.getValue()
+                swipeEnabled = true
                 swipeRepeatEnabled = true
-                swipeThresholdX = selectionSwipeThreshold
-                swipeThresholdY = disabledSwipeThreshold
+                swipeThresholdX =
+                    if (spaceSwipeMoveCursor.getValue()) selectionSwipeThreshold else disabledSwipeThreshold
+                swipeThresholdY = inputSwipeThreshold
                 onGestureListener = OnGestureListener { view, event ->
                     when (event.type) {
                         GestureType.Move -> when (val count = event.countX) {
                             0 -> false
                             else -> {
-                                val sym =
-                                    if (count > 0) FcitxKeyMapping.FcitxKey_Right else FcitxKeyMapping.FcitxKey_Left
-                                val action = KeyAction.SymAction(KeySym(sym), KeyStates.Empty)
-                                repeat(count.absoluteValue) {
-                                    onAction(action)
-                                    vibration?.invoke(view, selection.end >= selection.start)
-                                }
-                                true
+                                if (event.pressTime > longPressDelay / 2 && event.x.absoluteValue > event.y.absoluteValue) {
+                                    val sym =
+                                        if (count > 0) if (candidateStatus) FcitxKeyMapping.FcitxKey_Down else FcitxKeyMapping.FcitxKey_Right else if (candidateStatus) FcitxKeyMapping.FcitxKey_Up else FcitxKeyMapping.FcitxKey_Left
+                                    val action = KeyAction.SymAction(KeySym(sym), KeyStates.Empty)
+                                    repeat(count.absoluteValue) {
+                                        onAction(action)
+                                        vibration?.invoke(view, selection.end >= selection.start)
+                                    }
+                                    true
+                                } else false
                             }
                         }
                         GestureType.Up -> {

@@ -110,6 +110,10 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
 
     private val composing = CursorRange()
     private var composingText = FormattedText.Empty
+    private var clientPreedit = false
+        set(value) {
+            if (field != value) field = value
+        }
 
     private fun resetComposingState() {
         composing.clear()
@@ -222,6 +226,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
     private fun handleFcitxEvent(event: FcitxEvent<*>) {
         when (event) {
             is FcitxEvent.CommitStringEvent -> {
+                clientPreedit = false
                 commitText(event.data.text, event.data.cursor)
             }
             is FcitxEvent.KeyEvent -> event.data.let event@{
@@ -260,6 +265,7 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
                 }
             }
             is FcitxEvent.ClientPreeditEvent -> {
+                clientPreedit = true
                 updateComposingText(event.data)
             }
             is FcitxEvent.DeleteSurroundingEvent -> {
@@ -763,10 +769,12 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         if (newSelStart != newSelEnd) return
         // do reset if composing is empty && input panel is not empty
         if (composing.isEmpty()) {
-            postFcitxJob {
-                if (!isEmpty()) {
-                    Timber.d("handleCursorUpdate: reset")
-                    reset()
+            if (clientPreedit) {
+                postFcitxJob {
+                    if (!isEmpty()) {
+                        Timber.d("handleCursorUpdate: reset")
+                        reset()
+                    }
                 }
             }
             return

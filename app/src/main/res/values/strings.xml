@@ -276,7 +276,7 @@
     <string name="horizontal">Horizontal</string>
     <string name="vertical">Vertical</string>
     <string name="floating_candidate">Virtual keyboard floating candidate(dev)</string>
-    <string name="floating_follow">Virtual keyboard floating follow(dev)</string>
+    <string name="floating_follow">Floating follow</string>
     <string name="hide_candidates">Virtual keyboard hide candidates</string>
     <string name="candidates_font_size">Candidate word font size</string>
     <string name="candidates_padding">Candidate word padding</string>
@@ -289,4 +289,9 @@
     <string name="haptic_feedback">Haptic feedback on key repeat</string>
     <string name="symbol_display">Symbol display</string>
     <string name="english_excluded">exclusion English</string>
+    <string name="top_left">Top left</string>
+    <string name="bottom_left">Bottom left</string>
+    <string name="top_right">Top right</string>
+    <string name="bottom_right">Bottom right</string>
+    <string name="floating_candidates_position">Floating candidates position</string>
 </resources>

@@ -263,7 +263,7 @@
     <string name="restart_to_apply_settings">应用将重启以应用新设置。继续吗？</string>
     <string name="space_swipe_move_cursor">划动空格键以移动光标</string>
     <string name="floating_candidate">虚拟键盘 悬浮候选(预览)</string>
-    <string name="floating_follow">虚拟键盘 浮动跟随(预览)</string>
+    <string name="floating_follow">跟随光标</string>
     <string name="hide_candidates">虚拟键盘 隐藏候选</string>
     <string name="please_wait">请稍候…</string>
     <string name="rotate">旋转</string>
@@ -284,4 +284,9 @@
     <string name="candidates_window_padding">候选窗口边距</string>
     <string name="symbol_display">符号显示</string>
     <string name="english_excluded">排除英文键盘</string>
+    <string name="top_left">左上</string>
+    <string name="bottom_left">左下</string>
+    <string name="top_right">右上</string>
+    <string name="bottom_right">右下</string>
+    <string name="floating_candidates_position">悬浮窗口位置</string>
 </resources>

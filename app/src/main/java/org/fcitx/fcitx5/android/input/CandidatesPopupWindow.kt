@@ -17,6 +17,7 @@ import org.fcitx.fcitx5.android.core.FcitxEvent
 import org.fcitx.fcitx5.android.daemon.FcitxConnection
 import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.theme.Theme
+import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesPosition
 import org.fcitx.fcitx5.android.input.candidates.floating.PagedCandidatesUi
 import org.fcitx.fcitx5.android.input.preedit.PreeditUi
 import splitties.dimensions.dp
@@ -94,25 +95,39 @@ class CandidatesPopupWindow(
         val selfWidth = candidates.width.toFloat()
         val selfHeight = candidates.height.toFloat()
         val x =
-            if ((candidates.floatingWindow && candidates.floatingFollow) || !isVirtualKeyboard) {
-                if (candidates.layoutDirection == LAYOUT_DIRECTION_RTL) {
-                    val rtlOffset = parentWidth - horizontal
-                    if (rtlOffset + selfWidth > parentWidth) selfWidth - parentWidth else -rtlOffset
-                } else {
-                    if (horizontal + selfWidth > parentWidth) parentWidth - selfWidth else horizontal
+            if (candidates.floatingWindow || !isVirtualKeyboard) {
+                when (candidates.floatingFollow) {
+                    FloatingCandidatesPosition.TopLeft, FloatingCandidatesPosition.BottomLeft -> {
+                        5f
+                    }
+                    FloatingCandidatesPosition.TopRight, FloatingCandidatesPosition.BottomRight -> {
+                        parentWidth - selfWidth - 5f
+                    }
+                    FloatingCandidatesPosition.Follow -> {
+                        if (candidates.layoutDirection == LAYOUT_DIRECTION_RTL) {
+                            val rtlOffset = parentWidth - horizontal
+                            if (rtlOffset + selfWidth > parentWidth) selfWidth - parentWidth else -rtlOffset
+                        } else {
+                            if (horizontal + selfWidth > parentWidth) parentWidth - selfWidth else horizontal
+                        }
+                    }
                 }
             } else {
                 5f
             }
 
         val y = if (isVirtualKeyboard) {
-            val direction = bottom + selfHeight + 5f < parentHeight // true 放下面
-            if ((candidates.floatingWindow && candidates.floatingFollow) && direction)
-            /* 跟随 放下面 */ bottom
-            else if (direction)
-            /*不跟随 放在最低位置*/ parentHeight - selfHeight - 5f
-            else
-            /*不跟随，且下面放不下*/ (if (top < parentHeight) top else parentHeight) - selfHeight - 5f
+            when (candidates.floatingFollow) {
+                FloatingCandidatesPosition.TopLeft, FloatingCandidatesPosition.TopRight -> {
+                    if (top >= selfHeight) 0f else bottom
+                }
+                FloatingCandidatesPosition.BottomLeft, FloatingCandidatesPosition.BottomRight -> {
+                    if (bottom + selfHeight + 5f <= parentHeight) parentHeight - selfHeight - 5f else (if (top < parentHeight) top else parentHeight) - selfHeight - 5f
+                }
+                FloatingCandidatesPosition.Follow -> {
+                    if (bottom + selfHeight + 5f <= parentHeight) bottom else (if (top < parentHeight) top else parentHeight) - selfHeight - 5f
+                }
+            }
         } else {
             // 外接
             val height = parentView.height.toFloat()
@@ -187,7 +202,7 @@ class CandidatesPopupWindow(
         private val fontSize by candidatesPrefs.fontSize
         private val itemPaddingVertical by candidatesPrefs.itemPaddingVertical
         private val itemPaddingHorizontal by candidatesPrefs.itemPaddingHorizontal
-        val floatingFollow by candidatesPrefs.floatingFollow
+        val floatingFollow by candidatesPrefs.floatingFollowPosition
         val floatingWindow by candidatesPrefs.floatingWindow
         private var inputPanel = FcitxEvent.InputPanelEvent.Data()
         private var paged = FcitxEvent.PagedCandidateEvent.Data.Empty

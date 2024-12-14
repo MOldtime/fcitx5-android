@@ -15,6 +15,7 @@ import org.fcitx.fcitx5.android.data.InputFeedbacks.InputFeedbackMode
 import org.fcitx.fcitx5.android.input.candidates.expanded.ExpandedCandidateStyle
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesMode
 import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesOrientation
+import org.fcitx.fcitx5.android.input.candidates.floating.FloatingCandidatesPosition
 import org.fcitx.fcitx5.android.input.candidates.horizontal.HorizontalCandidateMode
 import org.fcitx.fcitx5.android.input.keyboard.LangSwitchBehavior
 import org.fcitx.fcitx5.android.input.keyboard.SpaceLongPressBehavior
@@ -321,7 +322,7 @@ class AppPrefs(private val sharedPreferences: SharedPreferences) {
         val floatingWindow =
             switch(R.string.floating_candidate, "floating_candidate", false)
 
-        val floatingFollow = switch(R.string.floating_follow, "floating_follow", false) {
+        val floatingFollowPosition = enumList(R.string.floating_candidates_position, "floating_candidates_position", FloatingCandidatesPosition.Follow) {
             floatingWindow.getValue()
         }
         val hideCandidates =

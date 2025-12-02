@@ -11,6 +11,7 @@ import android.view.ViewOutlineProvider
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
+import org.fcitx.fcitx5.android.input.keyboard.textKeyboard.TextKeyboardManagement
 import splitties.dimensions.dp
 import splitties.views.dsl.core.Ui
 import splitties.views.dsl.core.add
@@ -219,7 +220,7 @@ class PopupKeyboardUi(
 
     override fun onTrigger(): KeyAction? {
         val key = keys.getOrNull(focusedIndex) ?: return null
-        return formContext.firstOrNull { key == it.component1() }?.component2()
+        return TextKeyboardManagement.formContext.firstOrNull { key == it.component1() }?.component2()
             ?: KeyAction.FcitxKeyAction(key)
     }
 

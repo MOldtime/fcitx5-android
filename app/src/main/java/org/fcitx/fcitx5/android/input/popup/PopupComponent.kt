@@ -19,6 +19,8 @@ import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.dependency.theme
 import org.fcitx.fcitx5.android.input.keyboard.KeyAction
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef
+import org.fcitx.fcitx5.android.input.keyboard.textKeyboard.TextKeyboardBase
+import org.fcitx.fcitx5.android.input.keyboard.textKeyboard.TextKeyboardManagement
 import org.mechdancer.dependency.Dependent
 import org.mechdancer.dependency.UniqueComponent
 import org.mechdancer.dependency.manager.ManagedHandler
@@ -116,7 +118,7 @@ class PopupComponent :
     }
 
     private fun showKeyboard(viewId: Int, keyboard: KeyDef.Popup.Keyboard, bounds: Rect) {
-        val keys = PopupPreset[keyboard.label]
+        val keys = TextKeyboardManagement.getPopupPreset()[keyboard.label]
             ?: EmojiModifier.produceSkinTones(keyboard.label)
             ?: return
         // clear popup preview text         OR create empty popup preview

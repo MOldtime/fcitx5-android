@@ -11,6 +11,7 @@ import androidx.viewpager2.widget.ViewPager2
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.keyboard.*
+import org.fcitx.fcitx5.android.input.keyboard.textKeyboard.TextKeyboardManagement
 import splitties.dimensions.dp
 import splitties.views.dsl.constraintlayout.above
 import splitties.views.dsl.constraintlayout.below
@@ -30,7 +31,7 @@ class PickerLayout(context: Context, theme: Theme, switchKey: KeyDef) :
     class Keyboard(context: Context, theme: Theme, switchKey: KeyDef) : BaseKeyboard(
         context, theme, listOf(
             listOf(
-                LayoutSwitchKey("ABC", TextKeyboard.Name),
+                LayoutSwitchKey("ABC", TextKeyboardManagement.getCurrentKeyboardName()),
                 PunctuationKey(","),
                 switchKey,
                 SpaceKey(),

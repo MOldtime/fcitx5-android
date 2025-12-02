@@ -14,7 +14,6 @@ import org.fcitx.fcitx5.android.core.KeySym
 import org.fcitx.fcitx5.android.data.InputFeedbacks
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Border
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Variant
-import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 
 val NumLockState = KeyStates(KeyState.NumLock, KeyState.Virtual)
@@ -40,53 +39,6 @@ class SymbolKey(
     )
 )
 
-class SymbolKeyId(
-    val symbol: String,
-    viewId: Int,
-    percentWidth: Float = 0.14f,
-    variant: Variant = Variant.Normal,
-    popup: Array<Popup>? = null
-) : KeyDef(
-    Appearance.Text(
-        displayText = symbol,
-        textSize = 23f,
-        percentWidth = percentWidth,
-        variant = variant,
-        viewId = viewId
-    ),
-    setOf(
-        Behavior.Press(KeyAction.FcitxKeyAction(symbol))
-    ),
-    popup ?: arrayOf(
-        Popup.Preview(symbol),
-        Popup.Keyboard(symbol)
-    )
-)
-
-class SymbolKeyAlt(
-    val symbol: String,
-    altText: String,
-    viewId: Int = -1,
-    variant: Variant = Variant.Normal,
-    popup: Array<Popup>? = null
-) : KeyDef(
-    Appearance.AltText(
-        displayText = symbol,
-        altText = altText,
-        textSize = 23f,
-        variant = variant,
-        viewId = viewId
-    ),
-    setOf(
-        Behavior.Press(KeyAction.FcitxKeyAction(symbol)),
-        Behavior.Swipe(KeyAction.FcitxKeyAction(altText))
-    ),
-    popup ?: arrayOf(
-        Popup.Preview(symbol),
-        Popup.Keyboard(symbol)
-    )
-)
-
 class AlphabetKey(
     val character: String,
     val punctuation: String,
@@ -94,7 +46,6 @@ class AlphabetKey(
     popup: Array<Popup>? = null
 ) : KeyDef(
     Appearance.AltText(
-        percentWidth = 0.11f,
         displayText = character,
         altText = punctuation,
         textSize = 23f,
@@ -103,51 +54,6 @@ class AlphabetKey(
     setOf(
         Behavior.Press(KeyAction.FcitxKeyAction(character)),
         Behavior.Swipe(KeyAction.FcitxKeyAction(punctuation))
-    ),
-    popup ?: arrayOf(
-        Popup.AltPreview(character, punctuation),
-        Popup.Keyboard(character)
-    )
-)
-
-class AlphabetTextKey(
-    val character: String,
-    variant: Variant = Variant.Normal,
-    popup: Array<Popup>? = null
-) : KeyDef(
-    Appearance.AltText(
-        displayText = character,
-        altText = " ",
-        textSize = 23f,
-        variant = variant
-    ),
-    setOf(
-        Behavior.Press(KeyAction.FcitxKeyAction(character)),
-    ),
-    popup ?: arrayOf(
-        Popup.Keyboard(character)
-    )
-)
-
-class AlphabetKeyNew(
-    val character: String,
-    val punctuation: String = " ",
-    variant: Variant = Variant.Normal,
-    behavior: Set<Behavior>? = null,
-    popup: Array<Popup>? = null,
-    percentWidth: Float = 0.1f,
-) : KeyDef(
-    Appearance.AltText(
-        percentWidth = percentWidth,
-        textStyle = Typeface.NORMAL,
-        displayText = character,
-        altText = punctuation,
-        textSize = 23f,
-        variant = variant
-    ),
-    behavior ?: setOf(
-        Behavior.Press(KeyAction.FcitxKeyAction(character)),
-        Behavior.Swipe(KeyAction.FcitxKeyAction(act = character.uppercase(), default = false)),
     ),
     popup ?: arrayOf(
         Popup.AltPreview(character, punctuation),
@@ -195,12 +101,8 @@ class CapsKey : KeyDef(
         variant = Variant.Alternative
     ),
     setOf(
-        // @formatter:off
-        Behavior.SwipeCustomize(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Tab), KeyStates(KeyState.Shift)), BaseKeyboard.Swipe.Up),
-        Behavior.SwipeCustomize(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Page_Down), KeyStates.Empty), BaseKeyboard.Swipe.Down),
-        // @formatter:On
         Behavior.Press(KeyAction.CapsAction(false)),
-        Behavior.LongPress(KeyAction.LangSwitchAction),
+        Behavior.LongPress(KeyAction.CapsAction(true)),
         Behavior.DoubleTap(KeyAction.CapsAction(true))
     )
 )
@@ -220,45 +122,6 @@ class LayoutSwitchKey(
     ),
     setOf(
         Behavior.Press(KeyAction.LayoutSwitchAction(to))
-    )
-)
-
-class LayoutSwitchNumber(
-    displayText: String,
-    val to: String = "",
-    percentWidth: Float = 0.15f,
-    variant: Variant = Variant.Alternative
-) : KeyDef(
-    Appearance.Text(
-        displayText,
-        textSize = 16f,
-        textStyle = Typeface.BOLD,
-        percentWidth = percentWidth,
-        variant = variant,
-    ),
-    setOf(
-        Behavior.Press(KeyAction.LayoutSwitchAction(to)),
-    ),
-    arrayOf(
-        Popup.Menu(
-            arrayOf(
-                Popup.Menu.Item(
-                    "Emoji",
-                    R.drawable.ic_baseline_tag_faces_24,
-                    KeyAction.PickerSwitchAction()
-                ),
-                Popup.Menu.Item(
-                    "QuickPhrase",
-                    R.drawable.ic_baseline_format_quote_24,
-                    KeyAction.QuickPhraseAction
-                ),
-                Popup.Menu.Item(
-                    "Unicode",
-                    R.drawable.ic_logo_unicode,
-                    KeyAction.UnicodeAction
-                )
-            )
-        )
     )
 )
 
@@ -341,41 +204,6 @@ class LanguageKey : KeyDef(
     )
 )
 
-class Emoji : KeyDef(
-    Appearance.ImageText(
-        displayText = "?",
-        textSize = 16f,
-        percentWidth = 0.1f,
-        variant = Variant.Alternative,
-        src = R.drawable.ic_baseline_tag_faces_24
-    ),
-    setOf(
-        Behavior.Press(KeyAction.FcitxKeyAction("?")),
-        Behavior.Swipe(KeyAction.PickerSwitchAction()),
-    ),
-    arrayOf(
-        Popup.Menu(
-            arrayOf(
-                Popup.Menu.Item(
-                    "Emoji",
-                    R.drawable.ic_baseline_tag_faces_24,
-                    KeyAction.PickerSwitchAction()
-                ),
-                Popup.Menu.Item(
-                    "QuickPhrase",
-                    R.drawable.ic_baseline_format_quote_24,
-                    KeyAction.QuickPhraseAction
-                ),
-                Popup.Menu.Item(
-                    "Unicode",
-                    R.drawable.ic_logo_unicode,
-                    KeyAction.UnicodeAction
-                )
-            )
-        )
-    )
-)
-
 class SpaceKey : KeyDef(
     Appearance.Text(
         displayText = " ",
@@ -387,7 +215,7 @@ class SpaceKey : KeyDef(
     ),
     setOf(
         Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_space))),
-        Behavior.LongPress(KeyAction.SpaceLongPressAction),
+        Behavior.LongPress(KeyAction.SpaceLongPressAction)
     )
 )
 
@@ -401,29 +229,17 @@ class ReturnKey(percentWidth: Float = 0.15f) : KeyDef(
         soundEffect = InputFeedbacks.SoundEffect.Return
     ),
     setOf(
-        Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Return))),
-        Behavior.LongPress(
-            KeyAction.SymAction(
-                KeySym(FcitxKeyMapping.FcitxKey_Return),
-                KeyStates(KeyState.Shift)
-            )
-        ),
-        Behavior.Swipe(
-            KeyAction.SymAction(
-                KeySym(FcitxKeyMapping.FcitxKey_Return),
-                KeyStates(KeyState.Ctrl)
+        Behavior.Press(KeyAction.SymAction(KeySym(FcitxKeyMapping.FcitxKey_Return)))
+    ),
+    arrayOf(
+        Popup.Menu(
+            arrayOf(
+                Popup.Menu.Item(
+                    "Emoji", R.drawable.ic_baseline_tag_faces_24, KeyAction.PickerSwitchAction()
+                )
             )
         )
     ),
-//    arrayOf(
-//        Popup.Menu(
-//            arrayOf(
-//                Popup.Menu.Item(
-//                    "Emoji", R.drawable.ic_baseline_tag_faces_24, KeyAction.PickerSwitchAction()
-//                )
-//            )
-//        )
-//    ),
 )
 
 class ImageLayoutSwitchKey(
@@ -501,8 +317,7 @@ class NumPadKey(
     val sym: Int,
     textSize: Float = 16f,
     percentWidth: Float = 0.1f,
-    variant: Variant = Variant.Normal,
-    behaviors: Set<Behavior>? = null,
+    variant: Variant = Variant.Normal
 ) : KeyDef(
     Appearance.Text(
         displayText,
@@ -510,7 +325,7 @@ class NumPadKey(
         percentWidth = percentWidth,
         variant = variant
     ),
-    behaviors ?: setOf(
+    setOf(
         Behavior.Press(KeyAction.SymAction(KeySym(sym), NumLockState))
     )
 )

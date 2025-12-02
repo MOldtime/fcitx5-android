@@ -23,6 +23,7 @@ import org.fcitx.fcitx5.android.input.broadcast.ReturnKeyDrawableComponent
 import org.fcitx.fcitx5.android.input.dependency.fcitx
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.dependency.theme
+import org.fcitx.fcitx5.android.input.keyboard.textKeyboard.TextKeyboardManagement
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.popup.PopupActionListener
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
@@ -69,7 +70,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
 
     private val keyboards: HashMap<String, BaseKeyboard> by lazy {
         hashMapOf(
-            TextKeyboard.Name to TextKeyboard(context, theme),
+            TextKeyboardManagement.getPairKeyboard(context, theme),
             NumberKeyboard.Name to NumberKeyboard(context, theme)
         )
     }
@@ -93,7 +94,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
     // This will be called EXACTLY ONCE
     override fun onCreateView(): View {
         keyboardView = context.frameLayout(R.id.keyboard_view)
-        attachLayout(TextKeyboard.Name)
+        attachLayout(TextKeyboardManagement.getCurrentKeyboardName())
         return keyboardView
     }
 
@@ -122,7 +123,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         val target = to.ifEmpty { lastSymbolType }
         ContextCompat.getMainExecutor(service).execute {
             if (keyboards.containsKey(target)) {
-                if (remember && target != TextKeyboard.Name) {
+                if (remember && target != TextKeyboardManagement.getCurrentKeyboardName()) {
                     lastSymbolType = target
                 }
                 if (target == currentKeyboardName) return@execute
@@ -144,7 +145,7 @@ class KeyboardWindow : InputWindow.SimpleInputWindow<KeyboardWindow>(), Essentia
         val targetLayout = when (info.inputType and InputType.TYPE_MASK_CLASS) {
             InputType.TYPE_CLASS_NUMBER -> NumberKeyboard.Name
             InputType.TYPE_CLASS_PHONE -> NumberKeyboard.Name
-            else -> TextKeyboard.Name
+            else -> TextKeyboardManagement.getCurrentKeyboardName()
         }
         switchLayout(targetLayout, remember = false)
     }

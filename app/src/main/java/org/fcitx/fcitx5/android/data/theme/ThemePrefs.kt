@@ -14,6 +14,7 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceCategory
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreferenceEnum
+import org.fcitx.fcitx5.android.input.keyboard.textKeyboard.TextKeyboardManagement
 
 class ThemePrefs(sharedPreferences: SharedPreferences) :
     ManagedPreferenceCategory(R.string.theme, sharedPreferences) {
@@ -33,6 +34,12 @@ class ThemePrefs(sharedPreferences: SharedPreferences) :
         ui.registerUi()
         return pref
     }
+
+    val layoutSelect = enumList(
+        R.string.layout_select,
+        "layout_select",
+        TextKeyboardManagement.LayoutSelect.KeyLayout46
+    )
 
     val keyBorder = switch(R.string.key_border, "key_border", true)
 

@@ -326,4 +326,11 @@
     <string name="top_right">Top right</string>
     <string name="bottom_right">Bottom right</string>
     <string name="floating_candidates_position">Floating candidates position</string>
+    <string name="layout_select">Layout select</string>
+    <string name="layout_select_46key">46Key layout</string>
+    <string name="layout_select_45key">45Key layout</string>
+    <string name="layout_select_45key_numbers_below">45Key layout numbers below</string>
+    <string name="layout_select_43key">43Key layout</string>
+    <string name="layout_select_35key">35Key layout</string>
+    <string name="layout_select_26key">26Key layout</string>
 </resources>

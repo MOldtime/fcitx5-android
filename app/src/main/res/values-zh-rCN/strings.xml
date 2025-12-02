@@ -326,4 +326,11 @@
     <string name="top_right">右上</string>
     <string name="bottom_right">右下</string>
     <string name="floating_candidates_position">悬浮窗口位置</string>
+    <string name="layout_select">布局选择</string>
+    <string name="layout_select_46key">46键布局</string>
+    <string name="layout_select_45key">45键布局</string>
+    <string name="layout_select_45key_numbers_below">45键数字在下</string>
+    <string name="layout_select_43key">43键布局</string>
+    <string name="layout_select_35key">35键布局</string>
+    <string name="layout_select_26key">26键布局</string>
 </resources>

@@ -10,6 +10,8 @@ import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.core.ScancodeMapping
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Behavior
+import org.fcitx.fcitx5.android.input.keyboard.textKeyboard.NumPadKey
+import org.fcitx.fcitx5.android.input.keyboard.textKeyboard.TextKeyboardManagement
 import org.fcitx.fcitx5.android.input.picker.PickerWindow
 import org.fcitx.fcitx5.android.input.popup.PopupAction
 import splitties.views.imageResource
@@ -46,7 +48,7 @@ class NumberKeyboard(
                 BackspaceKey()
             ),
             listOf(
-                LayoutSwitchKey("ABC", TextKeyboard.Name),
+                LayoutSwitchKey("ABC", TextKeyboardManagement.getCurrentKeyboardName()),
                 NumPadKey(",", 0xffac, 23f, 0.1f, KeyDef.Appearance.Variant.Alternative),
                 LayoutSwitchKey("!?#", PickerWindow.Key.Symbol.name, 0.13333f, KeyDef.Appearance.Variant.AltForeground),
                 NumPadKey("0", 0xffb0, 30f, 0.23334f),

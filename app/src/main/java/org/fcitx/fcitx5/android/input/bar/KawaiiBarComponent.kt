@@ -171,6 +171,7 @@ class KawaiiBarComponent : UniqueViewComponent<KawaiiBarComponent, FrameLayout>(
             delay(timeout)
             isClipboardFresh = false
             clipboardTimeoutJob = null
+            evalIdleUiState()
         }
     }
 

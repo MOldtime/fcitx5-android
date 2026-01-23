@@ -90,6 +90,9 @@ class MainFragment : PaddingPreferenceFragment() {
                     R.drawable.ic_baseline_android_24,
                     SettingsRoute.Plugin
                 )
+                addPreference("声笔下载", icon = R.drawable.ic_baseline_more_horiz_24) {
+                    navigateWithAnim(SettingsRoute.Release)
+                }
                 addDestinationPreference(
                     R.string.advanced,
                     R.drawable.ic_baseline_more_horiz_24,

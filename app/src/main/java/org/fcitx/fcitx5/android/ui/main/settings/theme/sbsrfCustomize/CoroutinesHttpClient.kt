@@ -24,12 +24,13 @@ class CoroutinesHttpClient {
 
     suspend fun getReleases(pageToken: String?, pageSize: Int): RspReleaseData? {
         val url =
-            "$BASE_URL/external/v1/releases?file_token=${pageToken ?: ""}&page_size=${pageSize}"
+            "$BASE_URL/external/v1/releases?page_token=${pageToken ?: ""}&page_size=${pageSize}"
         val data = get(url)
         return data?.let {
             try {
                 return Json.decodeFromString<RspReleaseData>(it)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Timber.e(e)
                 null
             }
         }

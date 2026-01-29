@@ -29,7 +29,8 @@ class ReleasePagingSource(private val client: CoroutinesHttpClient) :
                             item.fileToken,
                             item.assetName,
                             item.convertVersion(),
-                            item.size
+                            item.size,
+                            item.preRelease
                         )
                     )
                 }

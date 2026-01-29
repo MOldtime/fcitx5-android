@@ -7,6 +7,9 @@ package org.fcitx.fcitx5.android.ui.main.settings.theme.sbsrfCustomize.data.RspR
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Serializable
 data class Item(
@@ -20,9 +23,15 @@ data class Item(
     val assetName: String,
     @SerialName("asset_id")
     val assetID: String,
+    @SerialName("pre_release")
+    val preRelease: Boolean,
+    @SerialName("create_time")
+    val createTime: Long,
     val size: Long
 ) {
     fun convertVersion(): String {
-        return "声笔: $releaseName"
+        return "声笔 " + Instant.ofEpochMilli(createTime)
+            .atZone(ZoneId.systemDefault())
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
     }
 }

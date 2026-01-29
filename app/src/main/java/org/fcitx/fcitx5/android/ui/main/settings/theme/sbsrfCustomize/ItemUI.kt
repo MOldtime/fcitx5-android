@@ -18,14 +18,17 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import org.fcitx.fcitx5.android.R
+import splitties.resources.color
 import splitties.views.onClick
 import splitties.views.onLongClick
 
 class ItemUI(context: Context) : LinearLayout(context) {
     lateinit var fileToken: String
-    lateinit var fileNameView: TextView
+    lateinit var fileVersionView: TextView
     lateinit var sizeView: TextView
     lateinit var downloadButton: Button
+    lateinit var channelTagView: TextView
     var url: String? = null
     var restore: Boolean = false
 
@@ -49,22 +52,36 @@ class ItemUI(context: Context) : LinearLayout(context) {
                 LayoutParams.MATCH_PARENT,
                 LayoutParams.WRAP_CONTENT
             )
-            setPadding(20, 10, 20, 10)
+            setPadding(20, 20, 20, 10)
         }
 
         val leftColumn = LinearLayout(context).apply {
             id = generateViewId()
             orientation = VERTICAL
-            fileNameView = TextView(context).apply {
-                textSize = 20f
-                setTextColor(Color.BLACK)
+            fileVersionView = TextView(context).apply {
+                textSize = 18f
+                setTextColor(color(R.color.sbxlm_version_text))
             }
-            sizeView = TextView(context).apply {
-                textSize = 14f
-                setTextColor(Color.GRAY)
+            addView(fileVersionView)
+            val row = LinearLayout(context).apply {
+                sizeView = TextView(context).apply {
+                    textSize = 14f
+                    setTextColor(color(R.color.sbxlm_size_text))
+                }
+                channelTagView = TextView(context).apply {
+                    layoutParams = LayoutParams(
+                        LayoutParams.WRAP_CONTENT,
+                        LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        leftMargin = dp(3)
+                    }
+                    textSize = 14f
+                    setPadding(10, 0, 10, 0)
+                }
+                addView(sizeView)
+                addView(channelTagView)
             }
-            addView(fileNameView)
-            addView(sizeView)
+            addView(row)
         }
         container.addView(leftColumn)
 
@@ -81,11 +98,18 @@ class ItemUI(context: Context) : LinearLayout(context) {
         container.addView(separator)
 
         downloadButton = Button(context).apply {
+//            layoutParams = LayoutParams(
+//                LayoutParams.WRAP_CONTENT,
+//                LayoutParams.WRAP_CONTENT
+//            ).apply {
+//                topMargin = 10
+//            }
             id = generateViewId()
-            setTextColor(Color.WHITE)
+            textSize = 15f
+            setTextColor(color(R.color.sbxlm_download_text))
             background = GradientDrawable().apply {
                 cornerRadius = 20f
-                setColor(Color.parseColor("#6750A4"))
+                setColor(color(R.color.sbxlm_download_background))
             }
         }
         container.addView(downloadButton)
@@ -152,14 +176,27 @@ class ItemUI(context: Context) : LinearLayout(context) {
         onLongClick: () -> Unit,
     ) {
         fileToken = data.fileToken
-        fileNameView.text = data.fileVersion
+        fileVersionView.text = data.fileVersion
         sizeView.text = data.convertSize()
+        setChannelTagView(data)
         restore(data, position)
         downloadButton.onClick {
             onClick(data, position)
         }
         downloadButton.onLongClick {
             onLongClick()
+        }
+    }
+
+    private fun setChannelTagView(data: ReleaseData) = channelTagView.apply {
+        val color = Color.parseColor(if (data.preRelease) "#FF836936" else "#FF297640")
+        text = if (data.preRelease) "预发布" else "正式版"
+        setTextColor(color)
+        background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setStroke(dp(1), color)
+            cornerRadius = 15f
+            setColor(Color.TRANSPARENT)
         }
     }
 

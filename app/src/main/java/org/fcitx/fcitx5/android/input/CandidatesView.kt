@@ -16,6 +16,7 @@ import android.view.WindowInsets
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.annotation.Size
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
@@ -110,6 +111,7 @@ class CandidatesView(
         val v = dp(itemPaddingVertical)
         val h = dp(itemPaddingHorizontal)
         setPadding(h, v, h, v)
+        typeface = ResourcesCompat.getFont(ctx, R.font.singbit)
     }
 
     private val preeditUi = PreeditUi(ctx, theme, setupTextView)

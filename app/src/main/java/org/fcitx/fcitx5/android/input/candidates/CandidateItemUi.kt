@@ -9,6 +9,8 @@ import android.content.Context
 import android.view.Gravity.CENTER_VERTICAL
 import android.view.View.GONE
 import android.widget.LinearLayout
+import androidx.core.content.res.ResourcesCompat
+import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import splitties.views.dsl.core.Ui
@@ -32,6 +34,7 @@ class CandidateItemUi(override val ctx: Context, theme: Theme) : Ui {
         isSingleLine = true
         gravity = gravityCenter
         setTextColor(theme.candidateCommentColor)
+        typeface = ResourcesCompat.getFont(ctx, R.font.singbit)
     }
 
     override val root = LinearLayout(ctx).apply {

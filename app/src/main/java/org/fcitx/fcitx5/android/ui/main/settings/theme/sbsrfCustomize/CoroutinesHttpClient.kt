@@ -19,7 +19,7 @@ class CoroutinesHttpClient {
     companion object {
 //        const val BASE_URL = "http://192.168.1.5:8080"
 
-        const val BASE_URL = "https://filemanager-zjsbgbierw.cn-chengdu.fcapp.run"
+        const val BASE_URL = "https://5b042a5455e0480fa806fc9483f9a8a1-cn-chengdu.alicloudapi.com"
     }
 
     suspend fun getReleases(pageToken: String?, pageSize: Int): RspReleaseData? {

@@ -19,17 +19,15 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.utils.appContext
-import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -45,18 +43,11 @@ class DownloadAndInstallService : Service() {
         private const val NOTIFICATION_ID = 1001
         private var downloadFileJob: Deferred<Boolean>? = null
         private var file: File? = null
-        private var position: Int? = null
-        private val sbxlmVersion = AppPrefs.getInstance().sbxlmVersion
+        private val _statusEvent = MutableStateFlow<DownloadState>(DownloadState.Idle)
+        val statusEvent = _statusEvent.asStateFlow()
 
-        var progressJob: Job? = null
-        private var status = sbxlmVersion.let {
-            val value = it.getValue()
-            if (value.isEmpty()) {
-                StatusData(Status.IDLE, null, null)
-            } else {
-                StatusData(Status.INSTALLED, value, null)
-            }
-        }
+        var fileToken: String? = null
+            private set
 
         // 启动服务的便捷方法
         fun start() {
@@ -76,37 +67,15 @@ class DownloadAndInstallService : Service() {
         }
     }
 
-    private var notifyItemStatusChanged: ((Int, Status) -> Unit)? = null
-    private var notifyItemProgressChanged: ((Int, Int) -> Unit)? = null
     private val serviceScope = CoroutineScope(Dispatchers.IO)
-    private fun setStatus(value: StatusData) {
-        if (value.status == Status.INSTALLED) {
-            sbxlmVersion.setValue(status.fileToken ?: "")
-        }
-        if (status.status != value.status) {
-            notifyItemStatusChanged(value.status)
-        }
-        status = value
-    }
-
-    private fun notifyItemStatusChanged(status: Status) {
-        position?.let {
-            serviceScope.launch {
-                withContext(Dispatchers.Main) {
-                    notifyItemStatusChanged?.invoke(it, status)
-                }
+    private suspend fun emit(value: DownloadState) {
+        when (value) {
+            is DownloadState.Idle -> {
+                fileToken = null
             }
+            else -> {}
         }
-    }
-
-    private fun notifyItemProgressChanged(progress: Int) {
-        position?.let {
-            serviceScope.launch {
-                withContext(Dispatchers.Main) {
-                    notifyItemProgressChanged?.invoke(it, progress)
-                }
-            }
-        }
+        _statusEvent.emit(value)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -129,11 +98,6 @@ class DownloadAndInstallService : Service() {
         return DownloadBinder()
     }
 
-    override fun onDestroy() {
-        Timber.d("Service: onDestroy")
-        super.onDestroy()
-    }
-
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -150,62 +114,9 @@ class DownloadAndInstallService : Service() {
         stopSelf()
     }
 
-    data class StatusData(
-        val status: Status,
-        val fileToken: String? = null,
-        val fileSize: Long? = null,
-        var currentDownload: Long? = null
-    )
-
     inner class DownloadBinder : Binder() {
 
-        private suspend fun progress() {
-            val flow = flow {
-                while (true) {
-                    emit(
-                        (((status.currentDownload ?: 0).toDouble() / (status.fileSize
-                            ?: 0).toDouble()) * 100).toInt()
-                    )
-                    delay(300)
-                }
-            }
-            flow.collect {
-                notifyItemProgressChanged(it)
-            }
-        }
-
-        private fun downloadTest(
-            fileToken: String,
-            fileName: String,
-            urlString: String,
-        ): Deferred<Boolean> = serviceScope.async() {
-            try {
-                setStatus(
-                    StatusData(
-                        Status.DOWNLOADING, fileToken, 100, 0
-                    )
-                )
-                progressJob = launch { progress() }
-                for (i in 0..100) {
-                    status.currentDownload = i.toLong()
-                    delay(100)
-                }
-                progressJob?.cancel()
-                setStatus(status.copy(status = Status.INSTALL))
-                return@async true
-            } catch (e: Exception) {
-                if (e is CancellationException) {
-                    progressJob?.cancel()
-                    setStatus(StatusData(Status.IDLE))
-                    throw e
-                }
-                e.printStackTrace()
-                false
-            }
-        }
-
         private fun download(
-            fileToken: String,
             fileName: String,
             urlString: String,
         ): Deferred<Boolean> = serviceScope.async(Dispatchers.IO) {
@@ -225,18 +136,19 @@ class DownloadAndInstallService : Service() {
 
                 val responseCode = connection.responseCode
                 if (responseCode == HttpURLConnection.HTTP_OK) {
-                    setStatus(
-                        StatusData(
-                            Status.DOWNLOADING, fileToken,
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                connection.contentLengthLong
-                            } else {
-                                connection.contentLength.toLong()
-                            }, 0
-                        )
-                    )
+                    val fileSize = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        connection.contentLengthLong
+                    } else {
+                        connection.contentLength.toLong()
+                    }
+                    var currentDownload = 0L
 
-                    progressJob = launch { progress() }
+                    val job = launch {
+                        while (fileSize > currentDownload) {
+                            emit(DownloadState.Downloading(((currentDownload.toDouble() / fileSize.toDouble()) * 100).toInt()))
+                            delay(300)
+                        }
+                    }
 
                     connection.inputStream.use { input ->
                         FileOutputStream(file).use { output ->
@@ -245,59 +157,55 @@ class DownloadAndInstallService : Service() {
                             while (input.read(buffer).also { bytesRead = it } != -1) {
                                 output.write(buffer, 0, bytesRead)
                                 yield()
-                                status.currentDownload = status.currentDownload?.plus(bytesRead)
+                                currentDownload += bytesRead
                             }
                         }
                     }
 
                     connection.disconnect()
-                    setStatus(status.copy(status = Status.INSTALL))
+                    job.cancel()
+                    emit(DownloadState.Downloaded)
                     return@async true
                 } else {
                     connection.disconnect()
-                    setStatus(StatusData(Status.IDLE))
+                    emit(DownloadState.Idle)
                     return@async false
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) {
                     file?.delete()
-                    setStatus(StatusData(Status.IDLE))
+                    emit(DownloadState.Idle)
                     throw e
                 }
                 e.printStackTrace()
                 return@async false
-            } finally {
-                progressJob?.cancel()
             }
         }
 
         suspend fun downloadFile(
-            fileToken: String,
+            newFileToken: String,
             fileName: String,
             urlString: String,
-            position: Int,
         ): Boolean = withContext(Dispatchers.IO) {
-            setPosition(position)
-            downloadFileJob = if (fileToken == status.fileToken) {
-                when (status.status) {
-                    Status.DOWNLOADING -> {
-                        progressJob?.cancel()
-                        progressJob = launch { progress() }
+            downloadFileJob = if (newFileToken == fileToken) {
+                when (statusEvent.value) {
+                    is DownloadState.Idle -> {
+                        download(fileName, urlString)
+                    }
+                    is DownloadState.Downloading -> {
                         downloadFileJob
                     }
-                    Status.INSTALL -> {
+                    is DownloadState.Downloaded -> {
                         return@withContext true
                     }
-                    Status.IDLE -> {
-                        download(fileToken, fileName, urlString)
-                    }
-                    Status.INSTALLED -> {
+                    is DownloadState.Installed -> {
                         return@withContext false
                     }
                 }
             } else {
+                fileToken = newFileToken
                 downloadFileJob?.cancelAndJoin()
-                download(fileToken, fileName, urlString)
+                download(fileName, urlString)
             }
             val result = downloadFileJob!!.await()
             downloadFileJob = null
@@ -341,21 +249,15 @@ class DownloadAndInstallService : Service() {
                 false
             }).also {
                 if (it) {
-                    setStatus(status.copy(status = Status.INSTALLED))
+                    fileToken?.let {
+                        emit(DownloadState.Installed(it))
+                    }
                 }
             }
         }
 
-        fun getStatus(): Status {
-            return status.status
-        }
-
-        fun getFileToken(): String? {
-            return status.fileToken
-        }
-
         fun cancelDownload() {
-            if (status.status == Status.DOWNLOADING) {
+            if (statusEvent.value is DownloadState.Downloading) {
                 serviceScope.launch {
                     downloadFileJob?.cancelAndJoin().let {
                         downloadFileJob = null
@@ -369,19 +271,9 @@ class DownloadAndInstallService : Service() {
             file?.delete().apply {
                 file = null
             }
-            setStatus(StatusData(Status.IDLE))
-        }
-
-        fun setPosition(newPosition: Int) {
-            position = newPosition
-        }
-
-        fun setNotifyItemStatusChanged(value: (Int, Status) -> Unit) {
-            notifyItemStatusChanged = value
-        }
-
-        fun setNotifyItemProgressChanged(value: (Int, Int) -> Unit) {
-            notifyItemProgressChanged = value
+            serviceScope.launch {
+                emit(DownloadState.Idle)
+            }
         }
     }
 }

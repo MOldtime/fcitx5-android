@@ -30,9 +30,8 @@ class ItemUI(context: Context) : LinearLayout(context) {
     lateinit var downloadButton: Button
     lateinit var channelTagView: TextView
     var url: String? = null
-    var restore: Boolean = false
 
-    var status = Status.IDLE
+    var status: DownloadState = DownloadState.Idle
         private set
 
     init {
@@ -171,26 +170,27 @@ class ItemUI(context: Context) : LinearLayout(context) {
     fun bindData(
         position: Int,
         data: ReleaseData,
-        restore: ItemUI.(data: ReleaseData, position: Int) -> Unit,
         onClick: ItemUI.(data: ReleaseData, position: Int) -> Unit,
         onLongClick: () -> Unit,
     ) {
-        fileToken = data.fileToken
-        fileVersionView.text = data.fileVersion
-        sizeView.text = data.convertSize()
-        setChannelTagView(data)
-        restore(data, position)
-        downloadButton.onClick {
-            onClick(data, position)
-        }
-        downloadButton.onLongClick {
-            onLongClick()
+        setDownloadButtonStatus(data.status)
+        if (!::fileToken.isInitialized || fileToken != data.fileToken) {
+            fileToken = data.fileToken
+            fileVersionView.text = data.fileVersion
+            sizeView.text = "${data.fileSize / 1024 / 1024} MB"
+            setChannelTagView(data.preRelease)
+            downloadButton.onClick {
+                onClick(data, position)
+            }
+            downloadButton.onLongClick {
+                onLongClick()
+            }
         }
     }
 
-    private fun setChannelTagView(data: ReleaseData) = channelTagView.apply {
-        val color = Color.parseColor(if (data.preRelease) "#FF836936" else "#FF297640")
-        text = if (data.preRelease) "预发布" else "正式版"
+    private fun setChannelTagView(preRelease: Boolean) = channelTagView.apply {
+        val color = Color.parseColor(if (preRelease) "#FF836936" else "#FF297640")
+        text = if (preRelease) "预发布" else "正式版"
         setTextColor(color)
         background = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
@@ -200,24 +200,24 @@ class ItemUI(context: Context) : LinearLayout(context) {
         }
     }
 
-    fun setProgress(progress: Int) {
-        downloadButton.text = "$progress %"
-    }
-
-    fun setDownloadButtonStatus(newStatus: Status) {
+    fun setDownloadButtonStatus(
+        newStatus: DownloadState
+    ) {
         status = newStatus
-        when (status) {
-            Status.IDLE -> {
+        when (newStatus) {
+            is DownloadState.Downloading -> {
+                downloadButton.text = "${newStatus.progress} %"
+            }
+            is DownloadState.Idle -> {
                 downloadButton.text = "下载"
             }
-            Status.INSTALL -> {
+            is DownloadState.Downloaded -> {
                 downloadButton.text = "安装"
             }
-            Status.INSTALLED -> {
+            is DownloadState.Installed -> {
                 downloadButton.text = "已安装"
                 downloadButton.isEnabled = false
             }
-            else -> {}
         }
     }
 }

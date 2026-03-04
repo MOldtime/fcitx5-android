@@ -11,8 +11,5 @@ data class ReleaseData(
     val fileVersion: String,
     val fileSize: Long,
     val preRelease: Boolean,
-) {
-    fun convertSize(): String {
-        return "${fileSize / 1024 / 1024} MB"
-    }
-}
+    var status: DownloadState,
+)

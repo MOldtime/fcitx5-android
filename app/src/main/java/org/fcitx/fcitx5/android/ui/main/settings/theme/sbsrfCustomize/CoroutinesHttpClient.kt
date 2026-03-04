@@ -8,11 +8,12 @@ package org.fcitx.fcitx5.android.ui.main.settings.theme.sbsrfCustomize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.fcitx.fcitx5.android.ui.main.settings.theme.sbsrfCustomize.data.RspReleaseData.RspReleaseData
 import org.fcitx.fcitx5.android.ui.main.settings.theme.sbsrfCustomize.data.RspTmpDownloadData.RspTmpDownloadData
 import timber.log.Timber
-import java.net.HttpURLConnection
-import java.net.URL
+import java.util.concurrent.TimeUnit
 
 class CoroutinesHttpClient {
 
@@ -20,6 +21,13 @@ class CoroutinesHttpClient {
 //        const val BASE_URL = "http://192.168.1.5:8080"
 
         const val BASE_URL = "https://5b042a5455e0480fa806fc9483f9a8a1-cn-chengdu.alicloudapi.com"
+
+        val client: OkHttpClient by lazy {
+            OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build()
+        }
     }
 
     suspend fun getReleases(pageToken: String?, pageSize: Int): RspReleaseData? {
@@ -53,55 +61,16 @@ class CoroutinesHttpClient {
         }
     }
 
-    suspend fun get(urlString: String): String? = withContext(Dispatchers.IO) {
-        val url = URL(urlString)
-        val connection = url.openConnection() as HttpURLConnection
-        try {
-            connection.requestMethod = "GET"
-            connection.connectTimeout = 10000
-            connection.readTimeout = 10000
-            connection.setRequestProperty("Content-Type", "application/json")
+    private suspend fun get(url: String): String? =
+        withContext(Dispatchers.IO) {
+            val request = Request.Builder()
+                .url(url)
+                .get()
+                .build()
 
-            val responseCode = connection.responseCode
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                connection.inputStream.bufferedReader().readText()
-            } else {
-                null
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@use null
+                response.body.string()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        } finally {
-            connection.disconnect()
         }
-    }
-
-    suspend fun post(urlString: String, json: String): String? = withContext(Dispatchers.IO) {
-        val url = URL(urlString)
-        val connection = url.openConnection() as HttpURLConnection
-        try {
-            connection.requestMethod = "POST"
-            connection.doOutput = true
-            connection.connectTimeout = 10000
-            connection.readTimeout = 10000
-            connection.setRequestProperty("Content-Type", "application/json")
-
-            connection.outputStream.use { output ->
-                output.write(json.toByteArray(Charsets.UTF_8))
-            }
-
-            val responseCode = connection.responseCode
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                connection.inputStream.bufferedReader().readText()
-            } else {
-                Timber.d("respose: ${responseCode}")
-                null
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        } finally {
-            connection.disconnect()
-        }
-    }
 }

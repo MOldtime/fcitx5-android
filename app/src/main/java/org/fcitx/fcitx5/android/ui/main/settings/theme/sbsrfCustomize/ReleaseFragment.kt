@@ -28,25 +28,16 @@ import org.fcitx.fcitx5.android.utils.toast
 
 class ReleaseFragment : Fragment() {
     private lateinit var adapter: ReleasePagingAdapter
-    private lateinit var viewModel: ReleaseViewModel
+    private lateinit var viewModel: ViewModel
     private lateinit var recyclerView: RecyclerView
     private var isBound = false
     private var binder: DownloadAndInstallService.DownloadBinder? = null
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(
-            name: ComponentName?,
-            service: IBinder?
+            name: ComponentName?, service: IBinder?
         ) {
             binder = service as DownloadAndInstallService.DownloadBinder
-            binder?.apply {
-                setNotifyItemStatusChanged { position, status ->
-                    adapter.notifyItemChanged(position, status)
-                }
-                setNotifyItemProgressChanged { position, progress ->
-                    adapter.notifyItemChanged(position, progress)
-                }
-            }
             isBound = true
         }
 
@@ -83,9 +74,7 @@ class ReleaseFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         recyclerView = RecyclerView(requireContext()).apply {
             layoutParams = ViewGroup.LayoutParams(
@@ -102,8 +91,9 @@ class ReleaseFragment : Fragment() {
         adapter = ReleasePagingAdapter().apply {
             setAdapter()
         }
-        viewModel = ReleaseViewModel()
+        viewModel = ViewModel()
         recyclerView.adapter = adapter
+        recyclerView.itemAnimator = null
         observePagingData()
     }
 
@@ -116,38 +106,24 @@ class ReleaseFragment : Fragment() {
             addView(progressBar)
         }
 
-        return AlertDialog.Builder(context)
-            .setView(container)
-            .setCancelable(false)
-            .create()
+        return AlertDialog.Builder(context).setView(container).setCancelable(false).create()
             .apply { show() }
     }
 
     private fun ReleasePagingAdapter.setAdapter() {
-        val startServiceAction = {
-            if (!isBound || binder == null) {
-                context?.let {
-                    DownloadAndInstallService.start()
-                }
-                bindService()
-            }
-            binder
-        }
-
         onClick = { data, position ->
             startServiceAction()?.let { binder ->
                 when (status) {
-                    Status.IDLE -> {
-                        val globalState = binder.getStatus()
-                        if (globalState == Status.DOWNLOADING) {
+                    is DownloadState.Idle -> {
+                        val globalState = DownloadAndInstallService.statusEvent.value
+                        if (globalState is DownloadState.Downloading) {
                             context.toast("已有文件在下载, 请点击暂停")
                             return@let
                         }
-                        if (globalState == Status.INSTALL) {
+                        if (globalState is DownloadState.Downloaded) {
                             AlertDialog.Builder(context)
                                 .setMessage("已有文件等待安装，这将会清除下载的文件并重新下载")
-                                .setTitle("是否继续")
-                                .setPositiveButton("继续下载") { _, _ ->
+                                .setTitle("是否继续").setPositiveButton("继续下载") { _, _ ->
                                     binder.reset()
                                     lifecycleScope.launch {
                                         val loadingDialog = showLoadingDialog()
@@ -156,21 +132,16 @@ class ReleaseFragment : Fragment() {
                                         loadingDialog.dismiss()
                                         url?.let {
                                             binder.downloadFile(
-                                                data.fileToken,
-                                                data.fileName,
-                                                it, position
+                                                data.fileToken, data.fileName, it
                                             )
                                         } ?: {
                                             context.toast("获取链接失败")
                                         }
                                     }
-                                }
-                                .setNeutralButton("取消") { _, _ -> }
-                                .create().show()
+                                }.setNeutralButton("取消") { _, _ -> }.create().show()
                         } else {
                             AlertDialog.Builder(context).setMessage("下载 ${data.fileVersion}")
-                                .setTitle("是否下载")
-                                .setPositiveButton("下载") { _, _ ->
+                                .setTitle("是否下载").setPositiveButton("下载") { _, _ ->
                                     lifecycleScope.launch {
                                         if (url == null) {
                                             val loadingDialog = showLoadingDialog()
@@ -180,36 +151,24 @@ class ReleaseFragment : Fragment() {
                                         }
                                         url?.let {
                                             binder.downloadFile(
-                                                data.fileToken,
-                                                data.fileName,
-                                                it, position
+                                                data.fileToken, data.fileName, it
                                             )
                                         } ?: {
                                             context.toast("获取下载链接失败")
                                         }
                                     }
-                                }
-                                .setNeutralButton("取消") { _, _ -> }.create().show()
+                                }.setNeutralButton("取消") { _, _ -> }.create().show()
                         }
                     }
-                    Status.DOWNLOADING -> {
-                        AlertDialog.Builder(context)
-                            .setMessage("这将删除已下载的文件")
-                            .setTitle("是否取消下载")
-                            .setPositiveButton("确认") { _, _ ->
+                    is DownloadState.Downloading -> {
+                        AlertDialog.Builder(context).setMessage("这将删除已下载的文件")
+                            .setTitle("是否取消下载").setPositiveButton("确认") { _, _ ->
                                 binder.cancelDownload()
-                                if (restore) {
-                                    setDownloadButtonStatus(Status.IDLE)
-                                }
-                            }
-                            .setNeutralButton("取消") { _, _ -> }
-                            .create().show()
+                            }.setNeutralButton("取消") { _, _ -> }.create().show()
                     }
-                    Status.INSTALL -> {
-                        AlertDialog.Builder(context)
-                            .setMessage("这将会覆盖你的现有配置")
-                            .setTitle("是否安装")
-                            .setPositiveButton("安装") { _, _ ->
+                    is DownloadState.Downloaded -> {
+                        AlertDialog.Builder(context).setMessage("这将会覆盖你的现有配置")
+                            .setTitle("是否安装").setPositiveButton("安装") { _, _ ->
                                 lifecycleScope.launch {
                                     val loadingDialog = showLoadingDialog()
                                     if (binder.installFile()) {
@@ -219,50 +178,20 @@ class ReleaseFragment : Fragment() {
                                     }
                                     loadingDialog.dismiss()
                                 }
-                            }
-                            .setNeutralButton("取消") { _, _ -> }
-                            .create().show()
+                            }.setNeutralButton("取消") { _, _ -> }.create().show()
                     }
                     else -> {}
                 }
             }
         }
 
-        restore = { data, position ->
-            lifecycleScope.launch {
-                startServiceAction()?.let { binder ->
-                    if (binder.getFileToken() == data.fileToken) {
-                        val globalState = binder.getStatus()
-                        lifecycleScope.launch {
-                            restore = true
-                            if (binder.downloadFile(
-                                    data.fileToken,
-                                    data.fileName,
-                                    "", position
-                                )
-                            ) {
-                                setDownloadButtonStatus(Status.INSTALL) // 通知会失效，所有在这里更新一下状态
-                            }
-                        }
-                        setDownloadButtonStatus(globalState)
-                    } else {
-                        setDownloadButtonStatus(Status.IDLE)
-                    }
-                }
-            }
-        }
-
         onLongClick = {
             startServiceAction()?.let { binder ->
-                if (binder.getStatus() == Status.INSTALL) {
-                    AlertDialog.Builder(context)
-                        .setMessage("删除已下载的文件")
-                        .setTitle("是否删除")
+                if (DownloadAndInstallService.statusEvent.value is DownloadState.Downloaded) {
+                    AlertDialog.Builder(context).setMessage("删除已下载的文件").setTitle("是否删除")
                         .setPositiveButton("删除") { _, _ ->
                             binder.reset()
-                        }
-                        .setNeutralButton("取消") { _, _ -> }
-                        .create().show()
+                        }.setNeutralButton("取消") { _, _ -> }.create().show()
                 }
             }
         }
@@ -271,10 +200,21 @@ class ReleaseFragment : Fragment() {
     private fun observePagingData() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.releases.collectLatest { pagingData ->
-                    adapter.submitData(pagingData)
-                }
+                viewModel.getReleases()
+                    .collectLatest { pagingData ->
+                        adapter.submitData(pagingData)
+                    }
             }
         }
+    }
+
+    private fun startServiceAction(): DownloadAndInstallService.DownloadBinder? {
+        if (!isBound || binder == null) {
+            context?.let {
+                DownloadAndInstallService.start()
+            }
+            bindService()
+        }
+        return binder
     }
 }

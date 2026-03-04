@@ -27,7 +27,6 @@ class ReleasePagingAdapter :
     }) {
 
     var onClick: (ItemUI.(data: ReleaseData, position: Int) -> Unit)? = null
-    var restore: (ItemUI.(data: ReleaseData, position: Int) -> Unit)? = null
     var onLongClick: (() -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -37,11 +36,10 @@ class ReleasePagingAdapter :
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = getItem(position)
-        if (item != null && onClick != null && restore != null) {
+        if (item != null && onClick != null && onLongClick != null) {
             (holder.itemView as ItemUI).bindData(
                 position,
                 item,
-                restore!!,
                 onClick!!,
                 onLongClick!!
             )
@@ -57,14 +55,9 @@ class ReleasePagingAdapter :
             super.onBindViewHolder(holder, position, payloads)
             return
         }
-        when (val value = payloads[0]) {
-            is Int -> {
-                (holder.itemView as ItemUI).setProgress(value)
-            }
-            is Status -> {
-                (holder.itemView as ItemUI).setDownloadButtonStatus(value)
-            }
-            else -> {}
+        val value = payloads[0]
+        if (value is DownloadState) {
+            (holder.itemView as ItemUI).setDownloadButtonStatus(value)
         }
     }
 

@@ -47,7 +47,6 @@ import splitties.views.dsl.core.add
 import splitties.views.dsl.core.withTheme
 import splitties.views.dsl.core.wrapContent
 import splitties.views.padding
-import timber.log.Timber
 import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")
@@ -205,7 +204,6 @@ class CandidatesView(
         val (horizontal, bottom, top) = anchorPosition
         val w: Int = width
         val h: Int = height
-        Timber.d("updatePosition: horizontal: $horizontal, bottom: $bottom, top: $top, parentWidth: $parentWidth, parentHeight: $parentHeight")
         val selfWidth = w.toFloat()
         val selfHeight = h.toFloat()
         val tX: Float = if (floatingWindow || !isVirtualKeyboard) {
@@ -243,9 +241,12 @@ class CandidatesView(
             }
         } else {
             // 外接
-            val height = height.toFloat()
-            val bottomCoordinate = bottom + selfHeight
-            if (bottomCoordinate < height) /*放下面*/ bottomCoordinate else (if (top < height) top else height) - selfHeight
+            val bottomLimit = parentHeight - bottomInsets
+            val bottomSpace = bottomLimit - bottom
+            if (
+                bottom + selfHeight > bottomLimit   // bottom space is not enough
+                && top > bottomSpace                // top space is larger than bottom
+            ) top - selfHeight else bottom
         }
 
         translationX = tX
@@ -273,14 +274,12 @@ class CandidatesView(
         anchorPosition[0] = 0f
         anchorPosition[1] = height
         anchorPosition[2] = height
-        Timber.d("setCursorAnchor: height: $height")
     }
 
     fun setParentSize(width: Int, y: Float) {
         if (width <= 0 || y <= 0f) return
         parentSize[0] = width.toFloat()
         parentSize[1] = y
-        Timber.d("setParentSize: width: ${parentSize[0]}, height: ${parentSize[1]}")
     }
 
     fun clean() {

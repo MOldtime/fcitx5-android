@@ -38,6 +38,8 @@ class InputDeviceManager(private val onChange: (Boolean, Boolean, Boolean) -> Un
                 })
 //                refreshWithCachedEvents()
                 visibility = View.VISIBLE
+            } else {
+                visibility = View.GONE
             }
         }
     }

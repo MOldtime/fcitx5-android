@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ SPDX-License-Identifier: LGPL-2.1-or-later
+  ~ SPDX-FileCopyrightText: Copyright 2026 Fcitx5 for Android Contributors
+  -->
+
+<resources>
+    <color name="sbxlm_download_background">#FF009788</color>
+    <color name="sbxlm_download_text">#FFEDFFFF</color>
+    <color name="sbxlm_version_text">#FFD2D2D2</color>
+    <color name="sbxlm_size_text">#FF8E8E8E</color>
+</resources>

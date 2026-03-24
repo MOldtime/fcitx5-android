@@ -34,6 +34,7 @@ import org.fcitx.fcitx5.android.ui.main.settings.global.GlobalConfigFragment
 import org.fcitx.fcitx5.android.ui.main.settings.im.InputMethodConfigFragment
 import org.fcitx.fcitx5.android.ui.main.settings.im.InputMethodListFragment
 import org.fcitx.fcitx5.android.ui.main.settings.theme.ThemeFragment
+import org.fcitx.fcitx5.android.ui.main.settings.theme.sbsrfCustomize.ReleaseFragment
 import org.fcitx.fcitx5.android.utils.config.ConfigDescriptor
 import org.fcitx.fcitx5.android.utils.parcelable
 import kotlin.reflect.typeOf
@@ -94,6 +95,9 @@ sealed class SettingsRoute : Parcelable {
 
     @Serializable
     data object About : SettingsRoute()
+
+    @Serializable
+    data object Release : SettingsRoute()
 
     /* ========== External ========== */
 
@@ -233,6 +237,9 @@ sealed class SettingsRoute : Parcelable {
             }
             fragment<AboutFragment, About> {
                 label = ctx.getString(R.string.about)
+            }
+            fragment<ReleaseFragment, Release> {
+                label = "声笔方案下载"
             }
 
             /* ========== External ========== */
